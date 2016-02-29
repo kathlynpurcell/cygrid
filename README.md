@@ -37,7 +37,7 @@ required:
 * `cython 0.23.4` or later
 * `astropy 1.0` or later
 
-(Older versions of these libraries may work, but we did not test this!)
+(Older versions of these libraries may work, but we didn't test this!)
 
 ### Examples ###
 
