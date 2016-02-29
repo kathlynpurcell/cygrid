@@ -27,7 +27,7 @@ and simply execute
 python setup.py install
 ```
 
-In the future, we will make sure you can use pip to install the package
+In the future, we will make sure you can use pip to install the package.
 
 ### Dependencies ###
 
