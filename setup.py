@@ -97,8 +97,12 @@ KERNEL_EXT = Extension(
 setup(
     name='cygrid',
     version="0.9",
-    author="Benjamin Winkel, Lars Floeer, Daniel Lenz",
+    author="Benjamin Winkel, Lars Flöer, Daniel Lenz",
     author_email="bwinkel@mpifr.de",
+    description=(
+        "Cygrid is a cython-powered convolution-based gridding module "
+        "for astronomy"
+        ),
     packages=['cygrid'],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
@@ -108,4 +112,7 @@ setup(
         HPRB_EXT,
         GRID_EXT,
     ],
+    url = 'https://github.com/bwinkel/cygrid/',
+    download_url = 'https://github.com/bwinkel/cygrid/tarball/0.9',
+    keywords=['astronomy', 'gridding', 'fits/wcs']
 )
