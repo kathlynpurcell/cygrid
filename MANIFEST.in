@@ -1,0 +1,8 @@
+recursive-include cygrid *.cpp
+recursive-include cygrid *.h
+recursive-include cygrid *.pyx
+recursive-include cygrid *.pxd
+recursive-include cygrid *.py
+exclude cygrid/cygrid_simple.pyx
+exclude .gitignore .git build
+include COPYING CITATION INSTALL.rst README.md MANIFEST.in

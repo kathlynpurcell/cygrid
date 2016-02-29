@@ -1,0 +1,7 @@
+Use of the cygrid software package should be explicitly acknowledged in all publications in the following form:
+
+* an acknowledgment statement – "Some of the results in this paper have been derived using the cygrid package (TODO)"
+
+BibTeX record:
+
+@ARTICLE{TODO}
