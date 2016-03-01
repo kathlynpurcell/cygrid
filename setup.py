@@ -31,11 +31,11 @@ for (pkg, minversion) in dependencies:
                     'might not be sufficient'
                     )
     except ImportError:
-        print 'Package', pkg, 'not present.'
+        print('Package', pkg, 'not present.')
         sys.exit(1)
     except ValueError:
-        print 'Package', pkg, 'has version', m.__version__
-        print 'Version', minversion, 'required.'
+        print('Package', pkg, 'has version', m.__version__)
+        print('Version', minversion, 'required.')
         sys.exit(1)
 
 
