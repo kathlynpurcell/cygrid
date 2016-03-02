@@ -50,5 +50,4 @@ If you encounter any problems or have questions, do not hesitate to raise an
 issue or make a pull request. Moreover, you can contact the devs directly:
 
 * <bwinkel@mpifr.de>
-* <mail@lfloeer.de>
 * <dlenz.bonn@gmail.com>
