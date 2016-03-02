@@ -41,9 +41,8 @@ required:
 
 ### Examples ###
 
-Check out the `ipython notebooks` in the repository for some examples of how to
-use `cygrid`. In addition to the `cygrid` dependencies, you will need `healpy`
-to run these.
+Check out the [`ipython notebooks`](http://nbviewer.jupyter.org/github/bwinkel/cygrid/blob/master/notebooks/index.ipynb) in the repository for some examples of how to
+use `cygrid`. Note that you only view them on the nbviewer service, and will have to clone the repository to run them on your machine.
 
 ### Who do I talk to? ###
 
