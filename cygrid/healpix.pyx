@@ -412,6 +412,22 @@ cdef class Healpix(object):
 
         return self._pix2ring(pix)
 
+    def pix2ring_many(self, long[::1] pix):
+
+        cdef:
+
+            np.ndarray[long, ndim=1] rings = np.empty(
+                (pix.size,), dtype=np.int64
+                )
+            long[::1] rings_v = rings
+            long i
+
+        for i in range(pix.size):
+
+            rings_v[i] = <long> self._pix2ring(pix[i])
+
+        return rings
+
     cdef uint64_t _loc2pix(
             self,
             double z,
@@ -554,6 +570,22 @@ cdef class Healpix(object):
             raise ValueError('Invalid theta value.')
 
         return self._ang2pix(theta, phi)
+
+    def ang2pix_many(self, double[::1] theta, double[::1] phi):
+
+        cdef:
+
+            np.ndarray[long, ndim=1] hpx = np.empty(
+                (theta.size,), dtype=np.int64
+                )
+            long[::1] hpx_v = hpx
+            long i
+
+        for i in range(theta.size):
+
+            hpx_v[i] = <long> self._ang2pix(theta[i], phi[i])
+
+        return hpx
 
     cdef void _pix2loc (
             self,
@@ -721,6 +753,29 @@ cdef class Healpix(object):
             double phi, theta
 
         self._pix2ang(pix, theta, phi)
+        return theta, phi
+
+    def pix2ang_many(self, long[::1] pix):
+
+        cdef:
+
+            np.ndarray[double, ndim=1] theta = np.empty(
+                (pix.size,), dtype=np.float64
+                )
+            np.ndarray[double, ndim=1] phi = np.empty(
+                (pix.size,), dtype=np.float64
+                )
+            double[::1] theta_v = theta
+            double[::1] phi_v = phi
+            double _t, _p
+            long i
+
+        for i in range(pix.size):
+
+            self._pix2ang(pix[i], _t, _p)
+            theta[i] = _t
+            phi[i] = _p
+
         return theta, phi
 
     cdef vector[uint64_t] _query_disc_phi180(
