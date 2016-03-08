@@ -96,7 +96,7 @@ KERNEL_EXT = Extension(
 
 setup(
     name='cygrid',
-    version="0.9",
+    version="0.9.2",
     author="Benjamin Winkel, Lars Flöer, Daniel Lenz",
     author_email="bwinkel@mpifr.de",
     description=(
