@@ -342,7 +342,7 @@ cdef void print_time_info(vector[TimingInfo] timing_info):
     # print('Timing info size', timing_info.size())
     for i in range(1, timing_info.size()):
         print('{:60s} {:6d} s ({:s})'.format(
-            timing_info.at(i).info,
+            timing_info.at(i).info.decode('ascii'),
             timing_info.at(i).curtime - first_time
             if timing_info.at(i).parstate == P_TOTAL else
             timing_info.at(i).curtime - last_time,
