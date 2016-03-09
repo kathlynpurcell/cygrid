@@ -5,7 +5,7 @@
 
 # Purpose#
 
-`cygrid` allows to resample a number of spectra (or data points) to a regular grid - a data cube - using any valid astronomical FITs/WCS projection (see http://docs.astropy.org/en/stable/wcs/).
+`cygrid` allows to resample a number of spectra (or data points) to a regular grid - a data cube - using any valid astronomical FITS/WCS projection (see http://docs.astropy.org/en/stable/wcs/).
 
 The method is a based on serialized convolution with finite gridding kernels. Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided (which has the drawback of slight degradation of the effective resolution). The algorithm has very small memory footprint, allows easy parallelization, and is very fast.
 
@@ -20,7 +20,7 @@ The method is a based on serialized convolution with finite gridding kernels. Cu
 
 ### Installation ###
 
-The most easy way to install cygrid is via `pip`:
+The easiest way to install cygrid is via `pip`:
 
 ```
 pip install cygrid
