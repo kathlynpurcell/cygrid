@@ -883,7 +883,7 @@ cdef class Healpix(object):
             dring += 1
             ring = disc_ring + dring
 
-            if ring >= self._nrings:
+            if ring > self._nrings:
                 # need to sanitize, because the cdef'ed methods don't check
                 break
 
