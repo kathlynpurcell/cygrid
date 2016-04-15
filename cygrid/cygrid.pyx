@@ -725,10 +725,10 @@ cdef class WcsGrid(Cygrid):
             print(
                 '-> left lon: {:.6f} right lon {:.6f}\n'
                 '-> top lat: {:.6f} bottom lat {:.6f}'.format(
-                    self.xwcs[self.xwcs.shape[1] / 2, 0],
-                    self.xwcs[self.xwcs.shape[1] / 2, -1],
-                    self.ywcs[0, self.xwcs.shape[0] / 2],
-                    self.ywcs[-1, self.xwcs.shape[0] / 2],
+                    self.xwcs[self.xwcs.shape[0] / 2, 0],
+                    self.xwcs[self.xwcs.shape[0] / 2, -1],
+                    self.ywcs[0, self.xwcs.shape[1] / 2],
+                    self.ywcs[-1, self.xwcs.shape[1] / 2],
                     )
                 )
 
