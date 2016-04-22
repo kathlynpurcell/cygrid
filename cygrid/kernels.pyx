@@ -36,7 +36,6 @@ from .constants cimport PI
 
 
 __all__ = []
-# __all__ = ['gaussian_1d']
 
 
 cdef double sinc(double x) nogil:
@@ -48,7 +47,6 @@ cdef double sinc(double x) nogil:
         return 1.
     else:
         return sin(x) / x
-
 
 
 cdef double gaussian_1d_kernel(
@@ -149,5 +147,3 @@ cdef double tapered_sinc_1d_kernel(
     arg = PI * distance / kernel_params[0]
 
     return sinc(arg / kernel_params[2]) * exp(-(arg / kernel_params[1]) ** 2)
-
-

@@ -40,8 +40,8 @@ for (pkg, minversion) in dependencies:
 
 
 GRID_EXT = Extension(
-    "cygrid.cygrid",
-    ["cygrid/cygrid.pyx"],
+    'cygrid.cygrid',
+    ['cygrid/cygrid.pyx'],
     extra_compile_args=['-fopenmp', '-O3', '-std=c++11'] + EX_COMP_ARGS,
     extra_link_args=['-fopenmp'],
     language='c++',
@@ -51,8 +51,8 @@ GRID_EXT = Extension(
 )
 
 HELPER_EXT = Extension(
-    "cygrid.helpers",
-    ["cygrid/helpers.pyx"],
+    'cygrid.helpers',
+    ['cygrid/helpers.pyx'],
     extra_compile_args=['-fopenmp', '-O3', '-std=c++11'] + EX_COMP_ARGS,
     extra_link_args=['-fopenmp'],
     language='c++',
@@ -62,8 +62,8 @@ HELPER_EXT = Extension(
 )
 
 HPX_EXT = Extension(
-    "cygrid.healpix",
-    ["cygrid/healpix.pyx"],
+    'cygrid.healpix',
+    ['cygrid/healpix.pyx'],
     extra_compile_args=['-fopenmp', '-O3', '-std=c++11'] + EX_COMP_ARGS,
     extra_link_args=['-fopenmp'],
     language='c++',
@@ -72,9 +72,9 @@ HPX_EXT = Extension(
     ]
 )
 
-HPRB_EXT = Extension(
-    "cygrid.hprainbow",
-    ["cygrid/hprainbow.pyx"],
+HPHASH_EXT = Extension(
+    'cygrid.hphashtab',
+    ['cygrid/hphashtab.pyx'],
     extra_compile_args=['-fopenmp', '-O3', '-std=c++11'] + EX_COMP_ARGS,
     extra_link_args=['-fopenmp'],
     language='c++',
@@ -84,8 +84,8 @@ HPRB_EXT = Extension(
 )
 
 KERNEL_EXT = Extension(
-    "cygrid.kernels",
-    ["cygrid/kernels.pyx"],
+    'cygrid.kernels',
+    ['cygrid/kernels.pyx'],
     extra_compile_args=['-fopenmp', '-O3', '-std=c++11'] + EX_COMP_ARGS,
     extra_link_args=['-fopenmp'],
     language='c++',
@@ -96,12 +96,12 @@ KERNEL_EXT = Extension(
 
 setup(
     name='cygrid',
-    version="0.9.2",
-    author="Benjamin Winkel, Lars Flöer, Daniel Lenz",
-    author_email="bwinkel@mpifr.de",
+    version='0.9.3',
+    author='Benjamin Winkel, Lars Flöer, Daniel Lenz',
+    author_email='bwinkel@mpifr.de',
     description=(
-        "Cygrid is a cython-powered convolution-based gridding module "
-        "for astronomy"
+        'Cygrid is a cython-powered convolution-based gridding module '
+        'for astronomy'
         ),
     packages=['cygrid'],
     cmdclass={'build_ext': build_ext},
@@ -109,10 +109,10 @@ setup(
         KERNEL_EXT,
         HELPER_EXT,
         HPX_EXT,
-        HPRB_EXT,
+        HPHASH_EXT,
         GRID_EXT,
     ],
-    url = 'https://github.com/bwinkel/cygrid/',
-    download_url = 'https://github.com/bwinkel/cygrid/tarball/0.9',
+    url='https://github.com/bwinkel/cygrid/',
+    download_url='https://github.com/bwinkel/cygrid/tarball/0.9.3',
     keywords=['astronomy', 'gridding', 'fits/wcs']
 )

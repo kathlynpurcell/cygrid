@@ -6,7 +6,7 @@
 
 # ####################################################################
 #
-# title                  :hprainbow.pxd
+# title                  :hphashtab.pxd
 # description            :Hash tables based on Healpix helper class.
 # author                 :Benjamin Winkel, Lars Flöer & Daniel Lenz
 #
@@ -56,7 +56,7 @@ from .healpix cimport Healpix
 from .helpers cimport TimingInfo, P_SINGLE, P_MULTI, P_TOTAL
 
 
-cdef class HpxRainbow(Healpix):
+cdef class HpxHashTable(Healpix):
 
     cdef:
         # key: HPX index, values: lists of target pixel pairs (as integer hash)

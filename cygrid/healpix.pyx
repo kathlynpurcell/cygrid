@@ -97,6 +97,7 @@ from .constants cimport NESTED, RING, MAX_Y
 from .constants cimport DEG2RAD, RAD2DEG
 from .constants cimport PI, TWOTHIRD, TWOPI, HALFPI, INV_TWOPI, INV_HALFPI
 
+
 cdef class Healpix(object):
     '''
     Helper class for HEALPix operations.
@@ -287,7 +288,8 @@ cdef class Healpix(object):
 
         # Note: we need to use the idiom (&refval)[0] to modifiy the
         # call-by-reference values
-        # otherwise a compiler error "Assignment to reference 'value'" is thrown
+        # otherwise a compiler error "Assignment to reference 'value'"
+        # is thrown
 
         if ring < self._nside:
 
@@ -506,7 +508,6 @@ cdef class Healpix(object):
 
             ir = jp + jm + 1  # ring number counted from the closest pole
             ip = <uint64_t> (tt * ir)  # in {0,4*ir-1}
-            #assert ip >= 0 and ip < 4*ir, 'must not happen'
 
             if z > 0:
                 return 2 * ir * (ir - 1) + ip
@@ -660,11 +661,6 @@ cdef class Healpix(object):
             _z = (2. * self._nside - iring) * self._fact1
             _phi = (iphi - fodd) * PI * 0.75 * self._fact1
 
-            # with gil:
-            #     print(nl4, ip, itmp, self._nside, self._order)
-            #     print(iring, iphi, fodd, self._fact1)
-            #     print(2 * (<int64_t> self._nside) - (<int64_t> iring))
-            #     print(_z, _phi, _sin_theta, _have_sin_theta)
         else:
 
             # South Polar cap
@@ -719,7 +715,6 @@ cdef class Healpix(object):
         else:
             (&theta)[0] = acos(_z)
             (&phi)[0] = _phi
-
 
     def pix2ang(self, uint64_t pix):
         '''
@@ -833,18 +828,11 @@ cdef class Healpix(object):
         disc_phi = PI
 
         utheta = disc_theta - disc_size_rad
-        # with gil:
-        #     print(ring, startpix, num_pix_in_ring, shifted)
-        #     print(startpix + num_pix_in_ring // 2, disc_theta, disc_phi)
-        #     print(utheta, disc_theta, disc_size_rad)
 
         if utheta < 1.e-30:
             utheta = 1.e-30
         startpix = self._ang2pix(utheta, PI)
         dring = self._pix2ring(startpix) - ring + 2
-
-        # with gil:
-        #     print(utheta, startpix, self._pix2ring(startpix), dring)
 
         # find the ring index of the upper edge of the sphere
         # note, this will be the smallest ring index in sphere (North)
@@ -861,9 +849,6 @@ cdef class Healpix(object):
 
             if d > disc_size_rad:
                 break
-
-        # with gil:
-        #     print(theta, startpix, self._pix2ring(startpix), dring)
 
         # now, starting from the Northern edge, go down ring by ring
         # for each ring, compute the best candidate for the left edge, using
@@ -921,9 +906,6 @@ cdef class Healpix(object):
             if ip > mid_pixel:
                 ip = 0
 
-            # with gil:
-            #     print(ring, dring, theta, d, z, ip, mid_pixel)
-
             # search until angular distance is larger than disc_radius
             while mid_pixel - ip >= startpix:
                 self._pix2ang(mid_pixel - ip, theta, phi)
@@ -939,7 +921,6 @@ cdef class Healpix(object):
 
                 if d > disc_size_rad:
                     break
-
 
             # using symmetry, we don't need to compute the right edges
             # depending on a shift of the phi=180d pixel, we need to subtract 1
@@ -1029,17 +1010,12 @@ cdef class Healpix(object):
 
         disc_indices_vec = self._query_disc_phi180(disc_size_rad, ring)
 
-        # for i in prange(
-        #         disc_indices_vec.size(),
-        #         nogil=True, schedule='static', chunksize=50
-        #         ):
         for i in range(disc_indices_vec.size()):
 
             hpxidx = disc_indices_vec[i]
             ring = self._pix2ring(hpxidx)
             self._get_ring_info_small(ring, startpix, num_pix_in_ring, shifted)
 
-            # self._pix2ang(hpxidx)
             dphi = phi - PI
             pix_in_ring = hpxidx - startpix
 
@@ -1087,4 +1063,3 @@ cdef class Healpix(object):
             disc_indices[i] = disc_indices_vec[i]
 
         return disc_indices
-

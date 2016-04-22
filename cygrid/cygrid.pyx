@@ -93,11 +93,11 @@ FLOAT64 = np.dtype(np.float64)
 
 __all__ = ['WcsGrid', 'SlGrid']
 
-#from .cppsupport cimport unordered_map
+
 from .kernels cimport (
     gaussian_1d_kernel, gaussian_2d_kernel, tapered_sinc_1d_kernel
     )
-from .hprainbow cimport HpxRainbow
+from .hphashtab cimport HpxHashTable
 from .helpers cimport (
     ustring, ilog2, isqrt, fmodulo, nside_to_order,
     npix_to_nside, true_angular_distance, great_circle_bearing
@@ -106,38 +106,16 @@ from .constants cimport NESTED, RING, MAX_Y
 from .constants cimport DEG2RAD, RAD2DEG
 from .constants cimport PI, TWOTHIRD, TWOPI, HALFPI, INV_TWOPI, INV_HALFPI
 
+
 # Define maximal y-size of pixel indices
 #  this is necessary to have a quick'n'dirty hash for the xpix-ypix pairs
 #  otherwise we would need to provide a hash function to unordered_map,
-#cdef uint64_t MAX_Y = 2**30
 DEF MAX_Y = 2**30
-
-## Constants needed for HPX
-#DEF NESTED = 1
-#DEF RING = 2
-
-#DEF PI = 3.1415926535897932384626433832
-#DEF TWOTHIRD = 2.0 / 3.0
-#DEF TWOPI = 2 * PI
-#DEF HALFPI = PI / 2.
-#DEF INV_TWOPI = 1.0 / TWOPI
-#DEF INV_HALFPI = 1. / HALFPI
-#DEF DEG2RAD = PI / 180.
-#DEF RAD2DEG = 180. / PI
 
 # define function pointers (1D and 2D), to allow user-chosen kernels
 # double distance, double bearing, double[::1] kernel_params)
 # (use bearing=NULL for 1D kernels)
 ctypedef double (*kernel_func_ptr_t)(double, double, double[::1]) nogil
-
-
-
-# define some custom exception classes
-class ShapeError(Exception):
-    '''
-    This exception is for mismatches of WCS header and actual data cube
-    sizes or input data sizes.
-    '''
 
 
 # define some helper functions
@@ -148,6 +126,15 @@ def eprint():
 
     print(sys.exc_info()[1])
     print(traceback.print_tb(sys.exc_info()[2]))
+
+
+# define some custom exception classes
+class ShapeError(Exception):
+    '''
+    This exception is for mismatches of WCS header and actual data cube
+    sizes or input data sizes.
+    '''
+
 
 cdef class Cygrid(object):
     '''
@@ -201,10 +188,9 @@ cdef class Cygrid(object):
         np.ndarray kernel_params_arr
 
         # helper lookup tables for faster processing are wrapped in
-        #  the HpxRainbow class; see associated docs for more information
-        HpxRainbow my_hpx_rainbow
+        #  the HpxHashTable class; see associated docs for more information
+        HpxHashTable my_hpx_hashtab
         bint dbg_messages
-
 
     def __init__(self, *args, **kwargs):
         # Constructor will initalize necessary cube/weights arrays, setup cube
@@ -214,7 +200,7 @@ cdef class Cygrid(object):
         if 'dbg_messages' in kwargs:
             self.dbg_messages = kwargs['dbg_messages']
 
-        self.my_hpx_rainbow = HpxRainbow(dbg_messages=self.dbg_messages)
+        self.my_hpx_hashtab = HpxHashTable(dbg_messages=self.dbg_messages)
 
         self.last_sphere_radius = -1.
         self.last_hpxmaxres = -1.
@@ -227,7 +213,7 @@ cdef class Cygrid(object):
         '''
         Change maximum number of threads to use.
 
-        This is a convencience function, to call omp_set_num_threads(),
+        This is a convenience function, to call omp_set_num_threads(),
         which is not possible during runtime from python.
         '''
 
@@ -362,12 +348,11 @@ cdef class Cygrid(object):
         if (
                 abs(self.last_sphere_radius - sphere_radius) > 3e-5 or
                 abs(self.last_hpxmaxres - hpx_max_resolution) > 3e-5  # or
-                # np.any(np.abs(self.last_kparams - kernel_params_arr) > 3e-5)
                 ):
             # prepare_helpers needs only to be called, if the internal
             # hpx representation needs a change, e.g., if necessary resolution
             # has changed or if sphere radius is different (need empty cache)
-            self.my_hpx_rainbow.prepare_helpers(
+            self.my_hpx_hashtab.prepare_helpers(
                 hpx_max_resolution,
                 self.xpix_f,
                 self.ypix_f,
@@ -376,11 +361,10 @@ cdef class Cygrid(object):
                 )   # this will also wipe disks cache
             self.last_sphere_radius = sphere_radius
             self.last_hpxmaxres = hpx_max_resolution
-            # self.last_kparams = kernel_params_arr
 
         self.sphere_radius = sphere_radius
         self.disc_size = (
-            DEG2RAD * sphere_radius + self.my_hpx_rainbow.resolution
+            DEG2RAD * sphere_radius + self.my_hpx_hashtab.resolution
             )
         if self.dbg_messages:
             print(
@@ -388,7 +372,7 @@ cdef class Cygrid(object):
                     RAD2DEG * self.disc_size * 60.
                 ))
 
-    # This is just a thin wrapper around _cgrid to allow default-arg handling
+    # This is just a thin wrapper around _grid to allow default-arg handling
     # and streamlining/sanity checking the inputs
     def grid(
             self,
@@ -404,7 +388,7 @@ cdef class Cygrid(object):
 
         Parameters
         ----------
-        lons/lats : numpy.ndarray (float64), 1D
+        lons, lats : numpy.ndarray (float64), 1D
             Flat lists of coordinates.
         data/weights : numpy.ndarray (float32 or float64), 2D
             The spectra and their weights for each of the given coordinate
@@ -475,8 +459,6 @@ cdef class Cygrid(object):
         lons = lons.astype(d64.dtype.str, copy=False)
         lats = lats.astype(d64.dtype.str, copy=False)
 
-        # print(dtype, data.dtype.str, weights.dtype.str, lons.dtype.str, lats.dtype.str)
-
         self._grid(lons, lats, data, weights)
 
     def _grid(
@@ -487,10 +469,6 @@ cdef class Cygrid(object):
             cython.floating[:, :] weights not None,
             ):
 
-
-        # if cython.floating is double and self.datacube.dtype != np.float64:
-        #     self.datacube = self.datacube.astype(np.float64)
-        #     self.weightscube = self.weightscube.astype(np.float64)
 
         cdef:
             uint64_t z, y, x, i, j, k
@@ -509,7 +487,7 @@ cdef class Cygrid(object):
             # one could have race conditions (during write access) because
             # multiple input positions could contribute to the same target
             # pixel
-            # building the lookup-tables is wrapped in the hpx_rainbow
+            # building the lookup-tables is wrapped in the HpxHashTable
             # helper class
             unordered_map[uint64_t, vector[uint64_t]] output_input_mapping
             vector[uint64_t] output_pixels
@@ -520,8 +498,6 @@ cdef class Cygrid(object):
             double l1, l2, b1, b2, sinbdiff, sinldiff
             double sdist, sbear, sweight, tweight
 
-            # double (*kernel_func_ptr)(double, double, double[::1]) nogil
-
             # make local copies for faster lookup
             double disc_size = self.disc_size
             double sphere_radius = self.sphere_radius
@@ -529,13 +505,12 @@ cdef class Cygrid(object):
             kernel_func_ptr_t kernel_func_ptr = self.kernel_func_ptr
             double[::1] kernel_params_v = self.kernel_params_arr
 
-
         if self.dbg_messages:
             print('Gridding {} spectra in datacube...'.format(len(data)))
 
         # calculate_output_pixels must be called everytime new input
         # coordinates are to be processed
-        self.my_hpx_rainbow.calculate_output_pixels(
+        self.my_hpx_hashtab.calculate_output_pixels(
             lons,
             lats,
             disc_size,
@@ -570,7 +545,6 @@ cdef class Cygrid(object):
 
                 if sdist < sphere_radius:
                     _goodpix += 1
-                    # sweight = exp(sdist*sdist / -2. / kernelsigmasq)
                     sweight = kernel_func_ptr(
                         sdist, sbear, kernel_params_v
                         )
@@ -623,13 +597,14 @@ cdef class WcsGrid(Cygrid):
         dbg_messages: do debugging output
         datacube : floating-point numpy.ndarray
             Provide pre-allocated numpy array for datacube.
-            Usually (if datacube=None, the default) this will automatically
-            be created according to fits header dictionary. Providing datacube
-            manually might be worthwile if some kind of repeated/iterative
-            gridding process is desired. However, for almost all use cases
-            it will be sufficient to repeatedly call the grid method.
+            Usually (if datacube=None, the default) a datacube object will
+            be created automatically according to fits header dictionary.
+            Providing datacube manually might be worthwhile if some kind of
+            repeated/iterative gridding process is desired. However, for
+            almost all use cases it will be sufficient to repeatedly call the
+            grid method.
 
-            Pygrid won't clear the memory itself initially, so make sure to
+            Cygrid won't clear the memory itself initially, so make sure to
             handle this correctly.
 
         weightcube : floating-point numpy.ndarray
@@ -642,8 +617,7 @@ cdef class WcsGrid(Cygrid):
         Input datacube must have floating point type.
         Weightcube dtype doesn't match datacube dtype.
     ShapeError
-        Datacube shape doesn't match fits header.
-        Weightcube shape doesn't match datacube shape.
+        Datacube/weightcube shape doesn't match fits header.
     '''
 
     cdef:
@@ -666,7 +640,7 @@ cdef class WcsGrid(Cygrid):
             self.wcs = wcs.WCS(self.header).sub(axes=[1, 2])
 
         if 'datacube' in kwargs:
-            self.datacube = <np.ndarray> kwargs['datacube']
+            self.datacube = kwargs['datacube']
             if not isinstance(self.datacube, np.ndarray):
                 raise TypeError('Input datacube must be numpy array.')
             if not (
@@ -678,7 +652,9 @@ cdef class WcsGrid(Cygrid):
             if self.datacube.dtype not in [
                     np.float32, np.float64
                     ]:
-                raise TypeError('Input datacube must have floating point type.')
+                raise TypeError(
+                    'Input datacube must have floating point type.'
+                    )
         else:
             self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
 
@@ -732,7 +708,6 @@ cdef class WcsGrid(Cygrid):
                     )
                 )
 
-
     def get_wcs(self):
         '''Return WCS object for reference.'''
         return self.wcs
@@ -752,25 +727,32 @@ cdef class WcsGrid(Cygrid):
 
 cdef class SlGrid(Cygrid):
     '''
-    Sightline-grid-version of cygrid.
+    Sight line-grid version of cygrid.
+
+    The sight line gridder can be used to resample input data to any collection
+    of output coordinates. For example, one could grid to the (list of)
+    HEALPix grid pixel coordinates, or just extract spectra from a large 3D
+    survey on selected positions (not necessarily aligned with the pixels).
 
     Parameters
     ----------
-    header : Dictionary or anything that fits into astropy.wcs.WCS
-        The header must contain a valid wcs representation for a 3-dimensional
-        data cube (spatial-spatial-frequency).
+    sl_lons, sl_lats : numpy.ndarray (float64), 1D
+        Coordinates of sight lines to grid onto.
+    naxes3 : int
+        Length of spectral axis.
 
     Optional keyword arguments:
         dbg_messages: do debugging output
         datacube : floating-point numpy.ndarray
             Provide pre-allocated numpy array for datacube.
-            Usually (if datacube=None, the default) this will automatically
-            be created according to fits header dictionary. Providing datacube
-            manually might be worthwile if some kind of repeated/iterative
-            gridding process is desired. However, for almost all use cases
-            it will be sufficient to repeatedly call the grid method.
+            Usually (if datacube=None, the default) a datacube object will
+            be created automatically according to fits header dictionary.
+            Providing datacube manually might be worthwhile if some kind of
+            repeated/iterative gridding process is desired. However, for
+            almost all use cases it will be sufficient to repeatedly call the
+            grid method.
 
-            Pygrid won't clear the memory itself initially, so make sure to
+            Cygrid won't clear the memory itself initially, so make sure to
             handle this correctly.
 
         weightcube : floating-point numpy.ndarray
@@ -783,8 +765,7 @@ cdef class SlGrid(Cygrid):
         Input datacube must have floating point type.
         Weightcube dtype doesn't match datacube dtype.
     ShapeError
-        Datacube shape doesn't match fits header.
-        Weightcube shape doesn't match datacube shape.
+        Datacube/weightcube shape doesn't match sight line dimensions.
     '''
 
     cdef:
@@ -804,7 +785,7 @@ cdef class SlGrid(Cygrid):
         self.yx_shape = self.zyx_shape[1:3]
 
         if 'datacube' in kwargs:
-            self.datacube = <np.ndarray> kwargs['datacube']
+            self.datacube = kwargs['datacube']
             if not isinstance(self.datacube, np.ndarray):
                 raise TypeError('Input datacube must be numpy array.')
             if not (
@@ -812,11 +793,15 @@ cdef class SlGrid(Cygrid):
                     self.datacube.shape[1] == self.zyx_shape[1] and
                     self.datacube.shape[2] == self.zyx_shape[2]
                     ):
-                raise ShapeError("Datacube shape doesn't match fits header.")
+                raise ShapeError(
+                    "Datacube shape doesn't match sight line dimensions."
+                    )
             if self.datacube.dtype not in [
                     np.float32, np.float64
                     ]:
-                raise TypeError('Input datacube must have floating point type.')
+                raise TypeError(
+                    'Input datacube must have floating point type.'
+                    )
         else:
             self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
 
@@ -830,7 +815,7 @@ cdef class SlGrid(Cygrid):
                     self.datacube.shape[2] == self.weightscube.shape[2]
                     ):
                 raise ShapeError(
-                    "Weightcube shape doesn't match datacube shape."
+                    "Weightcube shape doesn't match sight line dimensions."
                     )
             if self.datacube.dtype != self.weightscube.dtype:
                 raise TypeError(
@@ -848,7 +833,3 @@ cdef class SlGrid(Cygrid):
 
         # keep flat versions for later use
         self.ypix_f, self.xpix_f = self.ypix.flatten(), self.xpix.flatten()
-
-
-
-

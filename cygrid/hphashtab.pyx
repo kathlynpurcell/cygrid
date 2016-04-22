@@ -6,7 +6,7 @@
 
 # ####################################################################
 #
-# title                  :hprainbow.pyx
+# title                  :hphashtab.pyx
 # description            :Hash tables based on Healpix helper class.
 # author                 :Benjamin Winkel, Lars Flöer & Daniel Lenz
 #
@@ -89,7 +89,7 @@ UINT64 = np.dtype(np.uint64)
 FLOAT32 = np.dtype(np.float32)
 FLOAT64 = np.dtype(np.float64)
 
-__all__ = ['HpxRainbow']  # , 'test_varreduction'
+__all__ = ['HpxHashTable']
 
 from .helpers cimport (
     ilog2, isqrt, imod, fmodulo, nside_to_order,
@@ -100,12 +100,13 @@ from .constants cimport NESTED, RING, MAX_Y
 from .constants cimport DEG2RAD, RAD2DEG
 from .constants cimport PI, TWOTHIRD, TWOPI, HALFPI, INV_TWOPI, INV_HALFPI
 
-cdef class HpxRainbow(Healpix):
+
+cdef class HpxHashTable(Healpix):
     '''
     Helper class for creating lookup tables (HEALPix).
 
-    It is entirely used to serve pygrid. hpx_rainbow derives from the
-    healpix class and adds-in a few helper functions and lookup-table
+    It is entirely used to serve Cygrid. HpxHashTable derives from the
+    Healpix class and adds-in a few helper functions and lookup-table
     members.
 
     Usually, only two methods have to be called:
@@ -147,9 +148,8 @@ cdef class HpxRainbow(Healpix):
             uint32_t scheme=RING,
             bint dbg_messages=False
             ):
-        super(HpxRainbow, self).__init__(nside, scheme)
+        super(HpxHashTable, self).__init__(nside, scheme)
         self.dbg_messages = dbg_messages
-
 
     cpdef set_optimal_nside(self, double target_res):
         '''
@@ -217,7 +217,7 @@ cdef class HpxRainbow(Healpix):
         Notes
         -----
         1. This function needs to be called once per gridding job (not
-         necessarily during each invocation of pygrid's "grid" method), or
+         necessarily during each invocation of Cygrid's "grid" method), or
          if the kernel size/effective radius has changed. It (re-)sets the
          internal HEALPix resolution to the largest possible value smaller
          than hpx_max_resolution (it is advised to use half of
@@ -322,8 +322,6 @@ cdef class HpxRainbow(Healpix):
             vector[uint64_t] intermediary_hpidxs_vec
             unordered_map[uint64_t, vector[uint64_t]] hpxidx_output_map
             unordered_map[uint64_t, vector[uint64_t]].iterator tmp_it_64_64
-            # unordered_map[uint32_t, vector[uint64_t]].iterator tmp_it_32_64
-            # unordered_map[uint64_t, vector[uint32_t]].iterator tmp_it_64_32
             uint64_t element_counter
 
             vector[TimingInfo] timing_info
@@ -551,22 +549,9 @@ cdef class HpxRainbow(Healpix):
             self.disc_hash_indices[ring] = vector[uint64_t]()
             self.disc_hash_ring[ring] = vector[uint64_t]()
 
-        # concurrent computation of the phi=180d discs
-        # for some reason, the following prange only works up to cython=0.20.2, when nogil=True
-        # is omitted;
-        # furthermore, the speed difference seems to be minor, so we might want to go for
-        # single-thread; TODO further performance testing
-
-        # with gil:
-        #     i = 0
-        #     ring = new_urings[i]
-        #     disc_indices_vec = self._query_disc_phi180(
-        #         disc_size_rad, ring
-        #         )
-        #     print('_fill_disc_hash', ring, disc_indices_vec[0])
-
-        for i in prange(new_urings.size(), nogil=True, schedule='static', chunksize=50):
-        #for i in range(new_urings.size()):
+        for i in prange(
+                new_urings.size(), nogil=True, schedule='static', chunksize=50
+                ):
             ring = new_urings[i]
             disc_indices_vec = self._query_disc_phi180(
                 disc_size_rad, ring
@@ -646,7 +631,6 @@ cdef class HpxRainbow(Healpix):
             vector[double] phis_vec
             vector[uint64_t] intermediary_unique_hpidxs_vec
             unordered_set[uint64_t] intermediary_hpidxs_set
-            # cpp_set[uint64_t] intermediary_hpidxs_set
             cpp_list[uint64_t] intermediary_unique_hpidxs_list
             unordered_set[uint64_t].iterator _set_it
             vector[uint64_t] rings_vec, urings_vec
@@ -667,10 +651,6 @@ cdef class HpxRainbow(Healpix):
             uint64_t intermediary_len
 
             unordered_map[uint64_t, vector[uint64_t]] input_output_mapping
-
-            # cdef char tmp_char[80]
-
-        # fill_time_info(timing_info, '[start]', P_SINGLE)
 
         intermediary_hpidxs_vec.resize(coords_len)
         for i in prange(coords_len, nogil=True, schedule='static', chunksize=500):
@@ -707,23 +687,16 @@ cdef class HpxRainbow(Healpix):
             intermediary_unique_hpidxs_list.end(),
             )
         intermediary_len = intermediary_unique_hpidxs_vec.size()
-        # sprintf(tmp_char, '- constructing/sorting unique hpx index vector (%ld)', <long> intermediary_len)
-
-        # with gil:
-        #     print('length of unique hpx index vector ({})'.format(intermediary_len))
-
         fill_time_info(
             timing_info,
             '- constructing/sorting unique hpx index vector',
-            # tmp_char,
             P_SINGLE
             )
 
-
         # find the (unique) HPX rings needed for each intermediary hpx index
-        #  this is the list of rings for which disc_info dictionary is filled
+        # this is the list of rings for which disc_info dictionary is filled
         # also prepare the HPX index, ring index and phi value for each of
-        #  the intermediary hpx indices
+        # the intermediary hpx indices
         for i in range(intermediary_len):
             hpidx = intermediary_unique_hpidxs_vec[i]
             # get theta phi for each hpx idx (center value!)
@@ -754,21 +727,9 @@ cdef class HpxRainbow(Healpix):
             hpxidx_output_map[hpidx] = tmp_output_pixels
         fill_time_info(timing_info, '- prepare <hpxidx_output_map>', P_SINGLE)
 
-        # with gil:
-        #     i = 0
-        #     hpidx = intermediary_unique_hpidxs_vec[i]
-        #     ring = <uint64_t> rings_vec[i]
-        #     disc_indices_vec = self.disc_hash_indices.at(ring)
-        #     print(i, hpidx, ring, disc_indices_vec)
-        #     self._pix2ang(hpidx, theta, phi)
-        #     print(theta, phi, self._pix2ring(hpidx))
-        #     self._pix2ang(disc_indices_vec[0], theta, phi)
-        #     print(theta, phi, self._pix2ring(hpidx))
-
-
-        for i in prange(intermediary_len, nogil=True, schedule='static', chunksize=500):
-        #for i in range(intermediary_len):
-            # get all hpx pixels surrounding the dump, by shifting discs
+        for i in prange(
+                intermediary_len, nogil=True, schedule='static', chunksize=500
+                ):
             hpidx = intermediary_unique_hpidxs_vec[i]
             ring = <uint64_t> rings_vec[i]
             phi = phis_vec[i]
@@ -799,7 +760,7 @@ cdef class HpxRainbow(Healpix):
                     ishift = <int64_t> (dshift+0.5)
                 else:
                     ishift = <int64_t> (dshift-0.5)
-                #j_pix_in_ring += ishift  # inplace not possible with prange
+                # j_pix_in_ring += ishift  # inplace not possible with prange
                 j_pix_in_ring = j_pix_in_ring + ishift
                 hpxpixel = imod(j_pix_in_ring, j_num_pix_in_ring) + j_startpix
 
@@ -860,8 +821,6 @@ cdef class HpxRainbow(Healpix):
             uint64_t j, max_threads = openmp.omp_get_max_threads()
             vector[unordered_map[uint64_t, vector[uint64_t]]] tmp_maps
 
-        # fill_time_info(timing_info, '[start]', P_SINGLE)
-
         # we parallelize by doing the inversion for local dicts, later we
         # have to merge them
         for j in range(max_threads - 1):
@@ -877,7 +836,6 @@ cdef class HpxRainbow(Healpix):
             tmp_output_pixels = hpxidx_output_map.at(
                 intermediary_hpidxs_vec[pixel]
                 )
-
 
             # this is ugly :-(
             # tried to do this with a pointer to output_input_map and
@@ -925,7 +883,6 @@ cdef class HpxRainbow(Healpix):
             )
 
         # now merge
-        # output_input_map.insert(tmp_maps.at(0).begin(), tmp_maps.at(0).end())
         for j in range(1, max_threads):
 
             o_it = tmp_maps.at(j - 1).begin()
@@ -949,29 +906,6 @@ cdef class HpxRainbow(Healpix):
                 inc(o_it)
 
         fill_time_info(timing_info, '- merge <output_input_map>', P_SINGLE)
-
-        # for pixel in range(intermediary_hpidxs_vec.size()):
-
-        #     tmp_output_pixels = hpxidx_output_map.at(
-        #         intermediary_hpidxs_vec[pixel]
-        #         )
-
-        #     pixvec_it = tmp_output_pixels.begin()
-        #     while pixvec_it != tmp_output_pixels.end():
-        #         _pix = deref(pixvec_it)
-        #         _mit = output_input_map.find(_pix)
-        #         if _mit == output_input_map.end():
-        #             # Should we handle the bool? Can insertion really fail?
-        #             _mit_p = output_input_map.insert(
-        #                 pair[uint64_t, vector[uint64_t]](
-        #                     _pix, vector[uint64_t]()
-        #                     )
-        #                 )
-        #             _mit = _mit_p.first
-
-        #         deref(_mit).second.push_back(pixel)
-
-        #         inc(pixvec_it)
 
         return
 
@@ -1008,89 +942,3 @@ cdef class HpxRainbow(Healpix):
             inc(oi_map_it)
 
         return
-
-# cpdef dict test_varreduction(dict idict):
-
-#     cdef:
-
-#         dict odict
-
-#         unordered_map[long, vector[long]] input_output_map
-#         unordered_map[long, vector[long]] output_input_map
-#         vector[unordered_map[long, vector[long]]] tmp_maps
-#         int max_threads = openmp.omp_get_max_threads()
-
-#         unordered_map[long, vector[long]] other
-#         unordered_map[long, vector[long]].iterator m_it, o_it
-#         pair[unordered_map[long, vector[long]].iterator, bool] o_it_p
-
-#         vector[long] ikeys, ivals
-#         vector[long].iterator ivals_it
-#         long ikey, ival
-#         int i, j
-
-#     ikeys = list(idict.keys())
-#     for i in range(ikeys.size()):
-#         ikey = ikeys[i]
-#         ivals = idict[ikey]
-
-#         input_output_map.insert(
-#             pair[long, vector[long]](
-#                 ikey, ivals
-#                 )
-#             )
-
-#     # print('numthreads', max_threads)
-#     for j in range(max_threads):
-#         tmp_maps.push_back(unordered_map[long, vector[long]]())
-
-#     for i in prange(ikeys.size(), nogil=True, schedule='dynamic'):
-
-#         j = threadid()
-
-#         ikey = ikeys[i]
-#         ivals = input_output_map.at(ikey)
-
-#         ivals_it = ivals.begin()
-#         while ivals_it != ivals.end():
-#             ival = deref(ivals_it)
-#             o_it = tmp_maps.at(j).find(ival)
-#             if o_it == tmp_maps.at(j).end():
-#                 o_it_p = tmp_maps.at(j).insert(
-#                     pair[long, vector[long]](
-#                         ival, vector[long]()
-#                         )
-#                     )
-#                 o_it = o_it_p.first
-
-#             deref(o_it).second.push_back(ikey)
-
-#             inc(ivals_it)
-
-#     # merging
-#     output_input_map.clear()
-#     for j in range(max_threads):
-#         other = tmp_maps.at(j)
-#         # print('thread', j, other)
-
-#         o_it = other.begin()
-#         while o_it != other.end():
-#             key = deref(o_it).first
-#             values = deref(o_it).second
-
-#             m_it = output_input_map.find(key)
-#             if m_it == output_input_map.end():
-#                 output_input_map.insert(
-#                     pair[long, vector[long]](key, vector[long]())
-#                     )
-#             output_input_map.at(key).insert(
-#                 output_input_map.at(key).end(),
-#                 values.begin(),
-#                 values.end(),
-#                 )
-
-#             inc(o_it)
-
-#     odict = output_input_map
-
-#     return odict
