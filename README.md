@@ -3,14 +3,11 @@
 - *Version*: 0.9
 - *Authors*: Benjamin Winkel, Lars Flöer, Daniel Lenz
 
-.. image:: https://img.shields.io/pypi/v/cygrid.svg
-    :target: https://pypi.python.org/pypi/cygrid
+[![PyPI version](https://img.shields.io/pypi/v/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
 
-.. image:: https://img.shields.io/pypi/dm/cygrid.svg
-    :target: https://pypi.python.org/pypi/cygrid
+[![PyPI downloads](https://img.shields.io/pypi/dm/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
 
-.. image:: https://travis-ci.org/cygrid/cygrid.svg
-    :target: https://travis-ci.org/cygrid/cygrid
+[![Build Status](https://travis-ci.org/cygrid/cygrid.svg?branch=master)](https://travis-ci.org/cygrid/cygrid)
 
 # Purpose#
 
