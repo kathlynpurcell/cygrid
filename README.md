@@ -3,6 +3,15 @@
 - *Version*: 0.9
 - *Authors*: Benjamin Winkel, Lars Flöer, Daniel Lenz
 
+.. image:: https://img.shields.io/pypi/v/cygrid.svg
+    :target: https://pypi.python.org/pypi/cygrid
+
+.. image:: https://img.shields.io/pypi/dm/cygrid.svg
+    :target: https://pypi.python.org/pypi/cygrid
+
+.. image:: https://travis-ci.org/cygrid/cygrid.svg
+    :target: https://travis-ci.org/cygrid/cygrid
+
 # Purpose#
 
 `cygrid` allows to resample a number of spectra (or data points) to a regular grid - a data cube - using any valid astronomical FITS/WCS projection (see http://docs.astropy.org/en/stable/wcs/).
