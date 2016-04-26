@@ -1,0 +1,43 @@
+language: python
+# Setting sudo to false opts in to Travis-CI container-based builds.
+sudo: false
+
+cache:
+  - pip
+  - apt
+
+#compiler: gcc-4.8  # need c++11 support and open-mp
+#dist: trusty
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+
+env:
+  global:
+    - OMP_NUM_THREADS=2
+    - CC=gcc-4.8
+    - CXX=g++-4.8
+
+python:
+#  - 2.7
+#  - 3.4
+  - 3.5
+
+# command to install dependencies
+install:
+#  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - gcc -v
+  - gcc-4.8 -v
+  - pip install -r pip-requirements
+  - pip install .
+
+# command to run tests
+script:
+  - cd tests
+  - nosetests
+  - cd ..
