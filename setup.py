@@ -96,7 +96,7 @@ KERNEL_EXT = Extension(
 
 setup(
     name='cygrid',
-    version='0.9.3',
+    version='0.9.4',
     author='Benjamin Winkel, Lars Flöer, Daniel Lenz',
     author_email='bwinkel@mpifr.de',
     description=(
@@ -113,6 +113,6 @@ setup(
         GRID_EXT,
     ],
     url='https://github.com/bwinkel/cygrid/',
-    download_url='https://github.com/bwinkel/cygrid/tarball/0.9.3',
+    download_url='https://github.com/bwinkel/cygrid/tarball/0.9.4',
     keywords=['astronomy', 'gridding', 'fits/wcs']
 )

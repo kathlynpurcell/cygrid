@@ -1,5 +1,5 @@
 from .cygrid import *
 from .healpix import *
-from .hprainbow import *
+from .hphashtab import *
 from .helpers import *
 
