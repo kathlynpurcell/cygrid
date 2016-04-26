@@ -7,7 +7,7 @@
 
 [![PyPI downloads](https://img.shields.io/pypi/dm/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
 
-[![Build Status](https://travis-ci.org/cygrid/cygrid.svg?branch=master)](https://travis-ci.org/cygrid/cygrid)
+[![Build Status](https://travis-ci.org/bwinkel/cygrid.svg?branch=master)](https://travis-ci.org/bwinkel/cygrid)
 
 # Purpose#
 
