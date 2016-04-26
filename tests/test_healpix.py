@@ -67,11 +67,11 @@ class TestHealpix:
 
         hpx = Healpix(64)
 
-        assert hpx.get_ring_info_small(1) == (0L, 4L, True)
-        assert hpx.get_ring_info_small(10) == (180L, 40L, True)
-        assert hpx.get_ring_info_small(127) == (24192L, 256L, False)
-        assert hpx.get_ring_info_small(128) == (24448L, 256L, True)
-        assert hpx.get_ring_info_small(255) == (49148L, 4L, True)
+        assert hpx.get_ring_info_small(1) == (0, 4, True)
+        assert hpx.get_ring_info_small(10) == (180, 40, True)
+        assert hpx.get_ring_info_small(127) == (24192, 256, False)
+        assert hpx.get_ring_info_small(128) == (24448, 256, True)
+        assert hpx.get_ring_info_small(255) == (49148, 4, True)
 
         with pytest.raises(ValueError):
             hpx.get_ring_info_small(0)
