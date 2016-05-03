@@ -9,6 +9,8 @@
 
 [![Build Status](https://travis-ci.org/bwinkel/cygrid.svg?branch=master)](https://travis-ci.org/bwinkel/cygrid)
 
+[![Publication](http://img.shields.io/badge/arXiv-1604.06667-orange.svg?style=flat)](http://arxiv.org/abs/1604.06667)
+
 # Purpose#
 
 `cygrid` allows to resample a number of spectra (or data points) to a regular grid - a data cube - using any valid astronomical FITS/WCS projection (see http://docs.astropy.org/en/stable/wcs/).
