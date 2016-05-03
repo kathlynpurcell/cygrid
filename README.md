@@ -4,12 +4,10 @@
 - *Authors*: Benjamin Winkel, Lars Flöer, Daniel Lenz
 
 [![PyPI version](https://img.shields.io/pypi/v/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
-
 [![PyPI downloads](https://img.shields.io/pypi/dm/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
-
 [![Build Status](https://travis-ci.org/bwinkel/cygrid.svg?branch=master)](https://travis-ci.org/bwinkel/cygrid)
-
-[![Publication](http://img.shields.io/badge/arXiv-1604.06667-orange.svg?style=flat)](http://arxiv.org/abs/1604.06667)
+[![Publication](http://img.shields.io/badge/arXiv-1604.06667-blue.svg)](http://arxiv.org/abs/1604.06667)
+[![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://www.github.com/bwinkel/cygrid/blob/master/COPYING)
 
 # Purpose#
 
