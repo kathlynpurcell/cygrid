@@ -49,7 +49,9 @@ required:
 * `astropy 1.0` or later
 (Older versions of these libraries may work, but we didn't test this!)
 
-If you want to run the notebooks yourself, you will also need the Jupyter server, matplotlib and wcsaxes packages.
+If you want to run the notebooks yourself, you will also need the Jupyter server, matplotlib and wcsaxes packages. To run the tests, you'll need HealPy.
+
+Note, for compiling the C-extension, openmp is used for parallelization and some C++11 language features are necessary. If you use gcc, for example, you need at least version 4.7 otherwise the setup-script will fail. (If you have absolutely no possibility to upgrade gcc, older version may work if you replace `-std=c++11` with `-std=c++0x` in `setup.py`. Thanks to bs538 for pointing this out.)
 
 
 ### Examples ###
