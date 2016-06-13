@@ -15,7 +15,7 @@
 
 The method is a based on serialized convolution with finite gridding kernels. Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided (which has the drawback of slight degradation of the effective resolution). The algorithm has very small memory footprint, allows easy parallelization, and is very fast.
 
-A detailed description of the algorithm is given in [Winkel, Lenz & Flöer (2016)](http://adsabs.harvard.edu/abs/2016arXiv160406667W), which we kindly ask to be used as reference if you found `cygrid` useful for your research.
+A detailed description of the algorithm is given in [Winkel, Lenz & Flöer (2016)](http://adsabs.harvard.edu/abs/2016A%26A...591A..12W), which we kindly ask to be used as reference if you found `cygrid` useful for your research.
 
 # Features
 
