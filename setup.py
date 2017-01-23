@@ -9,12 +9,12 @@ import platform
 import os
 
 EX_COMP_ARGS = []
-# if 'darwin' in platform.system().lower():
-#     EX_COMP_ARGS += ['-mmacosx-version-min=10.7', ]
-#     os.environ["CC"] = "g++-6"
-#     os.environ["CPP"] = "cpp-6"
-#     os.environ["CXX"] = "g++-6"
-#     os.environ["LD"] = "gcc-6"
+if 'darwin' in platform.system().lower():
+    EX_COMP_ARGS += ['-mmacosx-version-min=10.7', ]
+    os.environ["CC"] = "g++-6"
+    os.environ["CPP"] = "cpp-6"
+    os.environ["CXX"] = "g++-6"
+    os.environ["LD"] = "gcc-6"
 
 GRID_EXT = Extension(
     'cygrid.cygrid',
