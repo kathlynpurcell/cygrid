@@ -27,12 +27,12 @@ class TestWcsGrid:
         self.xcoords = np.random.uniform(
             mapcenter[0] - mapsize[0]/2.,
             mapcenter[0] + mapsize[0]/2.,
-            avg_num_pixels_x * avg_num_pixels_y,
+            int(avg_num_pixels_x * avg_num_pixels_y),
             ).astype(np.float64)
         self.ycoords = np.random.uniform(
             mapcenter[1] - mapsize[1]/2.,
             mapcenter[1] + mapsize[1]/2.,
-            avg_num_pixels_x * avg_num_pixels_y,
+            int(avg_num_pixels_x * avg_num_pixels_y),
             ).astype(np.float64)
         self.signal = np.random.normal(0., .01, len(self.xcoords))
 
@@ -94,12 +94,12 @@ class TestSlGrid:
         self.input_x = np.random.uniform(
             mapcenter[0] - mapsize[0]/2.,
             mapcenter[0] + mapsize[0]/2.,
-            avg_num_pixels_x * avg_num_pixels_y,
+            int(avg_num_pixels_x * avg_num_pixels_y),
             ).astype(np.float64)
         self.input_y = np.random.uniform(
             mapcenter[1] - mapsize[1]/2.,
             mapcenter[1] + mapsize[1]/2.,
-            avg_num_pixels_x * avg_num_pixels_y,
+            int(avg_num_pixels_x * avg_num_pixels_y),
             ).astype(np.float64)
         self.signal = np.random.normal(0., .01, len(self.input_x))
 
