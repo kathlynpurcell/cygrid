@@ -19,17 +19,17 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-6
-      - g++-6
-      - cpp-6
+      - gcc-4.8
+      - g++-4.8
+      - cpp-4.8
 
 env:
   global:
     - OMP_NUM_THREADS=2
-    - CC=gcc-6
-    - CXX=g++-6
-    - CPP=cpp-6
-    - LD=gcc-6
+    - CC=gcc-4.8
+    - CXX=g++-4.8
+    - CPP=cpp-4.8
+    - LD=gcc-4.8
 
 python:
   - 2.7
@@ -40,7 +40,7 @@ python:
 install:
 #  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
   - gcc -v
-  - gcc-6 -v
+  - gcc-4.8 -v
   - pip install -r pip-requirements
   - pip install .
 

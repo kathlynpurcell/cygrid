@@ -51,9 +51,10 @@ required:
 
 If you want to run the notebooks yourself, you will also need the Jupyter server, matplotlib and wcsaxes packages. To run the tests, you'll need HealPy.
 
-Note, for compiling the C-extension, openmp is used for parallelization and some C++11 language features are necessary. If you use gcc, for example, you need at least version 4.7 otherwise the setup-script will fail. (If you have absolutely no possibility to upgrade gcc, older version may work if you replace `-std=c++11` with `-std=c++0x` in `setup.py`. Thanks to bs538 for pointing this out.)
+Note, for compiling the C-extension, openmp is used for parallelization and some C++11 language features are necessary. If you use gcc, for example, you need at least version 4.8 otherwise the setup-script will fail. (If you have absolutely no possibility to upgrade gcc, older version may work if you replace `-std=c++11` with `-std=c++0x` in `setup.py`. Thanks to bs538 for pointing this out.)
 
-
+For Mac OS, it is required to use gcc-6 in order to install cygrid. We recommend to simply use the [homebrew](http://brew.sh) package manager and then use `brew install gcc`
+.
 ### Examples ###
 
 Check out the [`ipython notebooks`](http://nbviewer.jupyter.org/github/bwinkel/cygrid/blob/master/notebooks/index.ipynb) in the repository for some examples of how to use `cygrid`. Note that you only view them on the nbviewer service, and will have to clone the repository to run them on your machine.
