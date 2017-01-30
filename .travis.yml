@@ -12,7 +12,7 @@ cache:
 # safelist
 branches:
   only:
-  - macos_fix
+  - master
 
 addons:
   apt:
