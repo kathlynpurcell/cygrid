@@ -234,6 +234,14 @@ cdef class Cygrid(object):
 
         raise NotImplementedError('This is the base class. Use child classes!')
 
+    def clear_data_and_weights(self):
+        '''
+        Reset data and weights arrays. (Caches stay filled!)
+        '''
+
+        self.datacube[...] = 0.
+        self.weightscube[...] = 0.
+
     def set_kernel(
             self,
             object kernel_type, object kernel_params,
@@ -431,31 +439,31 @@ cdef class Cygrid(object):
                 ):
             raise ShapeError('Number of spectral channels mismatch.')
 
-        d32 = np.array([1.], dtype=np.float32)
-        d64 = np.array([1.], dtype=np.float64)
         if dtype == 'float32':
 
             if self.dbg_messages:
                 print('User requested single precision.')
 
-            self.datacube = self.datacube.astype(d32.dtype.str, copy=False)
-            self.weightscube = self.weightscube.astype(d32.dtype.str, copy=False)
-            data = data.astype(d32.dtype.str, copy=False)
-            weights = weights.astype(d32.dtype.str, copy=False)
+            self.datacube = self.datacube.astype(FLOAT32, copy=False)
+            self.weightscube = self.weightscube.astype(FLOAT32, copy=False)
+            data = data.astype(FLOAT32, copy=False)
+            weights = weights.astype(FLOAT32, copy=False)
+
         elif dtype == 'float64':
 
             if self.dbg_messages:
                 print('User requested double precision.')
 
-            self.datacube = self.datacube.astype(d64.dtype.str, copy=False)
-            self.weightscube = self.weightscube.astype(d64.dtype.str, copy=False)
-            data = data.astype(d64.dtype.str, copy=False)
-            weights = weights.astype(d64.dtype.str, copy=False)
+            self.datacube = self.datacube.astype(FLOAT64, copy=False)
+            self.weightscube = self.weightscube.astype(FLOAT64, copy=False)
+            data = data.astype(FLOAT64, copy=False)
+            weights = weights.astype(FLOAT64, copy=False)
+
         else:
             raise TypeError("dtype must be one of 'float32' or 'float64'")
 
-        lons = lons.astype(d64.dtype.str, copy=False)
-        lats = lats.astype(d64.dtype.str, copy=False)
+        lons = lons.astype(FLOAT64, copy=False)
+        lats = lats.astype(FLOAT64, copy=False)
 
         self._grid(lons, lats, data, weights)
 
@@ -673,7 +681,7 @@ cdef class WcsGrid(Cygrid):
                     "Weightcube dtype doesn't match datacube dtype."
                     )
         else:
-            self.weightscube = self.datacube.copy()
+            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
 
         self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
 
@@ -820,7 +828,7 @@ cdef class SlGrid(Cygrid):
                     "Weightcube dtype doesn't match datacube dtype."
                     )
         else:
-            self.weightscube = self.datacube.copy()
+            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
 
         self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
         self.xwcs_f, self.ywcs_f = sl_lons, sl_lats
