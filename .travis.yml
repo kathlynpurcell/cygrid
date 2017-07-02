@@ -10,9 +10,9 @@ cache:
 #dist: trusty
 
 # safelist
-branches:
-  only:
-  - master
+# branches:
+#   only:
+#   - master
 
 addons:
   apt:
@@ -54,6 +54,7 @@ script:
   - cd ..
   # - pip install cibuildwheel
   # - cibuildwheel --output-dir wheelhouse
+after_success:
   - echo "TRAVIS_TAG" $TRAVIS_TAG
   - |
     if [[ $TRAVIS_TAG ]]; then
