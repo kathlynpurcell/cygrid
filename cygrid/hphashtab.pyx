@@ -531,7 +531,8 @@ cdef class HpxHashTable(Healpix):
         2. This is a cython-domain only method.
         '''
         cdef:
-            uint64_t ring, i, j
+            int64_t i  # Windows open-mp only works with signed loop vars
+            uint64_t ring, j
             uint64_t startpix, num_pix_in_ring
             vector[uint64_t] disc_indices_vec, disc_rings_vec
             vector[uint64_t] new_urings
@@ -623,7 +624,8 @@ cdef class HpxHashTable(Healpix):
         '''
 
         cdef:
-            uint64_t i, j
+            int64_t i  # Windows open-mp only works with signed loop vars
+            uint64_t j
             # need temporary x, y, z coords for healpy
             double theta  # need this only temporary
             vector[double] phis_vec
@@ -645,8 +647,8 @@ cdef class HpxHashTable(Healpix):
             vector[uint64_t] tmp_output_pixels
             vector[uint64_t] pixels
             uint64_t hpxpixel
-            uint64_t coords_len = lons.shape[0]
-            uint64_t intermediary_len
+            int64_t coords_len = lons.shape[0]
+            int64_t intermediary_len
 
             unordered_map[uint64_t, vector[uint64_t]] input_output_mapping
 
@@ -814,7 +816,7 @@ cdef class HpxHashTable(Healpix):
             unordered_map[uint64_t, vector[uint64_t]].iterator _mit
             pair[unordered_map[uint64_t, vector[uint64_t]].iterator, bool] _mit_p
             uint64_t _pix
-            uint64_t pixel
+            int64_t pixel  # Windows open-mp only works with signed loop vars
 
             uint64_t j, max_threads = openmp.omp_get_max_threads()
             vector[unordered_map[uint64_t, vector[uint64_t]]] tmp_maps

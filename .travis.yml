@@ -41,7 +41,8 @@ install:
 #  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
   - gcc -v
   - gcc-4.8 -v
-  - pip install -r pip-requirements
+  - pip install -r pip-requirements-dev
+  - pip install healpy  # do only on unix builds
   - pip install .
 
 # command to run tests

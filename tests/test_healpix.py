@@ -10,7 +10,12 @@ import pytest
 import numpy as np
 from numpy.testing import assert_equal, assert_allclose
 from astropy.utils.misc import NumpyRNGContext
-import healpy as hp
+try:
+    import healpy as hp
+    DO_HEALPY = True
+except ImportError:
+    DO_HEALPY = False
+
 from cygrid import Healpix
 
 
@@ -80,6 +85,10 @@ class TestHealpix:
 
     def test_pix2ring(self):
 
+        if not DO_HEALPY:
+            # not possible on Windows
+            return
+
         with NumpyRNGContext(12345):
 
             nside = 1024
@@ -94,6 +103,10 @@ class TestHealpix:
                 )
 
     def test_ang2pix(self):
+
+        if not DO_HEALPY:
+            # not possible on Windows
+            return
 
         with NumpyRNGContext(12345):
 
@@ -110,6 +123,10 @@ class TestHealpix:
 
     def test_pix2ang(self):
 
+        if not DO_HEALPY:
+            # not possible on Windows
+            return
+
         with NumpyRNGContext(12345):
 
             nside = 1024
@@ -124,6 +141,10 @@ class TestHealpix:
                 )
 
     def test_query_disc(self):
+
+        if not DO_HEALPY:
+            # not possible on Windows
+            return
 
         with NumpyRNGContext(12345):
 

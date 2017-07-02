@@ -477,7 +477,8 @@ cdef class Cygrid(object):
 
 
         cdef:
-            uint64_t z, y, x, i, j, k
+            int64_t i  # Windows open-mp only works with signed loop vars
+            uint64_t z, y, x, j, k
             uint64_t speccount = len(data)
             uint64_t numchans = len(data[0])
 
@@ -498,7 +499,8 @@ cdef class Cygrid(object):
             unordered_map[uint64_t, vector[uint64_t]] output_input_mapping
             vector[uint64_t] output_pixels
             vector[uint64_t] input_pixels
-            uint64_t outlen, in_idx
+            int64_t outlen
+            uint64_t in_idx
             uint64_t _pix, _totpix, _goodpix
 
             double l1, l2, b1, b2, sinbdiff, sinldiff
