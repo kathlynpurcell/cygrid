@@ -5,7 +5,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/cygrid.svg)](https://pypi.python.org/pypi/cygrid)
 [![Build Status](https://travis-ci.org/bwinkel/cygrid.svg?branch=master)](https://travis-ci.org/bwinkel/cygrid)
-[![Build Status](https://ci.appveyor.com/api/projects/status/4i0d6uy6ts5jkj5ax3cs/branch/master?svg=true)](https://ci.appveyor.com/project/bwinkel/cygrid/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/1ydk0hjf04t90aw5?svg=true)](https://ci.appveyor.com/project/bwinkel/cygrid)
 [![Publication](http://img.shields.io/badge/arXiv-1604.06667-blue.svg)](http://arxiv.org/abs/1604.06667)
 [![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://www.github.com/bwinkel/cygrid/blob/master/COPYING)
 <!---[![PyPI downloads](https://img.shields.io/pypi/dm/cygrid.svg)](https://pypi.python.org/pypi/cygrid)--->
@@ -46,6 +46,8 @@ The installation is also possible from source. Download the tar.gz-file, extract
 ```
 python setup.py install
 ```
+
+Note, for Windows machines only Python 3.5+ is supported.
 
 ## Dependencies ##
 

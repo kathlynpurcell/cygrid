@@ -30,11 +30,13 @@ env:
     - CXX=g++-4.8
     - CPP=cpp-4.8
     - LD=gcc-4.8
+    - TWINE_USERNAME=bwinkel
+    # Note: TWINE_PASSWORD is set in Travis settings
 
 python:
   - 2.7
-  - 3.4
   - 3.5
+  - 3.6
 
 # command to install dependencies
 install:
@@ -50,3 +52,12 @@ script:
   - cd tests
   - nosetests
   - cd ..
+  # - pip install cibuildwheel
+  # - cibuildwheel --output-dir wheelhouse
+  - echo "TRAVIS_TAG" $TRAVIS_TAG
+  - |
+    if [[ $TRAVIS_TAG ]]; then
+      python -m pip install twine
+      python setup.py sdist
+      python -m twine upload dist/*.tar.gz
+    fi
