@@ -76,6 +76,8 @@ setup(
         'numpy>=1.8',
         'astropy>=1.0',
         ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     packages=['cygrid'],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
