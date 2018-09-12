@@ -18,6 +18,11 @@ environment:
     - PYTHON: "C:\\Miniconda36"
       # 3.6 64-bit
     - PYTHON: "C:\\Miniconda36-x64"
+    # uncomment the following, once available
+    #   # 3.7
+    # - PYTHON: "C:\\Miniconda37"
+    #   # 3.7 64-bit
+    # - PYTHON: "C:\\Miniconda37-x64"
 
 
 install:

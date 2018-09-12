@@ -33,10 +33,14 @@ env:
     - TWINE_USERNAME=bwinkel
     # Note: TWINE_PASSWORD is set in Travis settings
 
-python:
-  - 2.7
-  - 3.5
-  - 3.6
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
+      sudo: true
 
 # command to install dependencies
 install:
