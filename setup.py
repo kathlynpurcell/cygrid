@@ -1,102 +1,152 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Note: This file needs to be Python 2 / <3.6 compatible, so that the nice
+# "This package only supports Python 3.x+" error prints without syntax errors etc.
 
-from setuptools import setup
-from setuptools.extension import Extension
-from Cython.Distutils import build_ext
-import numpy
-import platform
+import glob
 import os
+import sys
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
+# Get some values from the setup.cfg
+conf = ConfigParser()
+conf.read(['setup.cfg'])
+metadata = dict(conf.items('metadata'))
+
+PACKAGENAME = metadata.get('package_name', 'cygrid')
+DESCRIPTION = metadata.get('description', 'Cygrid is a cython-powered convolution-based gridding module for astronomy')
+AUTHOR = metadata.get('author', 'Benjamin Winkel, Lars Flöer, Daniel Lenz')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'https://github.com/bwinkel/cygrid')
+__minimum_python_version__ = metadata.get("minimum_python_version", "2.7")
+
+# Enforce Python version check - this is the same check as in __init__.py but
+# this one has to happen before importing ah_bootstrap.
+if sys.version_info < tuple((int(val) for val in __minimum_python_version__.split('.'))):
+    sys.stderr.write("ERROR: cygrid requires Python {} or later\n".format(__minimum_python_version__))
+    sys.exit(1)
+
+# Import ah_bootstrap after the python version validation
+
+import ah_bootstrap
+from setuptools import setup
+
+# A dirty hack to get around some early import/configurations ambiguities
+if sys.version_info[0] >= 3:
+    import builtins
+else:
+    import __builtin__ as builtins
+builtins._ASTROPY_SETUP_ = True
+
+from astropy_helpers.setup_helpers import (register_commands, get_debug_option,
+                                           get_package_info)
+from astropy_helpers.git_helpers import get_git_devstr
+from astropy_helpers.version_helpers import generate_version_py
 
 
-VERSION = '0.9.8'
+# order of priority for long_description:
+#   (1) set in setup.cfg,
+#   (2) load LONG_DESCRIPTION.rst,
+#   (3) load README.rst,
+#   (4) package docstring
+readme_glob = 'README*'
+_cfg_long_description = metadata.get('long_description', '')
+if _cfg_long_description:
+    LONG_DESCRIPTION = _cfg_long_description
+
+elif os.path.exists('LONG_DESCRIPTION.rst'):
+    with open('LONG_DESCRIPTION.rst') as f:
+        LONG_DESCRIPTION = f.read()
+
+elif len(glob.glob(readme_glob)) > 0:
+    with open(glob.glob(readme_glob)[0]) as f:
+        LONG_DESCRIPTION = f.read()
+
+else:
+    # Get the long description from the package's docstring
+    __import__(PACKAGENAME)
+    package = sys.modules[PACKAGENAME]
+    LONG_DESCRIPTION = package.__doc__
+
+# Store the package name in a built-in variable so it's easy
+# to get from other parts of the setup infrastructure
+builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
+
+# VERSION should be PEP440 compatible (http://www.python.org/dev/peps/pep-0440)
+VERSION = metadata.get('version', '0.0.dev')
+
+# Indicates if this version is a release version
+RELEASE = 'dev' not in VERSION
+
+if not RELEASE:
+    VERSION += get_git_devstr(False)
+
+# Populate the dict of setup command overrides; this should be done before
+# invoking any other functionality from distutils since it can potentially
+# modify distutils' behavior.
+cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
+
+# Freeze build information in version.py
+generate_version_py(PACKAGENAME, VERSION, RELEASE,
+                    get_debug_option(PACKAGENAME))
+
+# Treat everything in scripts except README* as a script to be installed
+scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
+           if not os.path.basename(fname).startswith('README')]
 
 
-COMP_ARGS = {
-    'extra_compile_args': ['-fopenmp', '-O3', '-std=c++11'],
-    'extra_link_args': ['-fopenmp'],
-    'language': 'c++',
-    'include_dirs': [numpy.get_include()],
-    }
+# Get configuration information from all of the various subpackages.
+# See the docstring for setup_helpers.update_package_files for more
+# details.
+package_info = get_package_info()
 
-# need to handle compilation on Windows and MAC-OS machines:
-if platform.system().lower() == 'windows':
-    COMP_ARGS['extra_compile_args'] = ['/openmp']
-    del COMP_ARGS['extra_link_args']
+# Add the project-global data
+package_info['package_data'].setdefault(PACKAGENAME, [])
+package_info['package_data'][PACKAGENAME].append('data/*')
 
-if 'darwin' in platform.system().lower():
-    COMP_ARGS['extra_compile_args'].append('-mmacosx-version-min=10.7')
-    os.environ["CC"] = "g++-6"
-    os.environ["CPP"] = "cpp-6"
-    os.environ["CXX"] = "g++-6"
-    os.environ["LD"] = "gcc-6"
+# Define entry points for command-line scripts
+entry_points = {'console_scripts': []}
 
-# Cython extensions:
-GRID_EXT = Extension(
-    'cygrid.cygrid',
-    ['cygrid/cygrid.pyx'],
-    **COMP_ARGS
-    )
+if conf.has_section('entry_points'):
+    entry_point_list = conf.items('entry_points')
+    for entry_point in entry_point_list:
+        entry_points['console_scripts'].append('{0} = {1}'.format(
+            entry_point[0], entry_point[1]))
 
-HELPER_EXT = Extension(
-    'cygrid.helpers',
-    ['cygrid/helpers.pyx'],
-    **COMP_ARGS
-    )
+# Include all .c files, recursively, including those generated by
+# Cython, since we can not do this in MANIFEST.in with a "dynamic"
+# directory name.
+c_files = []
+for root, dirs, files in os.walk(PACKAGENAME):
+    for filename in files:
+        if filename.endswith('.c'):
+            c_files.append(
+                os.path.join(
+                    os.path.relpath(root, PACKAGENAME), filename))
+package_info['package_data'][PACKAGENAME].extend(c_files)
 
-HPX_EXT = Extension(
-    'cygrid.healpix',
-    ['cygrid/healpix.pyx'],
-    **COMP_ARGS
-    )
+# Note that requires and provides should not be included in the call to
+# ``setup``, since these are now deprecated. See this link for more details:
+# https://groups.google.com/forum/#!topic/astropy-dev/urYO8ckB2uM
 
-HPHASH_EXT = Extension(
-    'cygrid.hphashtab',
-    ['cygrid/hphashtab.pyx'],
-    **COMP_ARGS
-    )
-
-KERNEL_EXT = Extension(
-    'cygrid.kernels',
-    ['cygrid/kernels.pyx'],
-    **COMP_ARGS
-    )
-
-setup(
-    name='cygrid',
-    version=VERSION,
-    author='Benjamin Winkel, Lars Flöer, Daniel Lenz',
-    author_email='bwinkel@mpifr.de',
-    description=(
-        'Cygrid is a cython-powered convolution-based gridding module '
-        'for astronomy'
-        ),
-    install_requires=[
-        'setuptools',
-        'numpy>=1.8',
-        'astropy>=1.0',
-        ],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
-    packages=['cygrid'],
-    cmdclass={'build_ext': build_ext},
-    ext_modules=[
-        KERNEL_EXT,
-        HELPER_EXT,
-        HPX_EXT,
-        HPHASH_EXT,
-        GRID_EXT,
-        ],
-    url='https://github.com/bwinkel/cygrid/',
-    download_url='https://github.com/bwinkel/cygrid/tarball/{}'.format(VERSION),
-    keywords=['astronomy', 'gridding', 'fits/wcs'],
-    classifiers=[
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: MacOS',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
-        'Programming Language :: Cython',
-        'Topic :: Scientific/Engineering :: Astronomy',
-        ],
+setup(name=PACKAGENAME,
+      version=VERSION,
+      description=DESCRIPTION,
+      scripts=scripts,
+      install_requires=[s.strip() for s in metadata.get('install_requires', 'astropy').split(',')],
+      author=AUTHOR,
+      author_email=AUTHOR_EMAIL,
+      license=LICENSE,
+      url=URL,
+      long_description=LONG_DESCRIPTION,
+      cmdclass=cmdclassd,
+      zip_safe=False,
+      use_2to3=False,
+      entry_points=entry_points,
+      python_requires='>={}'.format(__minimum_python_version__),
+      **package_info
 )
