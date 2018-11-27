@@ -101,7 +101,7 @@ replace `-std=c++11` with `-std=c++0x` in `setup.py`. Thanks to bs538 for
 pointing this out.)
 
 For Mac OS, it is required to use gcc-6 in order to install cygrid. We
-recommend to simply use the `homebrew` <http://brew.sh>`_ package manager and then use `brew install gcc`.
+recommend to simply use the `homebrew <http://brew.sh>`_ package manager and then use `brew install gcc`.
 
 Usage
 =====

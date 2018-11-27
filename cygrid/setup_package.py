@@ -22,20 +22,32 @@ def get_extensions():
         'extra_compile_args': ['-fopenmp', '-O3', '-std=c++11'],
         'extra_link_args': ['-fopenmp'],
         'language': 'c++',
-        'libraries': ['m'],
+        # 'libraries': ['m'],
         'include_dirs': ['numpy'],
         }
 
     if platform.system().lower() == 'windows':
-        comp_args['extra_compile_args'] = ['/openmp']
-        del comp_args['extra_link_args']
+        comp_args = {
+            'extra_compile_args': ['/openmp'],
+            'language': 'c++',
+            'include_dirs': ['numpy'],
+            }
     elif 'darwin' in platform.system().lower():
         # os.environ["CC"] = "g++-6"
         # os.environ["CPP"] = "cpp-6"
         # os.environ["CXX"] = "g++-6"
         # os.environ["LD"] = "gcc-6"
-        comp_args['extra_compile_args'].append('-mmacosx-version-min=10.7')
-        comp_args['extra_link_args'].append('-lgomp')
+        comp_args = {
+            'extra_compile_args': [
+                '-fopenmp', '-O3', '-mmacosx-version-min=10.7', '-std=c++11',
+                # '-stdlib=libc++'
+                ],
+            'extra_link_args': [
+                '-fopenmp',  # '-lgomp'
+                ],
+            'language': 'c++',
+            'include_dirs': ['numpy'],
+            }
 
     ext_module_cygrid_cygrid = Extension(
         name='cygrid.cygrid',

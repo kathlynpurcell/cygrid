@@ -2,6 +2,9 @@
 # Windows
 
 environment:
+  # In the Appveyor UI, add your PyPI password as TWINE_PASSWORD (click
+  # Settings > Environment > Add Variable...). Make sure to mark it as private!
+  TWINE_USERNAME: bwinkel
 
   global:
       PYTHON: "C:\\conda"
@@ -15,7 +18,7 @@ environment:
       # For this package-template, we include examples of Cython modules,
       # so Cython is required for testing. If your package does not include
       # Cython code, you can set CONDA_DEPENDENCIES: ""
-      CONDA_DEPENDENCIES: "Cython"
+      CONDA_DEPENDENCIES: "Cython pytest"
       
       # List other runtime dependencies for the package that are available as
       # pip packages here.
@@ -26,11 +29,17 @@ environment:
       # are in astropy-ci-extras. If your package uses either of these,
       # add the channels to CONDA_CHANNELS along with any other channels
       # you want to use.
-      CONDA_CHANNELS: "astropy-ci-extras astropy"
+      CONDA_CHANNELS: "conda-forge"
 
   matrix:
       # We test Python 2.7 for Python 2 support.
-      - PYTHON_VERSION: "2.7"
+      # Apparently not working on Windows
+      # - PYTHON_VERSION: "2.7"
+      #   ASTROPY_VERSION: "stable"
+      #   NUMPY_VERSION: "stable"
+
+      # We test Python 3.5 for Python 3 support.
+      - PYTHON_VERSION: "3.5"
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
 
@@ -38,6 +47,11 @@ environment:
       - PYTHON_VERSION: "3.7"
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
+
+      - PYTHON_VERSION: "3.6"
+        ASTROPY_VERSION: "2.0"
+        NUMPY_VERSION: "1.11"
+        DO_RELEASE: "yes"
 
 platform:
     -x64
@@ -53,3 +67,21 @@ build: false
 
 test_script:
     - "%CMD_IN_ENV% python setup.py test"
+
+after_test:
+  # This step builds your wheels.
+  - "%CMD_IN_ENV% python setup.py bdist_wheel"
+  - "%CMD_IN_ENV% python setup.py bdist_wininst"
+  # The following seems to break if on developer version
+  # - "%CMD_IN_ENV% python setup.py bdist_msi"
+
+artifacts:
+  # bdist_wheel puts your built wheel in the dist directory
+  - path: dist\*
+
+on_success:
+#  You can use this step to upload your artifacts to a public website.
+#  See Appveyor's documentation for more details. Or you can simply
+#  access your wheels from the Appveyor "artifacts" tab for your build.
+#  APPVEYOR_REPO_TAG is true only if commit is a tag
+- ps: "If ($env:APPVEYOR_REPO_TAG -eq \"true\" -And $env:DO_RELEASE -eq \"yes\") {\n   python -m twine upload (resolve-path dist\\*.whl)\n  }"

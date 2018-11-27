@@ -1,7 +1,7 @@
 # We set the language to c because python isn't supported on the MacOS X nodes
 # on Travis. However, the language ends up being irrelevant anyway, since we
 # install Python ourselves using conda.
-language: c
+language: none
 
 os:
     - linux
@@ -34,12 +34,14 @@ env:
         - SETUP_CMD='test'
         - EVENT_TYPE='pull_request push'
 
+        - OMP_NUM_THREADS=2
+        - TWINE_USERNAME=bwinkel
         
         # For this package-template, we include examples of Cython modules,
         # so Cython is required for testing. If your package does not include
         # Cython code, you can set CONDA_DEPENDENCIES=''
-        - CONDA_DEPENDENCIES='Cython'
-        - CONDA_DEPENDENCIES_DOC='Cython sphinx-astropy'
+        - CONDA_DEPENDENCIES='Cython pytest'
+        - CONDA_DEPENDENCIES_DOC='Cython sphinx-astropy pytest'
         
         # List other runtime dependencies for the package that are available as
         # pip packages here.
@@ -50,7 +52,7 @@ env:
         # are in astropy-ci-extras. If your package uses either of these,
         # add the channels to CONDA_CHANNELS along with any other channels
         # you want to use.
-        - CONDA_CHANNELS='astropy-ci-extras astropy'
+        - CONDA_CHANNELS='conda-forge'
 
         # If there are matplotlib or other GUI tests, uncomment the following
         # line to use the X virtual framebuffer.
@@ -61,10 +63,10 @@ env:
         # - FLAKE8_OPT='--ignore=E501'
         - FLAKE8_OPT=''
 
-    matrix:
-        # Make sure that egg_info works without dependencies
-        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
+    # matrix:
+    #     # Make sure that egg_info works without dependencies
+    #     - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
+    #     - PYTHON_VERSION=3.7 SETUP_CMD='egg_info'
 
 
 matrix:
@@ -73,9 +75,57 @@ matrix:
     fast_finish: true
 
     include:
-        # Try MacOS X
+
+        # Standard linux; also used for sdist'ing
+        - os: linux
+          env: DO_DIST=YES
+
+        # MacOS X - clang
+        # not working, even though we added the necessary compiler flags
+        # - os: osx
+        #   osx_image: xcode8.3
+        #   env:
+        #     - LDFLAGS='-L/usr/local/opt/libomp/lib -Wl,-rpath,/usr/local/opt/libomp/lib -lomp'
+        #     - CPPFLAGS='-I/usr/local/opt/libomp/include -Xpreprocessor -stdlib=libc++'
+        #     - COMPILER='clang'
+
+        # MacOS X - LLVM
+        # compiles and builds, but tests often not running (seg-fault?)
         - os: osx
-          env: SETUP_CMD='test'
+          osx_image: xcode8.3
+          env:
+            - CC='/usr/local/opt/llvm/bin/clang'
+            - CXX='/usr/local/opt/llvm/bin/clang++'
+            - CXX11='/usr/local/opt/llvm/bin/clang++'
+            - LDFLAGS='-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib -lgomp'
+            - CPPFLAGS='-I/usr/local/opt/llvm/include -stdlib=libc++'
+            - COMPILER='llvm'
+
+        # MacOS X - gcc
+        - os: osx
+          osx_image: xcode8.3
+          env:
+            - COMPILER='gcc'
+
+        # MacOS X - conda-gcc
+        - os: osx
+          osx_image: xcode8.3
+          env:
+            - DO_MAC_DIST=YES
+            - COMPILER='conda-gcc'
+
+        # MacOS X - conda-llvm
+        # not working at all, the packages (see below) seem to not install
+        # a compiler
+        # - os: osx
+        #   osx_image: xcode8.3
+        #   env:
+        #     - CC='/Users/travis/miniconda/bin/clang'
+        #     - CXX='/Users/travis/miniconda/bin/clang++'
+        #     - CXX11='/Users/travis/miniconda/bin/clang++'
+        #     - LDFLAGS='-L/Users/travis/miniconda/lib -Wl,-rpath,/Users/travis/miniconda/lib -lgomp'
+        #     - CPPFLAGS='-I/Users/travis/miniconda/include -stdlib=libc++'
+        #     - COMPILER='conda-llvm'
 
         # Do a coverage test.
         - os: linux
@@ -84,17 +134,24 @@ matrix:
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
         - os: linux
-          env: SETUP_CMD='build_docs -w'
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_DOC
+          env:
+            - SETUP_CMD='build_docs -w'
+            - CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_DOC
+            - NUMPY_VERSION=1.14.3
+            - ASTROPY_VERSION=3.0.2
+            # - UPLOAD_DOCS=YES
 
         # Now try Astropy dev with the latest Python and LTS with Python 2.7 and 3.x.
         - os: linux
           env: ASTROPY_VERSION=development
                EVENT_TYPE='pull_request push cron'
-        - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
-        - os: linux
-          env: ASTROPY_VERSION=lts
+        
+        # No python 2.7 support anymore!
+        # - os: linux
+        #   env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
+        
+        # - os: linux
+        #   env: ASTROPY_VERSION=lts
 
         # Try all python versions and Numpy versions. Since we can assume that
         # the Numpy developers have taken care of testing Numpy with different
@@ -103,15 +160,15 @@ matrix:
 
         - os: linux
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.12
-        - os: linux
-          env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.13
-        - os: linux
-          env: NUMPY_VERSION=1.14
+        # - os: linux
+        #   env: PYTHON_VERSION=3.6 NUMPY_VERSION=1.13
+        # - os: linux
+        #   env: NUMPY_VERSION=1.14
 
         # Try numpy pre-release
-        - os: linux
-          env: NUMPY_VERSION=prerelease
-               EVENT_TYPE='pull_request push cron'
+        # - os: linux
+        #   env: NUMPY_VERSION=prerelease
+        #        EVENT_TYPE='pull_request push cron'
 
         # Do a PEP8 test with flake8
         - os: linux
@@ -122,6 +179,18 @@ matrix:
         # (allow to fail unless your code completely compliant)
         - os: linux
           env: MAIN_CMD='flake8 cygrid --count --show-source --statistics $FLAKE8_OPT' SETUP_CMD=''
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "clang" ]]; then brew install libomp; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "llvm" ]]; then brew install llvm; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "gcc" ]]; then brew install gcc; brew link --overwrite gcc; fi
+  - 'if [[ $TRAVIS_OS_NAME == "osx" && $COMPILER == "gcc" ]]; then
+       gcc --version;
+       gcc-6 --version && export CC="gcc-6" && export CXX="g++-6" && export CPP="g++-6" && export LD="gcc-6" && export LDFLAGS="-Wl,-rpath,/usr/local/opt/gcc/lib/gcc/6/" || true;
+       gcc-7 --version && export CC="gcc-7" && export CXX="g++-7" && export CPP="g++-7" && export LD="gcc-7" && export LDFLAGS="-Wl,-rpath,/usr/local/opt/gcc/lib/gcc/7/" || true;
+       gcc-8 --version && export CC="gcc-8" && export CXX="g++-8" && export CPP="g++-8" && export LD="gcc-8" && export LDFLAGS="-Wl,-rpath,/usr/local/opt/gcc/lib/gcc/8/" || true;
+     fi'
 
 install:
 
@@ -148,10 +217,46 @@ install:
     # section if they are needed before setting up conda) to install any
     # other dependencies.
 
+    # - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "conda-llvm" ]]; then conda install -c conda-forge llvm llvm-openmp; ls /Users/travis/miniconda/**/clang || true; ls /Users/travis/miniconda/**/gcc || true; fi
+
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "conda-gcc" ]]; then conda install -c conda-forge gcc; gcc --version || true; fi
+
 script:
    - $MAIN_CMD $SETUP_CMD
+   - echo "UPLOAD_DOCS" $UPLOAD_DOCS
+   # have to remove the c-files, generated during build with
+   # git reset --hard HEAD;
+   - set -e
+   # for some strange reason, the new package versions (astropy?) create
+   # the _build/html in docs/docs and not in docs/
+   - 'if [[ $UPLOAD_DOCS ]]; then
+        $MAIN_CMD test;
+        conda install doctr;
+        git reset --hard HEAD;
+        if [[ $TRAVIS_TAG ]]; then
+          doctr deploy . --no-require-master --sync --built-docs docs/docs/_build/html ;
+        else
+          doctr deploy --no-require-master --sync --built-docs docs/docs/_build/html "latest";
+        fi
+     fi'
 
 after_success:
     # If coveralls.io is set up for this package, uncomment the line below.
     # The coveragerc file may be customized as needed for your package.
-    # - if [[ $SETUP_CMD == *coverage* ]]; then coveralls --rcfile='cygrid/tests/coveragerc'; fi
+    - 'if [[ $SETUP_CMD == *coverage* ]]; then
+         coveralls --rcfile="cygrid/tests/coveragerc";
+       fi'
+
+    - echo "TRAVIS_TAG" $TRAVIS_TAG
+    - echo "DO_DIST" $DO_DIST
+    - 'if [[ $TRAVIS_TAG && $DO_DIST ]]; then
+         conda install twine;
+         python setup.py sdist;
+         python -m twine upload dist/*.tar.gz;
+       fi'
+    - echo "DO_MAC_DIST" $DO_MAC_DIST
+    - 'if [[ $TRAVIS_TAG && $DO_MAC_DIST ]]; then
+         conda install twine;
+         python setup.py bdist_wheel;
+         python -m twine upload dist/*.whl;
+       fi'

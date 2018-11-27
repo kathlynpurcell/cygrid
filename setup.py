@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Note: This file needs to be Python 2 / <3.6 compatible, so that the nice
 # "This package only supports Python 3.x+" error prints without syntax errors etc.
@@ -22,7 +23,7 @@ AUTHOR = metadata.get('author', 'Benjamin Winkel, Lars Flöer, Daniel Lenz')
 AUTHOR_EMAIL = metadata.get('author_email', '')
 LICENSE = metadata.get('license', 'unknown')
 URL = metadata.get('url', 'https://github.com/bwinkel/cygrid')
-__minimum_python_version__ = metadata.get("minimum_python_version", "2.7")
+__minimum_python_version__ = metadata.get("minimum_python_version", "3.5")
 
 # Enforce Python version check - this is the same check as in __init__.py but
 # this one has to happen before importing ah_bootstrap.
