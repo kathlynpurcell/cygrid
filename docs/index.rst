@@ -1,7 +1,12 @@
-Documentation
-=============
+
+:tocdepth: 3
+
+#####################
+cygrid Documentation
+#####################
 
 This is the documentation for cygrid.
+
 Cygrid allows to resample a number of spectra (or data points) to a regular
 grid - a data cube - using any valid astronomical FITS/WCS projection. The
 method is a based on serialized convolution with finite gridding kernels.
@@ -10,12 +15,42 @@ Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
 algorithm has very small memory footprint, allows easy parallelization, and is
 very fast.
 
+***************
+Getting Started
+***************
+
 .. toctree::
-  :maxdepth: 2
+   :maxdepth: 1
 
-  cygrid/index.rst
+   install
+   importing_cygrid
+..   quick_tour
 
-.. note:: The layout of this directory is simply a suggestion.  To follow
-          traditional practice, do *not* edit this page, but instead place
-          all documentation for the package inside ``cygrid/``.
-          You can follow this practice or choose your own layout.
+******************
+User Documentation
+******************
+
+.. toctree::
+   :maxdepth: 1
+
+   user_manual
+   Tutorials (Jupyter notebooks) <http://nbviewer.jupyter.org/github/bwinkel/cygrid/blob/master/notebooks/>
+
+
+***************
+Project details
+***************
+
+.. toctree::
+   :maxdepth: 1
+
+   license
+
+***************
+Acknowledgments
+***************
+
+This code makes use of the excellent work provided by the
+`Astropy <http://www.astropy.org/>`__ community. pycraf uses the Astropy package and also the
+`Astropy Package Template <https://github.com/astropy/package-template>`__
+for the packaging.

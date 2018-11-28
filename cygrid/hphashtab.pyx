@@ -107,8 +107,8 @@ cdef class HpxHashTable(Healpix):
     Healpix class and adds-in a few helper functions and lookup-table
     members.
 
-    Usually, only two methods have to be called:
-        prepare_helpers (once) and calculate_output_pixels (for each grid call)
+    Usually, only two methods have to be called: `prepare_helpers` (once)
+    and `calculate_output_pixels` (for each grid call)
     See their doc-strings for more information.
 
     Parameters
@@ -121,23 +121,27 @@ cdef class HpxHashTable(Healpix):
     Notes
     -----
     1. The class holds a dictionary (target_dict) that contains for each
-     HEALPix index the list of pixel (centers) of the target (WCS) map that
-     fall into this HEALPix index. For sanity a vector for the pixel centers
-     is used, in case multiple pixels from the WCS map have the same HPX index.
-     Since we need to invert the dictionary later, the coordinate pixel pair
-     is mapped to an integer using the very simple transformation
-       xy_hash = xpix * MAX_Y + ypix; with MAX_Y = 2**30
+       HEALPix index the list of pixel (centers) of the target (WCS) map that
+       fall into this HEALPix index. For sanity a vector for the pixel centers
+       is used, in case multiple pixels from the WCS map have the same HPX
+       index. Since we need to invert the dictionary later, the coordinate 
+       pixel pair is mapped to an integer using the very simple
+       transformation::
+
+        xy_hash = xpix * MAX_Y + ypix  # with MAX_Y == 2**30
+    
     2. All operations make use of the RING scheme indexing. Therefore, we store
-     the HPX index of the first pixel in each ring, the number of HPX pixels
-     per ring and the index of the phi=180d pixel (or rather the closest pixel
-     to the left of phi=180d, if ring is shifted).
+       the HPX index of the first pixel in each ring, the number of HPX pixels
+       per ring and the index of the phi=180d pixel (or rather the closest
+       pixel to the left of phi=180d, if ring is shifted).
     3. Furthermore, we store for each ring the HPX indices of a disc (with
-     specified radius) as valid for phi=180d. These indices can easily be
-     shifted along the phi coordinate to quickly construct discs at any
-     position.
+       specified radius) as valid for phi=180d. These indices can easily be
+       shifted along the phi coordinate to quickly construct discs at any
+       position.
     4. For all of the above, only those indices/rings are stored, that are
-     going to be used. Of course, if disc radius (aka kernel effective radius)
-     is changed, things need to be completely recomputed.
+       going to be used. Of course, if disc radius (aka kernel effective 
+       radius) is changed, things need to be completely recomputed.
+
     '''
 
     def __init__(
@@ -215,27 +219,29 @@ cdef class HpxHashTable(Healpix):
         Notes
         -----
         1. This function needs to be called once per gridding job (not
-         necessarily during each invocation of Cygrid's "grid" method), or
-         if the kernel size/effective radius has changed. It (re-)sets the
-         internal HEALPix resolution to the largest possible value smaller
-         than hpx_max_resolution (it is advised to use half of
-         the (sigma-)width of the kernel, then  the resolution will be such
-         that each (Gaussian) kernel disc will be sampled with about 100 to
-         150 HPX pixels, given sphere_radius = 3 kernel_sigma).
+           necessarily during each invocation of Cygrid's "grid" method), or
+           if the kernel size/effective radius has changed. It (re-)sets the
+           internal HEALPix resolution to the largest possible value smaller
+           than hpx_max_resolution (it is advised to use half of
+           the (sigma-)width of the kernel, then  the resolution will be such
+           that each (Gaussian) kernel disc will be sampled with about 100 to
+           150 HPX pixels, given sphere_radius = 3 kernel_sigma).
         2. It also calls the internal method to fill the target_dict member.
-         It contains for each HEALPix index the list of pixel (centers) of the
-         target (WCS) map that fall into this HEALPix index. For sanity a
-         vector for the pixel centers is used, in case multiple pixels from
-         the WCS map have the same HPX index. Since we need to invert the dictionary later, the coordinate pixel pair is mapped to an integer
-         using the very simple transformation
+           It contains for each HEALPix index the list of pixel (centers) of 
+           the target (WCS) map that fall into this HEALPix index. For sanity a
+           vector for the pixel centers is used, in case multiple pixels from
+           the WCS map have the same HPX index. Since we need to invert the
+           dictionary later, the coordinate pixel pair is mapped to an integer
+           using the very simple transformation::
 
-            xy_hash = xpix * MAX_Y + ypix; with MAX_Y = 2**30
+                xy_hash = xpix * MAX_Y + ypix  # with MAX_Y == 2**30
 
         3. Then it fills the ring-information dictionaries that contain the HPX
-         index of the first pixel in each ring, the number of HPX pixels
-         per ring and the index of the phi=180d pixel (or rather the closest
-         pixel to the left of phi=180d, if ring is shifted).
+           index of the first pixel in each ring, the number of HPX pixels
+           per ring and the index of the phi=180d pixel (or rather the closest
+           pixel to the left of phi=180d, if ring is shifted).
         4. This is a cython-domain only method.
+
         '''
 
         if self.dbg_messages:
@@ -303,17 +309,18 @@ cdef class HpxHashTable(Healpix):
         Notes
         -----
         1. In order to compute the output_input_mapping, first the straight-
-         forward-to-calculate input_output_mapping is calculated. This is
-         done by (effectively) calling the HEALPix query_disc function
-         for each of the to-be-gridded input coordinate pairs, to produce
-         for each input coordinate a list of target pixels that are influenced.
-         In a second step, the input_output_mapping is inverted to give
-         output_input_mapping.
+           forward-to-calculate input_output_mapping is calculated. This is
+           done by (effectively) calling the HEALPix query_disc function
+           for each of the to-be-gridded input coordinate pairs, to produce
+           for each input coordinate a list of target pixels that are 
+           influenced. In a second step, the input_output_mapping is inverted 
+           to give output_input_mapping.
         2. Internally, the HEALPix query_disc routine isn't actually used.
-         Instead, for each ring in HPX the phi=180deg disc is stored and
-         then (horizontally) shifted to any target coordinate, because this
-         is computationally less demanding.
+           Instead, for each ring in HPX the phi=180deg disc is stored and
+           then (horizontally) shifted to any target coordinate, because this
+           is computationally less demanding.
         3. This is a cython-domain only method.
+
         '''
 
         cdef:
@@ -418,13 +425,14 @@ cdef class HpxHashTable(Healpix):
         Notes
         -----
         1. All operations in this class utilize the RING scheme indexing.
-         Therefore, we store (1) the HPX index of the first pixel in each ring,
-         (2) the number of HPX pixels per ring and (3) the index of the
-         phi=180d pixel (or rather the closest pixel to the left of phi=180d,
-         if ring is shifted).
-         Only those numbers are stored that are actually needed (therefore the
-         dictionary approach).
+           Therefore, we store (1) the HPX index of the first pixel in each 
+           ring, (2) the number of HPX pixels per ring and (3) the index of the
+           phi=180d pixel (or rather the closest pixel to the left of phi=180d,
+           if ring is shifted).
+           Only those numbers are stored that are actually needed (therefore 
+           the dictionary approach).
         2. This is a cython-domain only method.
+
         '''
 
         cdef:
@@ -470,16 +478,17 @@ cdef class HpxHashTable(Healpix):
 
         Notes
         -----
-        1. For each target-map pixel (x_index, y_index) a hash
+        1. For each target-map pixel (x_index, y_index) a hash::
 
-           xy_hash = xpix * MAX_Y + ypix; with MAX_Y = 2**30
+               xy_hash = xpix * MAX_Y + ypix  # with MAX_Y == 2**30
 
-         is computed. These are stored as the values of a dictionary the key
-         of which is the HPX index of the world coordinates of the respective
-         pixel pair.
+           is computed. These are stored as the values of a dictionary the key
+           of which is the HPX index of the world coordinates of the respective
+           pixel pair.
         2. For sanity a vector for the pixel centers is used, in case multiple
-         pixels from the WCS map share the same HPX index.
+           pixels from the WCS map share the same HPX index.
         3. This is a cython-domain only method.
+
         '''
 
         cdef:
@@ -525,9 +534,9 @@ cdef class HpxHashTable(Healpix):
         Notes
         -----
         1. The phi=180d discs are calculated with a function very similar
-         to the C++ HEALPix library's function "query_disc". These discs are
-         subsequently shifted along phi-axis to get the discs around
-         arbitrary positions.
+           to the C++ HEALPix library's function `query_disc`. These discs are
+           subsequently shifted along phi-axis to get the discs around
+           arbitrary positions.
         2. This is a cython-domain only method.
         '''
         cdef:
@@ -589,7 +598,7 @@ cdef class HpxHashTable(Healpix):
         Helper to create the input_output_mapping.
 
         This is the most computationally demanding function, probably because
-        random access to std::unordered_map is pretty slow for large dicts
+        random access to `std::unordered_map` is pretty slow for large dicts
         (at least in recent GCC versions, i.e., 4.7+).
 
         Parameters
@@ -614,13 +623,15 @@ cdef class HpxHashTable(Healpix):
         Notes
         -----
         1. Using the phi=180d discs, by shifting along the phi-axis we get the
-        discs around each input position.
+           discs around each input position.
         2. By using an intermediary hpx index lookup, we can lower the
-        necessary memory of the lookup tables. Since the intermediary hpx pixel
-        size is coupled to the kernel size, large smoothing radii (or rather a
-        large number of pixels per kernel sphere) could otherwise lead to high
-        overhead, when for each coord a disc needs to be computed.
+           necessary memory of the lookup tables. Since the intermediary hpx
+           pixel size is coupled to the kernel size, large smoothing radii (or
+           rather a large number of pixels per kernel sphere) could otherwise
+           lead to high overhead, when for each coord a disc needs to be
+           computed.
         3. This is a cython-domain only method.
+
         '''
 
         cdef:
@@ -807,7 +818,7 @@ cdef class HpxHashTable(Healpix):
 
         Notes
         -----
-        2. This is a cython-domain only method.
+        This is a cython-domain only method.
         '''
 
         cdef:
@@ -930,7 +941,7 @@ cdef class HpxHashTable(Healpix):
 
         Notes
         -----
-        2. This is a cython-domain only method.
+        This is a cython-domain only method.
         '''
 
         cdef:

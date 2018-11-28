@@ -113,9 +113,9 @@ cdef class Healpix(object):
 
     Notes
     -----
-    1. A lot of the code in this class was adapted from the HEALPix C++ library.
-     (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-     see http://healpix.sourceforge.net)
+    A lot of the code in this class was adapted from the HEALPix C++ library.
+    (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
+    see `<http://healpix.sourceforge.net>`_)
     '''
 
     def __init__(self, uint64_t nside=1, uint32_t scheme=RING):
@@ -278,7 +278,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -364,7 +364,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -460,7 +460,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -532,7 +532,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -615,7 +615,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -697,7 +697,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
 
@@ -798,7 +798,7 @@ cdef class Healpix(object):
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-         see http://healpix.sourceforge.net)
+         see `<http://healpix.sourceforge.net>`_)
         2. This is a cython-domain only method.
         '''
         cdef:
