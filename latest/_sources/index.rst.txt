@@ -24,7 +24,7 @@ Getting Started
 
    install
    importing_cygrid
-..   quick_tour
+   quick_tour
 
 ******************
 User Documentation

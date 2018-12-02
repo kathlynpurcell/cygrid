@@ -16,6 +16,7 @@ latest/_sources/importing_cygrid.rst.txt
 latest/_sources/index.rst.txt
 latest/_sources/install.rst.txt
 latest/_sources/license.rst.txt
+latest/_sources/quick_tour.rst.txt
 latest/_sources/user_manual.rst.txt
 latest/_static/ajax-loader.gif
 latest/_static/astropy_linkout.svg
@@ -70,6 +71,7 @@ latest/plot_directive/user_manual-2.png
 latest/plot_directive/user_manual-3.hires.png
 latest/plot_directive/user_manual-3.pdf
 latest/plot_directive/user_manual-3.png
+latest/quick_tour.html
 latest/search.html
 latest/searchindex.js
 latest/user_manual-1.hires.png

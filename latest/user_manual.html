@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Cygrid user manual &#8212; cygrid v1.0.0dev49</title>
+    <title>Cygrid user manual &#8212; cygrid v1.0.0dev50</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="npix_to_nside" href="api/cygrid.npix_to_nside.html" />
-    <link rel="prev" title="Importing cygrid" href="importing_cygrid.html" />
+    <link rel="prev" title="Cygrid quick tour" href="quick_tour.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="_static/copybutton.js"></script>
 
@@ -54,13 +54,13 @@
 	</a>
       </li>
       <li class="right">
-	<a href="importing_cygrid.html" title="Importing cygrid">
+	<a href="quick_tour.html" title="Cygrid quick tour">
 	  &laquo; previous
 	</a>
 	 |
       </li>
       <li>
-	<a href="index.html">cygrid v1.0.0dev49</a>
+	<a href="index.html">cygrid v1.0.0dev50</a>
 	 &#187;
       </li>
       
@@ -181,7 +181,7 @@ increase the computational speed of the gridding process. For details, we
 refer to the Paper TODO REF.</p>
 </div>
 <div class="section" id="kernel-parameters">
-<h3>Kernel parameters<a class="headerlink" href="#kernel-parameters" title="Permalink to this headline">¶</a></h3>
+<span id="kernel-parameters-label"></span><h3>Kernel parameters<a class="headerlink" href="#kernel-parameters" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="comparison-with-scipy-griddata">
 <h3>Comparison with scipy.griddata<a class="headerlink" href="#comparison-with-scipy-griddata" title="Permalink to this headline">¶</a></h3>
@@ -191,6 +191,13 @@ the result:</p>
 <div class="figure">
 <img alt="_images/user_manual-3.png" src="_images/user_manual-3.png" />
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Here we have made the approximation, that the input coordinates (ranging
+from 0 to 1 are in angles on the sphere (in degrees), and not the
+cartesian description. However, for small angles the distortion is
+negligible.)</p>
+</div>
 </div>
 <div class="section" id="angular-resolution">
 <h3>Angular resolution<a class="headerlink" href="#angular-resolution" title="Permalink to this headline">¶</a></h3>
@@ -199,6 +206,7 @@ the result:</p>
 </div>
 <div class="section" id="how-to-use-cygrid-simple-tasks">
 <h2>How to use cygrid? Simple tasks<a class="headerlink" href="#how-to-use-cygrid-simple-tasks" title="Permalink to this headline">¶</a></h2>
+<p>TODO: this was shifted to quick tour</p>
 <p>Simple example:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
 <span class="kn">import</span> <span class="nn">cygrid</span>
@@ -233,13 +241,6 @@ the result:</p>
 <span class="n">fits</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="s1">&#39;example.fits&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data_cube</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Here we have made the approximation, that the input coordinates (ranging
-from 0 to 1 are in angles on the sphere (in degrees), and not the
-cartesian description. However, for small angles the distortion is
-negligible.)</p>
-</div>
 <div class="section" id="how-does-cygrid-compare-to-scipy-griddata-or-reproject">
 <h3>How does cygrid compare to scipy.griddata or reproject?<a class="headerlink" href="#how-does-cygrid-compare-to-scipy-griddata-or-reproject" title="Permalink to this headline">¶</a></h3>
 </div>
@@ -247,7 +248,7 @@ negligible.)</p>
 <div class="section" id="how-to-use-cygrid-advanced-tasks">
 <h2>How to use cygrid? Advanced tasks<a class="headerlink" href="#how-to-use-cygrid-advanced-tasks" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="decrease-memory-footprint">
-<h3>Decrease memory footprint<a class="headerlink" href="#decrease-memory-footprint" title="Permalink to this headline">¶</a></h3>
+<span id="serialization-label"></span><h3>Decrease memory footprint<a class="headerlink" href="#decrease-memory-footprint" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="sight-line-gridding">
 <h3>Sight-line gridding<a class="headerlink" href="#sight-line-gridding" title="Permalink to this headline">¶</a></h3>

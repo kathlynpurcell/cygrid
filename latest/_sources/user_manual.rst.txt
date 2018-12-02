@@ -1,8 +1,8 @@
 .. user-manual:
 
-**************************************
+******************
 Cygrid user manual
-**************************************
+******************
 
 .. currentmodule:: cygrid
 
@@ -16,7 +16,7 @@ The `~cygrid` package (see `Reference/API`_).
 
 
 Data gridding
---------------------------
+-------------
 
 from https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.interpolate.griddata.html
 
@@ -30,9 +30,9 @@ from https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.interpola
 
     def func(x, y):
         return x*(1-x)*np.cos(4*np.pi*x) * np.sin(4*np.pi*y**2)**2
-    
+
     grid_x, grid_y = np.mgrid[0:1:100j, 0:1:200j]
-    
+
     # generate some data
     points = np.random.rand(1000, 2)
     values = func(points[:,0], points[:,1])
@@ -63,7 +63,7 @@ signal-to-noise ratio gets better). Unfortunately, the `~scipy.griddata` algorit
     values = func(points[:,0], points[:,1]) + noise
 
 .. plot::
-    
+
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.interpolate import griddata
@@ -71,14 +71,14 @@ signal-to-noise ratio gets better). Unfortunately, the `~scipy.griddata` algorit
 
     def func(x, y):
         return x*(1-x)*np.cos(4*np.pi*x) * np.sin(4*np.pi*y**2)**2
-    
+
     grid_x, grid_y = np.mgrid[0:1:100j, 0:1:200j]
-    
+
     fig, axes = plt.subplots(2, 2, figsize=(12, 12))
     for ax, (sigma, nsize) in zip(axes.flatten(), [
             (0.01, 1000), (0.01, 100000), (0.1, 1000), (0.1, 100000)
             ]):
-        
+
         points = np.random.rand(nsize, 2)
         noise = np.random.normal(0, sigma, nsize)
 
@@ -107,7 +107,7 @@ formula:
 where:
 
 .. math::
-    
+
     W_{i,j}\equiv\sum_n w(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)\,,
 
 is called the weight map.
@@ -121,7 +121,7 @@ value of the weighting kernel :math:`w` depends only on the input and output
 coordinates. In most cases a radially symmetric kernel is applied, such that:
 
 .. math::
-    
+
     w(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)=w\left(\mathcal{D}(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)\right)
 
 with the distance :math:`\mathcal{D}` between a pixel center world coordinate,
@@ -141,19 +141,21 @@ the map in rectangular coordinates. Therefore, a certain map projections has
 to be specified, as well.
 
 However, there are libraries to easily convert between the world coordinates
-(longitude and latitude) and pixel coordinates (:math:`i` and :math:`j`), such 
+(longitude and latitude) and pixel coordinates (:math:`i` and :math:`j`), such
 as WCS (TODO REF). Then one only needs to use the true-angular distance
 function instead of simple cartesian distance and the above formula will work.
 
-Of course, in practice there is a little bit more to it. One has to deal with 
-edge effects and the double-sum over all :math:`n` and :math:`(i, j)` is a 
+Of course, in practice there is a little bit more to it. One has to deal with
+edge effects and the double-sum over all :math:`n` and :math:`(i, j)` is a
 dealbreaker for non-trivial map sizes. One can use a kernel function with
 finite support, though, and restrict the summation to those input samples
-:math:`n` that contribute significantly to :math:`(i, j)` (in spherical 
-coordinates, this is not an easy task!). On top of that, cygrid uses some 
-clever cashing techniques and can profit from multi-core CPUs to further 
-increase the computational speed of the gridding process. For details, we 
+:math:`n` that contribute significantly to :math:`(i, j)` (in spherical
+coordinates, this is not an easy task!). On top of that, cygrid uses some
+clever cashing techniques and can profit from multi-core CPUs to further
+increase the computational speed of the gridding process. For details, we
 refer to the Paper TODO REF.
+
+.. _kernel-parameters-label:
 
 Kernel parameters
 ---------------------------------
@@ -163,11 +165,11 @@ Kernel parameters
 Comparison with scipy.griddata
 -------------------------------
 
-You're probably curious, how this compares to `~scipy.griddata`. Here is 
+You're probably curious, how this compares to `~scipy.griddata`. Here is
 the result:
 
 .. plot::
-    
+
     import numpy as np
     import matplotlib.pyplot as plt
     import cygrid
@@ -175,16 +177,16 @@ the result:
 
     def func(x, y):
         return x*(1-x)*np.cos(4*np.pi*x) * np.sin(4*np.pi*y**2)**2
-    
+
     grid_x, grid_y = np.meshgrid(
         np.linspace(0, 1, 100), np.linspace(0, 1, 100)
         )
-    
+
     fig, axes = plt.subplots(2, 2, figsize=(12, 12))
     for ax, (sigma, nsize) in zip(axes.flatten(), [
             (0.01, 1000), (0.01, 100000), (0.1, 1000), (0.1, 100000)
             ]):
-        
+
         points = np.random.rand(2, nsize)
         noise = np.random.normal(0, sigma, nsize)
 
@@ -209,6 +211,13 @@ the result:
 
     plt.show()
 
+.. note::
+
+    Here we have made the approximation, that the input coordinates (ranging
+    from 0 to 1 are in angles on the sphere (in degrees), and not the
+    cartesian description. However, for small angles the distortion is
+    negligible.)
+
 Angular resolution
 ------------------
 
@@ -216,6 +225,8 @@ Drawback: angular resolution is degraded.
 
 How to use cygrid? Simple tasks
 ======================================
+
+TODO: this was shifted to quick tour
 
 Simple example::
 
@@ -252,19 +263,14 @@ Simple example::
     fits.writeto('example.fits', header=header, data=data_cube)
 
 
-.. note::
-
-    Here we have made the approximation, that the input coordinates (ranging
-    from 0 to 1 are in angles on the sphere (in degrees), and not the
-    cartesian description. However, for small angles the distortion is
-    negligible.)
-
 How does cygrid compare to scipy.griddata or reproject?
 --------------------------------------------------------
 
 
 How to use cygrid? Advanced tasks
 =========================================
+
+.. _serialization-label:
 
 Decrease memory footprint
 -------------------------
