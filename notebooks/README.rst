@@ -52,16 +52,9 @@ Sight-line gridding
 Certainly a less common use case is to employ `cygrid` to grid a data set to
 a list of (irregular) coordinates - which makes only sense for true data
 gridding (and not re-projecting data) or if one needs to change the angular
-resolution (down-sampling). One use case would be to create a HEALPix map
-from a large raw data set. The `cygrid` sight-line gridder can do that, which
-is demonstrated in `this notebook <04_sightline_gridding.ipynb>`_.
-
-.. note::
-
-    This notebook needs a complete overhaul. (Regridding from HPX to sight
-    lines is not a good example, because interpolation would be better
-    suited for this. Alternatively, we could high-light the down-sampling
-    aspect.)
+resolution (down-sampling). Another use case would be to create a HEALPix map
+from a large raw data set. The `cygrid` sight-line gridder can do all of
+that, which is demonstrated in `this notebook <04_sightline_gridding.ipynb>`_.
 
 Additional material
 ===================
