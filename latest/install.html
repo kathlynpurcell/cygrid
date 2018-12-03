@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Importing cygrid" href="importing_cygrid.html" />
-    <link rel="prev" title="cygrid Documentation" href="index.html" />
+    <link rel="prev" title="Cygrid Documentation" href="index.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="_static/copybutton.js"></script>
 
@@ -54,7 +54,7 @@
 	</a>
       </li>
       <li class="right">
-	<a href="index.html" title="cygrid Documentation">
+	<a href="index.html" title="Cygrid Documentation">
 	  &laquo; previous
 	</a>
 	 |
@@ -91,6 +91,14 @@ installation.</li>
 </div>
 <div class="section" id="installing-cygrid">
 <h2>Installing cygrid<a class="headerlink" href="#installing-cygrid" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-anaconda">
+<h3>Using Anaconda<a class="headerlink" href="#using-anaconda" title="Permalink to this headline">¶</a></h3>
+<p>The easiest way to install <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is certainly to make use of the
+great <a class="reference external" href="https://www.anaconda.com/">Anaconda Python distribution</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install cygrid -c conda-forge
+</pre></div>
+</div>
+</div>
 <div class="section" id="using-pip">
 <h3>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h3>
 <p>To install cygrid with <a class="reference external" href="http://www.pip-installer.org/en/latest/">pip</a>, simply run</p>
@@ -99,8 +107,9 @@ installation.</li>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You may need a C compiler (<code class="docutils literal notranslate"><span class="pre">gcc</span></code>) with OpenMP support to be installed
-for the installation to succeed.</p>
+<p class="last">You may need a C++ compiler (e.g., <code class="docutils literal notranslate"><span class="pre">g++</span></code>) with OpenMP support to be
+installed for the installation to succeed, if no <a class="reference external" href="https://pythonwheels.com/">binary wheel</a> is available for your OS and Python version
+on the <a class="reference external" href="https://pypi.org/project/cygrid/#files">Python Package Index</a></p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -257,6 +266,7 @@ code, you can also do</p>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#installing-cygrid">Installing cygrid</a><ul>
+<li><a class="reference internal" href="#using-anaconda">Using Anaconda</a></li>
 <li><a class="reference internal" href="#using-pip">Using pip</a></li>
 <li><a class="reference internal" href="#installation-from-source">Installation from source</a></li>
 <li><a class="reference internal" href="#installation-on-windows">Installation on Windows</a></li>
@@ -286,7 +296,7 @@ code, you can also do</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 02 Dec 2018. <br/>
+    Last built 03 Dec 2018. <br/>
   </p>
 </footer>
   </body>

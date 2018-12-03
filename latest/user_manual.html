@@ -78,17 +78,43 @@
 <h1>Cygrid user manual<a class="headerlink" href="#cygrid-user-manual" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> package (see <a class="reference internal" href="#reference-api">Reference/API</a>).</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code> allows to resample a number of spectra (or data points) to a regular
+grid - a data cube - using any valid astronomical FITS/WCS projection. The
+method is a based on serialized convolution with finite gridding kernels.
+Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
+(which has the drawback of slight degradation of the effective resolution).
+The algorithm has very small memory footprint, allows easy parallelization,
+and is very fast.</p>
+<p>Cygrid is already used in several “production” systems, for example it was
+utilized for two major 21-cm HI surveys, EBHIS and HI4PI. Nevertheless,
+we cannot guarantee that it’s completely bug-free. We kindly invite you to
+use the library and we are grateful for feedback. Note, that work on the
+documentation is still ongoing.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> package is available for Linux, Windows, and MacOS operating
+systems. To improve computation speed, the <a class="reference external" href="https://www.openmp.org/">OpenMP technology</a> is used. Therefore, a suitable C++ compiler must
+be installed on your system, if you build from source. For convenience, we
+also provide packages for the <a class="reference external" href="https://www.anaconda.com/">Anaconda Python distribution</a>.</p>
 <div class="section" id="data-gridding">
 <h3>Data gridding<a class="headerlink" href="#data-gridding" title="Permalink to this headline">¶</a></h3>
-<p>from <a class="reference external" href="https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.interpolate.griddata.html">https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.interpolate.griddata.html</a></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<p>Gridding data is a ubiquitous task in many scientific applications, for
+example to make maps from measured raw data sets in astronomy or geographic
+information systems (GIS). Therefore, it is not surprising that also the
+popular <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span></code> library provides a function, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>,
+which can be used for this purpose:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example adapted from &quot;scipy.interpolate.griddata&quot; docs</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">griddata</span>
 
 
 <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="p">)</span>
 
 <span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">100j</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">200j</span><span class="p">]</span>
 
@@ -96,10 +122,18 @@
 <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
 
-<span class="n">gridded</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+<span class="n">gridded</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span>
+    <span class="n">points</span><span class="p">,</span>
+    <span class="n">values</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">),</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span>
+    <span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span>
+    <span class="p">)</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;k.&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gridded</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
@@ -111,32 +145,50 @@
 <div class="figure">
 <img alt="_images/user_manual-1.png" src="_images/user_manual-1.png" />
 </div>
+<p>The points in the left panel show the positions, where the underlying
+function was sampled. As can be seen in the right panel,
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> does a good job in estimating the function
+values (on a regular grid) from these irregularly sampled points.</p>
 <p>But what happens, if we add noise to the sampled data? Obviously, the gridded
-data will not be a good description of the original function anymore. One
-possible counter is to sample (aka observer) the function at more positions,
-because this should decrease the noise in the gridded map (the
-signal-to-noise ratio gets better). Unfortunately, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code> algorithm works in a way, which doesn’t work in this way:</p>
+data will somehow be affected by the decreased signal-to-noise ratio and may
+not be a good description of the original (noise-free) function anymore. One
+possible counter could be to sample (aka observe) the function at more
+positions, because this should increase the signal-to-noise ratio in the
+gridded map. Unfortunately, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm
+doesn’t work this way:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate some data</span>
-<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>
-<span class="n">nsize</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># or 0.1</span>
+<span class="n">nsize</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># or 100000</span>
 <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">nsize</span><span class="p">)</span>
 
 <span class="n">values</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">points</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">noise</span>
+
+<span class="n">grid_and_plot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//user_manual-2.py">Source code</a>, <a class="reference external" href=".//user_manual-2.png">png</a>, <a class="reference external" href=".//user_manual-2.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-2.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/user_manual-2.png" src="_images/user_manual-2.png" />
 </div>
-<p>While one can see traces of the original function in the bottom right panel,
-it is evident that there are strange outliers in the gridded map.</p>
+<p>With a significantly small number of samples or too much noise (e.g., lower
+left panel), the gridded data is a very bad representation of the underlying
+function. But even with a large input sample size, the
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm produces strange outliers in the
+gridded map (bottom right panel), but at least one can still see traces of the
+original function.</p>
 </div>
 <div class="section" id="convolution-based-gridding">
 <h3>Convolution based gridding<a class="headerlink" href="#convolution-based-gridding" title="Permalink to this headline">¶</a></h3>
 <p>One gridding algorithm, which does a better job at this, is so-called
-convolutional gridding. Mathematically, it can be described by the following
-formula:</p>
+convolutional gridding. The idea behind this method is relatively simple. The
+raw data samples (which are located at irregular coordinates) are convolved
+with a kernel function, and then the result is computed at the position of the
+pixel centers of the desired regular grid cells. If a Gaussian is used as
+kernel, one can safe a lot of computing time, because each raw data sample
+will only influence the output grid cells in within a certain sphere around
+the raw-sample position.</p>
+<p>Mathematically, this approach can be described by the following formula:</p>
 <div class="math notranslate nohighlight">
 \[R_{i,j}[s]=\frac{1}{W_{i,j}}\sum_n R_n[s](\alpha_n,\delta_n)w(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)\,.\]</div>
 <p>where:</p>
@@ -146,62 +198,133 @@ formula:</p>
 <p>Here, <span class="math notranslate nohighlight">\(R_n [s]\)</span> and <span class="math notranslate nohighlight">\(R_{i,j}[s]\)</span> are two different representations
 of the true signal <span class="math notranslate nohighlight">\(s\)</span>. The index <span class="math notranslate nohighlight">\(n\)</span> runs over the list of all
 input samples, with respective coordinates <span class="math notranslate nohighlight">\((\alpha_n,\delta_n)\)</span>, while
-the regular output grid can be parametrized via pixel coordinates <span class="math notranslate nohighlight">\((i,j)\)</span>
-with associated world coordinates <span class="math notranslate nohighlight">\((\alpha_{i,j}, \delta_{i,j})\)</span>. The
-value of the weighting kernel <span class="math notranslate nohighlight">\(w\)</span> depends only on the input and output
-coordinates. In most cases a radially symmetric kernel is applied, such that:</p>
+the regular output grid can be parametrized via pixel coordinates
+<span class="math notranslate nohighlight">\((i,j)\)</span> with associated world coordinates <span class="math notranslate nohighlight">\((\alpha_{i,j},
+\delta_{i,j})\)</span>. The value of the weighting kernel <span class="math notranslate nohighlight">\(w\)</span> depends only on
+the input and output coordinates. In most cases a radially symmetric kernel is
+applied, such that:</p>
 <div class="math notranslate nohighlight">
 \[w(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)=w\left(\mathcal{D}(\alpha_{i,j},\delta_{i,j};\alpha_n,\delta_n)\right)\]</div>
 <p>with the distance <span class="math notranslate nohighlight">\(\mathcal{D}\)</span> between a pixel center world coordinate,
 <span class="math notranslate nohighlight">\((\alpha_{i,j}, \delta_{i,j})\)</span>, and the <span class="math notranslate nohighlight">\(n\)</span>-th input coordinate,
 <span class="math notranslate nohighlight">\((\alpha_n,\delta_n)\)</span>.</p>
-<p>TODO: add a simple python gridder, which visualizes this (maybe with animated
-gif?)</p>
+<p>Since once usually doesn’t want to keep all raw data samples in memory, we use
+two helper maps. While we iterate over the samples (sum over <span class="math notranslate nohighlight">\(n\)</span>), we
+compute the products <span class="math notranslate nohighlight">\(R_n[s](\alpha_n,\delta_n)w(\alpha_{i,j},\delta_{i,
+j};\alpha_n,\delta_n)\)</span> for all pixels <span class="math notranslate nohighlight">\((i, j)\)</span> within a sphere around
+the <span class="math notranslate nohighlight">\((\alpha_n,\delta_n)\)</span> position, and add them to an empty array
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">A[i,j]</span></code>, which can be identified with <span class="math notranslate nohighlight">\(R_{i,j}[s]\cdot W_{i,j}\)</span>.
+Simultaneously, we do the same for the weighting factors and add these to
+another array <code class="xref py py-obj docutils literal notranslate"><span class="pre">B[i,j]</span></code> aka the weight map, <span class="math notranslate nohighlight">\(W_{i,j}\)</span>. When all raw data
+samples have been processed, the two resulting arrays are divided (<code class="xref py py-obj docutils literal notranslate"><span class="pre">A[i,j]</span> <span class="pre">/</span>
+<span class="pre">B[i,j]</span></code>), which gives <span class="math notranslate nohighlight">\(R_{i,j}\)</span>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In fact, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> follows a slightly different approach internally,
+caching some intermediary values, to allow multi-threaded processing. For
+details, please see the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In one of our <a class="reference external" href="https://github.com/bwinkel/cygrid/blob/master/notebooks/A01_convolutional_gridding.ipynb">Jupyter tutorial notebooks</a>
+we made an animation that demonstrates how the algorithm works
+step-by-step.</p>
+</div>
 </div>
 <div class="section" id="the-cygrid-algorithm">
 <h3>The cygrid algorithm<a class="headerlink" href="#the-cygrid-algorithm" title="Permalink to this headline">¶</a></h3>
 <p>The great advantage of the approach described above, is, that it can be
 straightforwardly applied to spherical geometry, which is necessary for map
-making in geographic information systems and astronomy. The sampled coordinates
-are often the longitude and latitude on a sphere, while one wants to display
-the map in rectangular coordinates. Therefore, a certain map projections has
-to be specified, as well.</p>
+making in geographic information systems and astronomy. The sampled
+coordinates are often the longitude and latitude on a sphere, while one wants
+to display the map in rectangular coordinates. Therefore, a certain map
+projections has to be specified, as well.</p>
 <p>However, there are libraries to easily convert between the world coordinates
 (longitude and latitude) and pixel coordinates (<span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>), such
-as WCS (TODO REF). Then one only needs to use the true-angular distance
-function instead of simple cartesian distance and the above formula will work.</p>
+as <a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>. Then one only needs to use the true-angular distance
+function instead instead of the simple Cartesian distance and the above
+formulas can be applied.</p>
 <p>Of course, in practice there is a little bit more to it. One has to deal with
 edge effects and the double-sum over all <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\((i, j)\)</span> is a
-dealbreaker for non-trivial map sizes. One can use a kernel function with
+deal breaker for non-trivial map sizes. One can use a kernel function with
 finite support, though, and restrict the summation to those input samples
 <span class="math notranslate nohighlight">\(n\)</span> that contribute significantly to <span class="math notranslate nohighlight">\((i, j)\)</span> (in spherical
-coordinates, this is not an easy task!). On top of that, cygrid uses some
-clever cashing techniques and can profit from multi-core CPUs to further
-increase the computational speed of the gridding process. For details, we
-refer to the Paper TODO REF.</p>
-</div>
-<div class="section" id="kernel-parameters">
-<span id="kernel-parameters-label"></span><h3>Kernel parameters<a class="headerlink" href="#kernel-parameters" title="Permalink to this headline">¶</a></h3>
+coordinates, it is not an easy task to identify pixels within a certain
+sphere!). On top of that, cygrid uses some clever cashing techniques and can
+profit from multi-core CPUs to further increase the computational speed of the
+gridding process. For details, we refer to the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>.</p>
 </div>
 <div class="section" id="comparison-with-scipy-griddata">
 <h3>Comparison with scipy.griddata<a class="headerlink" href="#comparison-with-scipy-griddata" title="Permalink to this headline">¶</a></h3>
-<p>You’re probably curious, how this compares to <code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code>. Here is
-the result:</p>
+<p>After reading all of the above, you’re now probably curious, how <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
+compares to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>. Here is the result:</p>
 <p>(<a class="reference external" href=".//user_manual-3.py">Source code</a>, <a class="reference external" href=".//user_manual-3.png">png</a>, <a class="reference external" href=".//user_manual-3.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-3.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/user_manual-3.png" src="_images/user_manual-3.png" />
 </div>
+<p>We think, it is fair to say that <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> produces much better result
+for these complicated situations.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Here we have made the approximation, that the input coordinates (ranging
-from 0 to 1 are in angles on the sphere (in degrees), and not the
-cartesian description. However, for small angles the distortion is
+from 0 to 1 are in angles on the sphere (in degrees), and not the linear
+Cartesian coordinates. However, for small angles the distortion is
 negligible.)</p>
 </div>
 </div>
 <div class="section" id="angular-resolution">
-<h3>Angular resolution<a class="headerlink" href="#angular-resolution" title="Permalink to this headline">¶</a></h3>
-<p>Drawback: angular resolution is degraded.</p>
+<span id="angular-resolution-label"></span><h3>Angular resolution<a class="headerlink" href="#angular-resolution" title="Permalink to this headline">¶</a></h3>
+<p>Because <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is based on convolution with a (typically) Gaussian kernel,
+the effective angular resolution of the data is degraded:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_\mathrm{out}^2 = \sigma_\mathrm{in}^2 + \sigma_k^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma_\mathrm{out}\)</span> is the standard deviation of the resulting
+effective beam width (given it’s Gaussian), <span class="math notranslate nohighlight">\(\sigma_\mathrm{in}\)</span> is the
+width of the input beam, and <span class="math notranslate nohighlight">\(\sigma_{k}\)</span> is the width of the kernel.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">One can convert between the standard-deviation width and the FWHM via
+<span class="math notranslate nohighlight">\(\sigma = \mathrm{FWHM} / \sqrt{8\ln2}\)</span>.</p>
+</div>
+<p>A good practical compromise is often to let the kernel be about half the
+size of the input resolution, because then the resulting resolution is
+only degraded by about 10%.</p>
+<p>There are several additional considerations, which play a role. The kernel
+must not be too narrow, especially if the input data are not sufficiently
+densely sampled. Each raw data sample can only “reach” output grid pixels
+that are well within an angular distance of <span class="math notranslate nohighlight">\(&lt;3\sigma_k\)</span>. Furthermore,
+the output pixel grid must be fine enough to warrant full sampling of the
+output signal: <span class="math notranslate nohighlight">\(\Delta p\lesssim\mathrm{FWHM}_\mathrm{out}/2\sqrt{2}=\sigma_\mathrm{out}/\sqrt{\ln2}\)</span>.
+We’d even recommend to chose the output grid such that
+<span class="math notranslate nohighlight">\(\Delta p\lesssim\mathrm{FWHM}_k/2\sqrt{2}=\sigma_k/\sqrt{\ln2}\)</span>.
+This is because for performance reasons <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> does compute the kernel
+function values only for the pixel centers, and doesn’t perform numerical
+integration over the pixel area. Of course, this leads to a certain numerical
+inaccuracy, but if the output pixel grid supports full sampling of the kernel,
+the errors are on an acceptable level. For further details we refer to
+the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>.</p>
+<p>Under some circumstances, the decrease in angular resolution is even
+desirable. If one wants to compare two data sets with different angular
+resolution, it is possible to smooth the higher-resolution data to
+the lower-resolution map by choosing <span class="math notranslate nohighlight">\(\sigma_k^2=\sigma_\mathrm{low}^2 - \sigma_\mathrm{high}^2\)</span>.</p>
+</div>
+<div class="section" id="kernel-parameters">
+<span id="kernel-parameters-label"></span><h3>Kernel parameters<a class="headerlink" href="#kernel-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Apart from choosing a proper kernel size (see
+<a class="reference internal" href="#angular-resolution-label"><span class="std std-ref">Angular resolution</span></a>), one can use three different weighting
+functions, <code class="xref py py-obj docutils literal notranslate"><span class="pre">gauss1d</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">gauss2d</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">tapered_sinc</span></code>. Despite its name,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">gauss1d</span></code> refers to a two-dimensional radial-symmetric Gaussian - in
+contrast to <code class="xref py py-obj docutils literal notranslate"><span class="pre">gauss2d</span></code>, which is for an elliptical 2D Gaussian. More
+information, e.g., which parameters are required for each of the three
+functions, can be found in the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a> method
+documentation.</p>
+<p>There are two other necessary parameters, to be provided to the
+<a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a> method: the kernel sphere radius (or support
+radius) and the resolution of the internally used <a class="reference external" href="https://healpix.jpl.nasa.gov/">HEALPix</a> grid. The sphere radius should be
+<span class="math notranslate nohighlight">\(3\ldots5\sigma_k\)</span> depending on the desired accuracy. As the area of a
+sphere goes with radius squared, using <span class="math notranslate nohighlight">\(5\sigma_k\)</span> will take roughly
+three times longer. The internally HPX resolution defines only some details
+of the used caches. A good value for this is <span class="math notranslate nohighlight">\(\sigma_k/2\)</span>.</p>
 </div>
 </div>
 <div class="section" id="how-to-use-cygrid-simple-tasks">
@@ -261,7 +384,11 @@ negligible.)</p>
 <div class="section" id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference external" href="http://docs.astropy.org/en/stable/units/index.html">Astropy Units and Quantities package</a>, which is used extensively in cygrid.</li>
+<li><a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>: B. Winkel, D. Lenz &amp; L. Flöer: <em>Cygrid: A fast Cython-powered convolution-based gridding module for Python</em>, Astronomy &amp; Astrophysics, Volume 591, A 12, 2016.</li>
+<li><a class="reference external" href="http://adsabs.harvard.edu/abs/2005ApJ...622..759G">HEALPix paper</a>: K. M. Górski, E. Hivon, A. J. Banday, B. D. Wandelt, F. K. Hansen, M. Reinecke, M. Bartelmann: <em>HEALPix: A Framework for High-Resolution Discretization and Fast Analysis of Data Distributed on the Sphere</em>, The Astrophysical Journal, Volume 622, Issue 2, 2005.</li>
+<li><a class="reference external" href="http://adsabs.harvard.edu/abs/2002A%26A...395.1061G">WCSlib paper I</a>: E. W. Greisen &amp; M. R. Calabretta: <em>Representations of world coordinates in FITS</em>, Astronomy &amp; Astrophysics, Volume 395, p.1061, 2002.</li>
+<li><a class="reference external" href="http://adsabs.harvard.edu/abs/2002A%26A...395.1061G">WCSlib paper II</a>: M. R. Calabretta &amp; E. W. Greisen: <em>Representations of celestial coordinates in FITS</em>, Astronomy &amp; Astrophysics, Volume 395, p.1077, 2002.</li>
+<li><a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html">Astropy World Coodinate System package</a>, which is used extensively in cygrid.</li>
 </ul>
 </div>
 <div class="section" id="reference-api">
@@ -330,9 +457,9 @@ negligible.)</p>
 <li><a class="reference internal" href="#data-gridding">Data gridding</a></li>
 <li><a class="reference internal" href="#convolution-based-gridding">Convolution based gridding</a></li>
 <li><a class="reference internal" href="#the-cygrid-algorithm">The cygrid algorithm</a></li>
-<li><a class="reference internal" href="#kernel-parameters">Kernel parameters</a></li>
 <li><a class="reference internal" href="#comparison-with-scipy-griddata">Comparison with scipy.griddata</a></li>
 <li><a class="reference internal" href="#angular-resolution">Angular resolution</a></li>
+<li><a class="reference internal" href="#kernel-parameters">Kernel parameters</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#how-to-use-cygrid-simple-tasks">How to use cygrid? Simple tasks</a><ul>
@@ -372,7 +499,7 @@ negligible.)</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 02 Dec 2018. <br/>
+    Last built 03 Dec 2018. <br/>
   </p>
 </footer>
   </body>

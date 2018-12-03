@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>cygrid Documentation &#8212; cygrid v1.0.0dev50</title>
+    <title>Cygrid Documentation &#8212; cygrid v1.0.0dev50</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -68,15 +68,18 @@
           <div class="body" role="main">
             
   <div class="section" id="cygrid-documentation">
-<h1>cygrid Documentation<a class="headerlink" href="#cygrid-documentation" title="Permalink to this headline">¶</a></h1>
-<p>This is the documentation for cygrid.</p>
+<h1>Cygrid Documentation<a class="headerlink" href="#cygrid-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Cygrid allows to resample a number of spectra (or data points) to a regular
 grid - a data cube - using any valid astronomical FITS/WCS projection. The
 method is a based on serialized convolution with finite gridding kernels.
 Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
-(which has the drawback of slight degradation of the effective resolution). The
-algorithm has very small memory footprint, allows easy parallelization, and is
-very fast.</p>
+(which has the drawback of slight degradation of the effective resolution).
+The algorithm has very small memory footprint, allows easy parallelization,
+and is very fast.</p>
+<p>The cygrid package is available for Linux, Windows, and MacOS operating
+systems. To improve computation speed, the <a class="reference external" href="https://www.openmp.org/">OpenMP technology</a> is used. Therefore, a suitable C++ compiler must
+be installed on your system, if you build from source. For convenience, we
+also provide packages for the <a class="reference external" href="https://www.anaconda.com/">Anaconda Python distribution</a>.</p>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -96,18 +99,24 @@ very fast.</p>
 </ul>
 </div>
 </div>
-<div class="section" id="project-details">
-<h2>Project details<a class="headerlink" href="#project-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licenses</a></li>
 </ul>
 </div>
 </div>
+<div class="section" id="preferred-citation-method">
+<h2>Preferred citation method<a class="headerlink" href="#preferred-citation-method" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<p>Please cite our <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">paper</a> if you use <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> for your projects.</p>
+</div>
 <div class="section" id="acknowledgments">
 <h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
 <p>This code makes use of the excellent work provided by the
-<a class="reference external" href="http://www.astropy.org/">Astropy</a> community. pycraf uses the Astropy package and also the
+<a class="reference external" href="http://www.astropy.org/">Astropy</a> community. Cygrid uses the Astropy package and also the
 <a class="reference external" href="https://github.com/astropy/package-template">Astropy Package Template</a>
 for the packaging.</p>
 </div>
@@ -120,10 +129,11 @@ for the packaging.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">cygrid Documentation</a><ul>
+<li><a class="reference internal" href="#">Cygrid Documentation</a><ul>
 <li><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li><a class="reference internal" href="#user-documentation">User Documentation</a></li>
-<li><a class="reference internal" href="#project-details">Project details</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#preferred-citation-method">Preferred citation method</a></li>
 <li><a class="reference internal" href="#acknowledgments">Acknowledgments</a></li>
 </ul>
 </li>
@@ -143,7 +153,7 @@ for the packaging.</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 02 Dec 2018. <br/>
+    Last built 03 Dec 2018. <br/>
   </p>
 </footer>
   </body>

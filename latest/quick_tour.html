@@ -121,11 +121,11 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Here, we have omitted the code to read-in or generate the raw data samples,
+<p>Here, we have omitted the code to read-in the raw data samples,
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code>. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code> need to be one-dimensional
 arrays (or lists), while <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code> must have two dimensions (first dimension
 needs to have the same length as <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code>, second dimension is the
-number of spectral channels - use 1 if only one map is desired). Likewise,
+number of spectral channels - use One if only one map is desired). Likewise,
 the code to setup the target FITS/WCS header is not explicitly shows. Anything
 that <code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code> would accept to create a spatial WCS is sufficient.</p>
 <p>The next part in the little program is about setting up the gridder class
@@ -147,9 +147,11 @@ can obtain the gridded data array with the <code class="xref py py-obj docutils 
 method and do whatever you want with it, e.g., store it to a FITS file.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This “minimal example” is also contained in a fully-working <code class="xref py py-obj docutils literal notranslate"><span class="pre">Jupyter</span>
-<span class="pre">tutorial</span> <span class="pre">notebook</span></code>.</p>
+<p class="last">This “minimal example” is also contained in a fully-working <a class="reference external" href="https://github.com/bwinkel/cygrid/blob/master/notebooks/01_minimal.ipynb">Jupyter
+tutorial notebook</a>.</p>
 </div>
+<div class="section" id="gridding-large-data-sets">
+<h2>Gridding large data sets<a class="headerlink" href="#gridding-large-data-sets" title="Permalink to this headline">¶</a></h2>
 <p>If you have a huge amount of raw data to grid, which might not fit into your
 computer’s memory, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> allows you to process the data in smaller
 chunks:</p>
@@ -165,6 +167,27 @@ chunks:</p>
 </div>
 <p>More information can be found in the user manual (<a class="reference internal" href="user_manual.html#serialization-label"><span class="std std-ref">Decrease memory footprint</span></a>).</p>
 </div>
+<div class="section" id="sight-line-gridding">
+<h2>Sight-line gridding<a class="headerlink" href="#sight-line-gridding" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes, it can be useful to re-sample the input raw data set for a given
+list of coordinate pairs, e.g., if you want to grid to a funky coordinate
+system or projection, which is not supported by FITS/WCS. For this, one can
+use the <a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid" title="cygrid.SlGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SlGrid</span></code></a> class:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="n">mygridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">input_lon</span><span class="p">,</span> <span class="n">input_lat</span><span class="p">,</span> <span class="n">input_signal</span><span class="p">)</span>
+
+<span class="n">target_signal</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
 
 
           </div>
@@ -173,7 +196,11 @@ chunks:</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">Cygrid quick tour</a></li>
+<li><a class="reference internal" href="#">Cygrid quick tour</a><ul>
+<li><a class="reference internal" href="#gridding-large-data-sets">Gridding large data sets</a></li>
+<li><a class="reference internal" href="#sight-line-gridding">Sight-line gridding</a></li>
+</ul>
+</li>
 </ul>
 
 
@@ -190,7 +217,7 @@ chunks:</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 02 Dec 2018. <br/>
+    Last built 03 Dec 2018. <br/>
   </p>
 </footer>
   </body>
