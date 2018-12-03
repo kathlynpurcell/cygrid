@@ -19,6 +19,9 @@ cygrid
     :target: https://arxiv.org/abs/1604.06667
     :alt: Publication
 
+.. image:: https://img.shields.io/badge/ascl-1606.003-blue.svg?colorB=262255
+   :target: http://ascl.net/1606.003
+
 Project Status
 ==============
 
@@ -34,10 +37,10 @@ Project Status
     :target: https://coveralls.io/github/bwinkel/cygrid?branch=master
     :alt: cygrid's Coveralls Status
 
-`cygrid` is still in the early-development stage. While much of the
-functionality is already working as intended, the API is not yet stable.
-Nevertheless, we kindly invite you to use and test the library and we are
-grateful for feedback. Note, that work on the documentation is still ongoing.
+`Cygrid` is already used in several "production" systems, for example it was
+utilized for two major 21-cm HI surveys, EBHIS and HI4PI. Nevertheless,
+we cannot guarantee that it's completely bug-free. We kindly invite you to
+use the library and we are grateful for feedback. Note, that work on the documentation is still ongoing.
 
 Purpose
 =======
@@ -179,3 +182,9 @@ issue or make a pull request. Moreover, you can contact the devs directly:
 
 - <bwinkel@mpifr.de>
 - <mail@daniellenz.org>
+
+
+Preferred citation method
+=========================
+
+Please cite our `paper <http://adsabs.harvard.edu/abs/2016A%26A...591A..12W>`_ if you use `cygrid` for your projects.

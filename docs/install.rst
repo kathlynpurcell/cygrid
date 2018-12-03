@@ -24,6 +24,17 @@ cygrid has the following strict requirements:
 Installing cygrid
 ==================
 
+Using Anaconda
+--------------
+The easiest way to install `~cygrid` is certainly to make use of the
+great `Anaconda Python distribution <https://www.anaconda.com/>`_:
+
+.. code-block:: bash
+
+    conda install cygrid -c conda-forge
+
+
+
 Using pip
 -------------
 
@@ -35,8 +46,11 @@ To install cygrid with `pip <http://www.pip-installer.org/en/latest/>`__, simply
 
 .. note::
 
-    You may need a C compiler (``gcc``) with OpenMP support to be installed
-    for the installation to succeed.
+    You may need a C++ compiler (e.g., ``g++``) with OpenMP support to be
+    installed for the installation to succeed, if no `binary wheel
+    <https://pythonwheels.com/>`_ is available for your OS and Python version
+    on the `Python Package Index <https://pypi.org/project/cygrid/#files>`_
+
 
 .. note::
 

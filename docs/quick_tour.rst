@@ -51,11 +51,11 @@ The following (in-complete) code snippet demonstrates, how one would use
         )
     plt.show()
 
-Here, we have omitted the code to read-in or generate the raw data samples,
+Here, we have omitted the code to read-in the raw data samples,
 `lon`, `lat`, and `rawdata`. The `lon` and `lat` need to be one-dimensional
 arrays (or lists), while `rawdata` must have two dimensions (first dimension
 needs to have the same length as `lon` and `lat`, second dimension is the
-number of spectral channels - use 1 if only one map is desired). Likewise,
+number of spectral channels - use One if only one map is desired). Likewise,
 the code to setup the target FITS/WCS header is not explicitly shows. Anything
 that `~astropy.WCS` would accept to create a spatial WCS is sufficient.
 
@@ -81,7 +81,11 @@ method and do whatever you want with it, e.g., store it to a FITS file.
 .. note::
 
     This "minimal example" is also contained in a fully-working `Jupyter
-    tutorial notebook <https://github.com/bwinkel/cygrid/blob/master/notebooks/01_minimal.ipynb>`.
+    tutorial notebook <https://github.com/bwinkel/cygrid/blob/master/notebooks/01_minimal.ipynb>`_.
+
+
+Gridding large data sets
+========================
 
 If you have a huge amount of raw data to grid, which might not fit into your
 computer's memory, `~cygrid` allows you to process the data in smaller
@@ -100,3 +104,23 @@ chunks::
 More information can be found in the user manual (:ref:`serialization-label`).
 
 
+
+Sight-line gridding
+===================
+
+Sometimes, it can be useful to re-sample the input raw data set for a given
+list of coordinate pairs, e.g., if you want to grid to a funky coordinate
+system or projection, which is not supported by FITS/WCS. For this, one can
+use the `~cygrid.SlGrid` class::
+
+    mygridder = cygrid.SlGrid(target_lon, target_lat, 1)
+    mygridder.set_kernel(...)
+
+    mygridder.grid(input_lon, input_lat, input_signal)
+
+    target_signal = gridder.get_datacube()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(target_lon, target_lat, c=target_signal[0])
+    plt.show()
