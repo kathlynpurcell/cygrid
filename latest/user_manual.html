@@ -78,7 +78,7 @@
 <h1>Cygrid user manual<a class="headerlink" href="#cygrid-user-manual" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code> allows to resample a number of spectra (or data points) to a regular
+<p><a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a> allows to resample a number of spectra (or data points) to a regular
 grid - a data cube - using any valid astronomical FITS/WCS projection. The
 method is a based on serialized convolution with finite gridding kernels.
 Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
@@ -404,10 +404,10 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="api/cygrid.npix_to_nside.html#cygrid.npix_to_nside" title="cygrid.npix_to_nside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">npix_to_nside</span></code></a>(uint64_t&nbsp;npix)</td>
-<td>Compute HEALPix nside from npix.</td>
+<td>Compute HEALPix <code class="xref py py-obj docutils literal notranslate"><span class="pre">nside</span></code> from <code class="xref py py-obj docutils literal notranslate"><span class="pre">npix</span></code>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="api/cygrid.nside_to_order.html#cygrid.nside_to_order" title="cygrid.nside_to_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nside_to_order</span></code></a>(uint64_t&nbsp;nside)</td>
-<td>Compute HEALPix order from nside.</td>
+<td>Compute HEALPix <code class="xref py py-obj docutils literal notranslate"><span class="pre">order</span></code> from <code class="xref py py-obj docutils literal notranslate"><span class="pre">nside</span></code>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="api/cygrid.test.html#cygrid.test" title="cygrid.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>(**kwargs)</td>
 <td>Run the tests for the package.</td>
@@ -423,20 +423,23 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.Healpix.html#cygrid.Healpix" title="cygrid.Healpix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Healpix</span></code></a>(uint64_t&nbsp;nside=1,&nbsp;uint32_t&nbsp;scheme=RING)</td>
+<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Fast Cython-powered gridding software, base class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/cygrid.Healpix.html#cygrid.Healpix" title="cygrid.Healpix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Healpix</span></code></a>(uint64_t&nbsp;nside=1,&nbsp;uint32_t&nbsp;scheme=RING)</td>
 <td>Helper class for HEALPix operations.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="api/cygrid.HpxHashTable.html#cygrid.HpxHashTable" title="cygrid.HpxHashTable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HpxHashTable</span></code></a>(uint64_t&nbsp;nside=1,&nbsp;…)</td>
-<td>Helper class for creating lookup tables (HEALPix).</td>
+<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.HpxHashTable.html#cygrid.HpxHashTable" title="cygrid.HpxHashTable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HpxHashTable</span></code></a>(uint64_t&nbsp;nside=1,&nbsp;…)</td>
+<td>Helper class for creating cygrid’s lookup tables (HEALPix).</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid" title="cygrid.SlGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SlGrid</span></code></a></td>
-<td>Sight line-grid version of cygrid.</td>
+<tr class="row-even"><td><a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid" title="cygrid.SlGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SlGrid</span></code></a></td>
+<td>Sight line version of <a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="api/cygrid.UnsupportedPythonError.html#cygrid.UnsupportedPythonError" title="cygrid.UnsupportedPythonError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnsupportedPythonError</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.UnsupportedPythonError.html#cygrid.UnsupportedPythonError" title="cygrid.UnsupportedPythonError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnsupportedPythonError</span></code></a></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a></td>
-<td>WCS-grid-version of cygrid.</td>
+<tr class="row-even"><td><a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a></td>
+<td>WCS version of <a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>.</td>
 </tr>
 </tbody>
 </table>

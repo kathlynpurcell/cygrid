@@ -80,36 +80,32 @@
 <dl class="class">
 <dt id="cygrid.WcsGrid">
 <em class="property">class </em><code class="descclassname">cygrid.</code><code class="descname">WcsGrid</code><a class="headerlink" href="#cygrid.WcsGrid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cygrid.cygrid.Cygrid</span></code></p>
-<p>WCS-grid-version of cygrid.</p>
+<dd><p>Bases: <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.cygrid.Cygrid"><code class="docutils literal notranslate"><span class="pre">cygrid.Cygrid</span></code></a></p>
+<p>WCS version of <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>header</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dictionary or anything that fits into astropy.wcs.WCS</span></dt>
-<dd><p class="first last">The header must contain a valid wcs representation for a 3-dimensional
-data cube (spatial-spatial-frequency).</p>
+<dt><strong>header</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dictionary or anything that fits into <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code></a></span></dt>
+<dd><p class="first last">The header must contain a valid <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code></a> representation for
+a three-dimensional data cube (spatial-spatial-frequency).</p>
 </dd>
-<dt><strong>Optional keyword arguments:</strong></dt>
-<dd><p class="first">dbg_messages: do debugging output
-datacube : floating-point numpy.ndarray</p>
-<blockquote>
-<div><p>Provide pre-allocated numpy array for datacube.
-Usually (if datacube=None, the default) a datacube object will
-be created automatically according to fits header dictionary.
-Providing datacube manually might be worthwhile if some kind of
-repeated/iterative gridding process is desired. However, for
+<dt><strong>dbg_messages</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Boolean, optional (Default: False)</span></dt>
+<dd><p class="first last">Do debugging output.</p>
+</dd>
+<dt><strong>datacube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [3D] of float32 or float64, optional (Default: None)</span></dt>
+<dd><p class="first">Provide pre-allocated or even pre-filled <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> for datacube.</p>
+<p class="last">Usually (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube=None</span></code>, the default) a datacube object will
+be created automatically according to the given FITS header
+dictionary. Providing datacube manually might be worthwhile if some
+kind of repeated/iterative gridding process is desired. However, for
 almost all use cases it will be sufficient to repeatedly call the
-grid method.</p>
-<p>Cygrid won’t clear the memory itself initially, so make sure to
-handle this correctly.</p>
-</div></blockquote>
-<dl class="last docutils">
-<dt>weightcube <span class="classifier-delimiter">:</span> <span class="classifier">floating-point numpy.ndarray</span></dt>
-<dd><p class="first last">As datacube but for the weight array.</p>
+grid method. Cygrid won’t clear the memory itself initially, so make
+sure to handle this correctly.</p>
 </dd>
-</dl>
+<dt><strong>weightcube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [3D] of float32 or float64, optional (Default: None)</span></dt>
+<dd><p class="first last">As <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code> but for the weight array.</p>
 </dd>
 </dl>
 </td>
@@ -145,22 +141,22 @@ Weightcube dtype doesn’t match datacube dtype.</p>
 <td>Return header object for reference.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.WcsGrid.get_pixel_coords" title="cygrid.WcsGrid.get_pixel_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pixel_coords</span></code></a>(self)</td>
-<td>Return pixel coordinates of cube’s xy-plane</td>
+<td>Return pixel coordinates of the datacube’s xy-plane</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.WcsGrid.get_unweighted_datacube" title="cygrid.WcsGrid.get_unweighted_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unweighted_datacube</span></code></a>(self)</td>
-<td>Return unweighted data cube.</td>
+<td>Return final unweighted data.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.WcsGrid.get_wcs" title="cygrid.WcsGrid.get_wcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_wcs</span></code></a>(self)</td>
 <td>Return WCS object for reference.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.WcsGrid.get_weights" title="cygrid.WcsGrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>(self)</td>
-<td>Return final weights cube.</td>
+<td>Return final weights.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.WcsGrid.get_world_coords" title="cygrid.WcsGrid.get_world_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_world_coords</span></code></a>(self)</td>
-<td>Return world coordinates of cube’s xy-plane</td>
+<td>Return world coordinates of the datacube’s xy-plane</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>(self,&nbsp;ndarray&nbsp;lons,&nbsp;ndarray&nbsp;lats,&nbsp;…)</td>
-<td>Grid irregular data points (spectra) into the data cubes.</td>
+<td>Grid irregularly positioned data points (spectra) into the data cube.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>(self,&nbsp;kernel_type,&nbsp;kernel_params,&nbsp;…)</td>
 <td>Set the gridding kernel type and parameters.</td>
@@ -181,65 +177,156 @@ Weightcube dtype doesn’t match datacube dtype.</p>
 <dt id="cygrid.WcsGrid.get_datacube">
 <code class="descname">get_datacube</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_datacube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return final data cube.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [3D] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded data cube as defined by WCS header.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_header">
 <code class="descname">get_header</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_header" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return header object for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>header</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict or <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code></a>-compatible</span></dt>
+<dd><p class="first last">Header object provided to the constructor.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_pixel_coords">
 <code class="descname">get_pixel_coords</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_pixel_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return pixel coordinates of cube’s xy-plane</p>
+<dd><p>Return pixel coordinates of the datacube’s xy-plane</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>x/y</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D]</span></dt>
+<dd><p class="first last">Pixel coordinates <span class="math notranslate nohighlight">\((x, y)\)</span> of the datacube.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_unweighted_datacube">
 <code class="descname">get_unweighted_datacube</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_unweighted_datacube" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return unweighted data cube.</p>
+<dd><p>Return final unweighted data. (For debugging only.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [3D] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded unweighted data cube as defined by WCS header.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_wcs">
 <code class="descname">get_wcs</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_wcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return WCS object for reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>wcs</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code></a></span></dt>
+<dd><p class="first last">WCS object created from input header dictionary.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_weights">
 <code class="descname">get_weights</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return final weights cube.</p>
+<dd><p>Return final weights.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [3D] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded weights cube as defined by WCS header.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.get_world_coords">
 <code class="descname">get_world_coords</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.get_world_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return world coordinates of cube’s xy-plane</p>
+<dd><p>Return world coordinates of the datacube’s xy-plane</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>lons/lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D]</span></dt>
+<dd><p class="first last">World coordinates <span class="math notranslate nohighlight">\((l, b)\)</span> of the datacube.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.WcsGrid.grid">
 <code class="descname">grid</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray lons</em>, <em>ndarray lats</em>, <em>ndarray data</em>, <em>ndarray weights=None</em>, <em>dtype=u'float32'</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.grid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grid irregular data points (spectra) into the data cubes.</p>
+<dd><p>Grid irregularly positioned data points (spectra) into the data cube.</p>
 <p>After successful gridding, you can obtain the resulting datacube with
-the “get_datacube method”.</p>
+the <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> method. The associated weight cube
+is accessible with <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_weights" title="cygrid.Cygrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray (float64), 1D</span></dt>
-<dd><p class="first last">Flat lists of coordinates.</p>
+<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
+<dd><p class="first last">Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
 </dd>
-<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray (float32 or float64), 2D</span></dt>
-<dd><p class="first last">The spectra and their weights for each of the given coordinate
-pairs (lons, lats). First axis must match lons/lats size.
-Second axis is the spectral dimension.</p>
+<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dd><p class="first last">The spectra and their weights (optional) for each of the given
+coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don’t have spectra, but just values.</p>
 </dd>
-<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string-like</span></dt>
-<dd><p class="first last">Output format of data cube, either ‘float32’ (default) or ‘float64’</p>
+<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str [‘float32’ or ‘float64’]</span></dt>
+<dd><p class="first last">Desired output format of data cube. (Default: ‘float32’).</p>
 </dd>
 </dl>
 </td>
@@ -256,10 +343,10 @@ Number of spectral channels mismatch.</p>
 </table>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li>All input parameters need to C-contiguous
-(use numpy.ascontiguousarray to recast if necessary)</li>
+<li>All input parameters need to be C-contiguous.
+(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
 <li>It is possible to produce maps instead of datacubes by using
-spectra of length 1.</li>
+spectra of length One.</li>
 </ul>
 </dd></dl>
 
@@ -272,23 +359,25 @@ spectra of length 1.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>kernel_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string type (python3: unicode, python2: bytes)</span></dt>
-<dd><p class="first last">set the kernel type, the following names/types are available:
+<dt><strong>kernel_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first">Set the kernel type.</p>
+<p class="last">The following names/types are available:
 ‘gauss1d’, ‘gauss2d’, ‘tapered_sinc’ (see Notes for details)</p>
 </dd>
-<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like (anything that can be casted to numpy.array)</span></dt>
-<dd><p class="first last">set the kernel parameters for the chosen type (see Notes for
+<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt>
+<dd><p class="first last">Set the kernel parameters for the chosen type (see Notes for
 details)</p>
 </dd>
 <dt><strong>sphere_radius</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">Kernel sphere radius.
-This is controls out to which distance the kernel
+<dd><p class="first">Kernel sphere radius.</p>
+<p class="last">This is controls out to which distance the kernel
 is computed for. For Gaussian kernels, values much larger
-than 3 (sigma) do not make much sense.</p>
+than <span class="math notranslate nohighlight">\(3\ldots4 \sigma_\mathrm{k}\)</span> do not make much sense.</p>
 </dd>
 <dt><strong>hpx_max_resolution</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">Maximum acceptable HPX resolution (kernel_sigma[_maj] / 2.
-is a reasonable value).</p>
+<dd><p class="first last">Maximum acceptable HPX resolution
+(<span class="math notranslate nohighlight">\(\sigma_\mathrm{k}^{[\mathrm{maj}]} / 2\)</span> is a
+reasonable value).</p>
 </dd>
 </dl>
 </td>
@@ -296,18 +385,18 @@ is a reasonable value).</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<dl class="docutils">
-<dt>Below you find a list of kernel-names and required parameters:</dt>
-<dd>‘gauss1d’, (kernel_sigma,)
-‘gauss2d’, (kernel_sigma_maj, kernel_sigma_min, PA)
-‘tapered_sinc’, (kernel_sigma, param_a, param_b)</dd>
-</dl>
-<p>Except for PA, param_a and param_b all numbers are in units of degrees.
-PA (the position angle) is in units of radians (for efficiency).
-Param_a and Param_b should be 2.52 and 1.55, respectively, for optimal
-results!</p>
+<p>Below you find a list of kernel-names and required parameters:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma</span><span class="p">,)</span>
+<span class="s1">&#39;gauss2d&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma_maj</span><span class="p">,</span> <span class="n">kernel_sigma_min</span><span class="p">,</span> <span class="n">PA</span><span class="p">)</span>
+<span class="s1">&#39;tapered_sinc&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma</span><span class="p">,</span> <span class="n">param_a</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All numbers are in units of degrees, except for <code class="xref py py-obj docutils literal notranslate"><span class="pre">PA</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_a</span></code> and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">param_b</span></code>. <code class="xref py py-obj docutils literal notranslate"><span class="pre">PA</span></code> (the position angle) is in units of radians (for
+efficiency). <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_a</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_b</span></code> should be <code class="xref py py-obj docutils literal notranslate"><span class="pre">2.52</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">1.55</span></code>,
+respectively, for optimal results!</p>
 <p>The kernel size (sigma) defines the amount of “smoothness”
-applied to the data. If in doubt a good value is about 25%
+applied to the data. If in doubt a good value is about 50%
 of the true/input angular resolution of the data (this will result
 in about 10% degradation of the final angular resolution.)</p>
 </dd></dl>
@@ -316,8 +405,8 @@ in about 10% degradation of the final angular resolution.)</p>
 <dt id="cygrid.WcsGrid.set_num_threads">
 <code class="descname">set_num_threads</code><span class="sig-paren">(</span><em>self</em>, <em>int nthreads</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.WcsGrid.set_num_threads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change maximum number of threads to use.</p>
-<p>This is a convenience function, to call omp_set_num_threads(),
-which is not possible during runtime from python.</p>
+<p>This is a convenience function, to call <code class="xref py py-obj docutils literal notranslate"><span class="pre">omp_set_num_threads()</span></code>,
+which is otherwise not possible during runtime from Python.</p>
 </dd></dl>
 
 </dd></dl>

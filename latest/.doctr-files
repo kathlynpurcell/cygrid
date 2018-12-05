@@ -4,6 +4,7 @@ latest/_images/user_manual-3.png
 latest/_modules/cygrid.html
 latest/_modules/cygrid/_astropy_init.html
 latest/_modules/index.html
+latest/_sources/api/cygrid.Cygrid.rst.txt
 latest/_sources/api/cygrid.Healpix.rst.txt
 latest/_sources/api/cygrid.HpxHashTable.rst.txt
 latest/_sources/api/cygrid.SlGrid.rst.txt
@@ -48,6 +49,7 @@ latest/_static/underscore.js
 latest/_static/up-pressed.png
 latest/_static/up.png
 latest/_static/websupport.js
+latest/api/cygrid.Cygrid.html
 latest/api/cygrid.Healpix.html
 latest/api/cygrid.HpxHashTable.html
 latest/api/cygrid.SlGrid.html

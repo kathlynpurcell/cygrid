@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="HpxHashTable" href="cygrid.HpxHashTable.html" />
-    <link rel="prev" title="test" href="cygrid.test.html" />
+    <link rel="prev" title="Cygrid" href="cygrid.Cygrid.html" />
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 <script type="text/javascript" src="../_static/copybutton.js"></script>
 
@@ -54,7 +54,7 @@
 	</a>
       </li>
       <li class="right">
-	<a href="cygrid.test.html" title="test">
+	<a href="cygrid.Cygrid.html" title="Cygrid">
 	  &laquo; previous
 	</a>
 	 |
@@ -158,10 +158,10 @@ see <a class="reference external" href="http://healpix.sourceforge.net">http://h
 <td>Return start index and number of pixels per healpix ring.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.Healpix.pix2ang" title="cygrid.Healpix.pix2ang"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix2ang</span></code></a>(self,&nbsp;uint64_t&nbsp;pix)</td>
-<td>Convert HEALPix Index to angular coordinates (phi, theta).</td>
+<td>Convert HEALPix index to angular coordinates <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.Healpix.pix2ang_many" title="cygrid.Healpix.pix2ang_many"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix2ang_many</span></code></a>(self,&nbsp;long[)</td>
-<td></td>
+<td>Convert HEALPix indices to angular coordinates of <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span> arrays.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.Healpix.pix2ring" title="cygrid.Healpix.pix2ring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix2ring</span></code></a>(self,&nbsp;uint64_t&nbsp;pix)</td>
 <td>Return ‘ring’ number that contains the HEALPix pixel, ‘pix’.</td>
@@ -170,10 +170,10 @@ see <a class="reference external" href="http://healpix.sourceforge.net">http://h
 <td>Return ‘ring’ numbers containing HEALPix pixels given in array, ‘pix’.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.Healpix.query_disc" title="cygrid.Healpix.query_disc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc</span></code></a>(self,&nbsp;double&nbsp;theta,&nbsp;double&nbsp;phi,&nbsp;…)</td>
-<td>Return hpx indices of a disc around (theta, phi).</td>
+<td>Return hpx indices of a disc around <span class="math notranslate nohighlight">\((\vartheta, \varphi)\)</span>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.Healpix.query_disc_phi180" title="cygrid.Healpix.query_disc_phi180"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc_phi180</span></code></a>(self,&nbsp;…)</td>
-<td>Return hpx indices of a disc around phi=180 for disc_ring.</td>
+<td>Return HEALPix indices of a disc around <span class="math notranslate nohighlight">\(\varphi=180^\circ\)</span> for ‘disc_ring’.</td>
 </tr>
 </tbody>
 </table>
@@ -318,16 +318,9 @@ for current <a class="reference internal" href="#cygrid.Healpix.nside" title="cy
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>pix</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
 <dd><p class="first last">The HEALPix pixel index.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>ValueError</strong></dt>
-<dd><p class="first last">Invalid theta value.</p>
 </dd>
 </dl>
 </td>
@@ -381,8 +374,8 @@ for current <a class="reference internal" href="#cygrid.Healpix.nside" title="cy
 <dl class="method">
 <dt id="cygrid.Healpix.pix2ang">
 <code class="descname">pix2ang</code><span class="sig-paren">(</span><em>self</em>, <em>uint64_t pix</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.Healpix.pix2ang" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert HEALPix Index to angular coordinates (phi, theta).</p>
-<p>Wrapper around the cython-only (private) method _pix2ang.</p>
+<dd><p>Convert HEALPix index to angular coordinates <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span>.</p>
+<p>Wrapper around the Cython-only (private) method <code class="xref py py-obj docutils literal notranslate"><span class="pre">_pix2ang</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -394,23 +387,19 @@ for current <a class="reference internal" href="#cygrid.Healpix.nside" title="cy
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>(theta, phi)</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
-<dd><dl class="first last docutils">
-<dt>theta <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">theta coordinate (theta = PI/2 - latitude).</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>theta</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\vartheta\)</span> coordinate (<span class="math notranslate nohighlight">\(\vartheta = \pi/2 - \mathrm{latitude}\)</span>).</p>
 </dd>
-<dt>phi <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">phi coordinate (longitude).</p>
+<dt><strong>phi</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\varphi\)</span> coordinate (longitude).</p>
 </dd>
 </dl>
-</dd>
-<dt><strong>Raises</strong></dt>
-<dd></dd>
-<dt><strong>—–</strong></dt>
-<dd></dd>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>ValueError</strong></dt>
-<dd><p class="first last">pix not in valid range.</p>
+<dd><p class="first last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix</span></code> not in valid range.</p>
 </dd>
 </dl>
 </td>
@@ -422,7 +411,32 @@ for current <a class="reference internal" href="#cygrid.Healpix.nside" title="cy
 <dl class="method">
 <dt id="cygrid.Healpix.pix2ang_many">
 <code class="descname">pix2ang_many</code><span class="sig-paren">(</span><em>self</em>, <em>long[::1] pix</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.Healpix.pix2ang_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convert HEALPix indices to angular coordinates of <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span> arrays.</p>
+<p>Wrapper around the Cython-only (private) method <code class="xref py py-obj docutils literal notranslate"><span class="pre">_pix2ang</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>pix</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
+<dd><p class="first last">The HEALPix pixel index.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>theta</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of doubles</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\vartheta\)</span> coordinate (<span class="math notranslate nohighlight">\(\vartheta = \pi/2 - \mathrm{latitude}\)</span>).</p>
+</dd>
+<dt><strong>phi</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of doubles</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\varphi\)</span> coordinate (longitude).</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="cygrid.Healpix.pix2ring">
@@ -488,16 +502,16 @@ for current <a class="reference internal" href="#cygrid.Healpix.nside" title="cy
 <dl class="method">
 <dt id="cygrid.Healpix.query_disc">
 <code class="descname">query_disc</code><span class="sig-paren">(</span><em>self</em>, <em>double theta</em>, <em>double phi</em>, <em>double disc_size_rad</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.Healpix.query_disc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return hpx indices of a disc around (theta, phi).</p>
-<p>This uses the phi=180 disc routine and shifts the pixels along ring.
-Wrapper around the cython-only (private) method _query_disc.</p>
+<dd><p>Return hpx indices of a disc around <span class="math notranslate nohighlight">\((\vartheta, \varphi)\)</span>.</p>
+<p>This uses <a class="reference internal" href="#cygrid.Healpix.query_disc_phi180" title="cygrid.Healpix.query_disc_phi180"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc_phi180</span></code></a> and shifts the pixels along ring.</p>
+<p>Wrapper around the cython-only (private) method _query_disc.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>theta/phi</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">Coordinates in radians.</p>
+<dd><p class="first last">Coordinates <span class="math notranslate nohighlight">\((\vartheta, \varphi)\)</span> in radians.</p>
 </dd>
 <dt><strong>disc_size_rad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
 <dd><p class="first last">Size of the disc in radians.</p>
@@ -506,7 +520,7 @@ Wrapper around the cython-only (private) method _query_disc.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>disc_indices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">std::vector[unsigned 64-bit int]</span></dt>
+<dt><strong>disc_indices</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
 <dd><p class="first last">The HEALPix indices of the disc.</p>
 </dd>
 </dl>
@@ -519,12 +533,15 @@ Wrapper around the cython-only (private) method _query_disc.</p>
 <dl class="method">
 <dt id="cygrid.Healpix.query_disc_phi180">
 <code class="descname">query_disc_phi180</code><span class="sig-paren">(</span><em>self</em>, <em>double disc_size_rad</em>, <em>uint64_t disc_ring</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.Healpix.query_disc_phi180" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return hpx indices of a disc around phi=180 for disc_ring.</p>
-<p>Wrapper around the cython-only (private) method _query_disc_phi180.</p>
-<p>This is a modified version of the HEALPix library query_disc routine
-that gives the HPX indices of a disc around points located a the
-phi = 180 deg meridian. We use this to produce discs for any location
-by simple translation along the phi axis later.</p>
+<dd><p>Return HEALPix indices of a disc around <span class="math notranslate nohighlight">\(\varphi=180^\circ\)</span> for ‘disc_ring’.</p>
+<p>This is a modified version of the HEALPix library <code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc</span></code>
+routine that returns the HEALPix indices of a disc around arbitrary
+coordinates. Here, it was modified to only work for coordinates having
+<span class="math notranslate nohighlight">\(\varphi=180^\circ\)</span> and a <span class="math notranslate nohighlight">\(\vartheta\)</span> that coincides
+with the latitude of a HEALPix ring. These discs can be shifted along
+<span class="math notranslate nohighlight">\(\varphi\)</span> - which is faster than calling <code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc</span></code>
+if one cashes the <span class="math notranslate nohighlight">\(\varphi=180^\circ\)</span> discs.</p>
+<p>Wrapper around the Cython-only (private) method <code class="xref py py-obj docutils literal notranslate"><span class="pre">_query_disc_phi180</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -540,7 +557,7 @@ by simple translation along the phi axis later.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>disc_indices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of unsigned 64-bit integers</span></dt>
+<dt><strong>disc_indices</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
 <dd><p class="first last">The HEALPix indices of the disc.</p>
 </dd>
 </dl>
