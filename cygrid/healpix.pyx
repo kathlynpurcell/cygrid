@@ -460,7 +460,7 @@ cdef class Healpix(object):
         Parameters
         ----------
         z : double
-            :math:`z` coordinate (:math:`z = \\cos(\\vartheta)`).
+            :math:`z` coordinate (:math:`z = \\cos\\vartheta`).
         phi : double
             :math:`\\varphi` coordinate.
         sin_theta : double
@@ -606,11 +606,6 @@ cdef class Healpix(object):
         -------
         pix : `~numpy.array` of unsigned 64-bit ints
             The HEALPix pixel index.
-
-        Raises
-        ------
-        ValueError
-            Invalid theta value.
         '''
 
         cdef:
@@ -636,28 +631,29 @@ cdef class Healpix(object):
             bool &have_sin_theta
             ) nogil:
         '''
-        Convert HEALPix Index to location (z, phi).
+        Convert HEALPix index to location :math:`(z, \\varphi)`.
 
         Parameters
         ----------
         pix : unsigned 64-bit int
             The HEALPix pixel index.
-        z : double; return value
-            z coordinate (z = cos(theta)).
-        phi : double; return value
-            phi coordinate.
-        sin_theta : double; return value
-            For very small theta, the function additionally returns the sin of
-            theta. In that case, have_sin_theta is returning true.
-        have_sin_theta : bool; return value
-            See sin_theta.
+        z : double; return value (call-by-reference)
+            :math:`z` coordinate (:math:`z = \\cos\\vartheta`).
+        phi : double; return value (call-by-reference)
+            :math:`\\varphi` coordinate.
+        sin_theta : double; return value (call-by-reference)
+            For very small :math:`\\vartheta`, the function additionally
+            returns the sine of `\\vartheta`. In that case, `have_sin_theta`
+            is returning `true`.
+        have_sin_theta : bool; return value (call-by-reference)
+            See `sin_theta`.
 
         Notes
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
 
         cdef:
@@ -723,23 +719,23 @@ cdef class Healpix(object):
             self, uint64_t pix, double & theta, double & phi
             ) nogil:
         '''
-        Convert HEALPix Index to angular coordinates (phi, theta).
+        Convert HEALPix index to angular coordinates :math:`(\\varphi, \\vartheta)`.
 
         Parameters
         ----------
         pix : unsigned 64-bit int
             The HEALPix pixel index.
-        theta : double; return value
-            theta coordinate (theta = PI/2 - latitude).
-        phi : double; return value
-            phi coordinate (longitude).
+        theta : double; return value (call-by-reference)
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
+        phi : double; return value (call-by-reference)
+            :math:`\\varphi` coordinate (longitude).
 
         Notes
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
 
         cdef:
@@ -757,9 +753,9 @@ cdef class Healpix(object):
 
     def pix2ang(self, uint64_t pix):
         '''
-        Convert HEALPix Index to angular coordinates (phi, theta).
+        Convert HEALPix index to angular coordinates :math:`(\\varphi, \\vartheta)`.
 
-        Wrapper around the cython-only (private) method _pix2ang.
+        Wrapper around the Cython-only (private) method `_pix2ang`.
 
         Parameters
         ----------
@@ -768,16 +764,15 @@ cdef class Healpix(object):
 
         Returns
         -------
-        (theta, phi) : tuple
-            theta : double
-                theta coordinate (theta = PI/2 - latitude).
-            phi : double
-                phi coordinate (longitude).
+        theta : double
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
+        phi : double
+            :math:`\\varphi` coordinate (longitude).
 
         Raises
-        -----
+        ------
         ValueError
-            pix not in valid range.
+            `pix` not in valid range.
         '''
 
         if not (pix >= 0 and pix < self._npix):
@@ -790,6 +785,23 @@ cdef class Healpix(object):
         return theta, phi
 
     def pix2ang_many(self, long[::1] pix):
+        '''
+        Convert HEALPix indices to angular coordinates of :math:`(\\varphi, \\vartheta)` arrays.
+
+        Wrapper around the Cython-only (private) method `_pix2ang`.
+
+        Parameters
+        ----------
+        pix : `~numpy.array` of unsigned 64-bit ints
+            The HEALPix pixel index.
+
+        Returns
+        -------
+        theta : `~numpy.array` of doubles
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
+        phi : `~numpy.array` of doubles
+            :math:`\\varphi` coordinate (longitude).
+        '''
 
         cdef:
 
@@ -816,12 +828,15 @@ cdef class Healpix(object):
             self, double disc_size_rad, uint64_t disc_ring
             ) nogil:
         '''
-        Return hpx indices of a disc around phi=180 for disc_ring.
+        Return HEALPix indices of a disc around :math:`\\varphi=180^\\circ` for 'disc_ring'.
 
-        This is a modified version of the HEALPix library query_disc routine
-        that gives the HPX indices of a disc around points located a the
-        phi = 180 deg meridian. We use this to produce discs for any location
-        by simple translation along the phi axis later.
+        This is a modified version of the HEALPix library `~healpy.query_disc`
+        routine that returns the HEALPix indices of a disc around arbitrary
+        coordinates. Here, it was modified to only work for coordinates having
+        :math:`\\varphi=180^\\circ` and a :math:`\\vartheta` that coincides
+        with the latitude of a HEALPix ring. These discs can be shifted along
+        :math:`\\varphi` - which is faster than calling `~healpy.query_disc`
+        if one cashes the :math:`\\varphi=180^\\circ` discs.
 
         Parameters
         ----------
@@ -840,7 +855,7 @@ cdef class Healpix(object):
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
         cdef:
             uint64_t i
@@ -976,14 +991,17 @@ cdef class Healpix(object):
             self, double disc_size_rad, uint64_t disc_ring
             ):
         '''
-        Return hpx indices of a disc around phi=180 for disc_ring.
+        Return HEALPix indices of a disc around :math:`\\varphi=180^\\circ` for 'disc_ring'.
 
-        Wrapper around the cython-only (private) method _query_disc_phi180.
+        This is a modified version of the HEALPix library `~healpy.query_disc`
+        routine that returns the HEALPix indices of a disc around arbitrary
+        coordinates. Here, it was modified to only work for coordinates having
+        :math:`\\varphi=180^\\circ` and a :math:`\\vartheta` that coincides
+        with the latitude of a HEALPix ring. These discs can be shifted along
+        :math:`\\varphi` - which is faster than calling `~healpy.query_disc`
+        if one cashes the :math:`\\varphi=180^\\circ` discs.
 
-        This is a modified version of the HEALPix library query_disc routine
-        that gives the HPX indices of a disc around points located a the
-        phi = 180 deg meridian. We use this to produce discs for any location
-        by simple translation along the phi axis later.
+        Wrapper around the Cython-only (private) method `_query_disc_phi180`.
 
         Parameters
         ----------
@@ -994,9 +1012,8 @@ cdef class Healpix(object):
 
         Returns
         -------
-        disc_indices : ndarray of unsigned 64-bit integers
+        disc_indices : `~numpy.array` of unsigned 64-bit ints
             The HEALPix indices of the disc.
-
         '''
 
         cdef:
@@ -1015,14 +1032,14 @@ cdef class Healpix(object):
             self, double theta, double phi, double disc_size_rad
             ) nogil:
         '''
-        Return hpx indices of a disc around (theta, phi).
+        Return hpx indices of a disc around :math:`(\\vartheta, \\varphi)`.
 
-        This uses the phi=180 disc routine and shifts the pixels along ring.
+        This uses `_query_disc_phi180` and shifts the pixels along ring.
 
         Parameters
         ----------
         theta/phi : double
-            Coordinates in radians.
+            Coordinates :math:`(\\vartheta, \\varphi)` in radians.
         disc_size_rad : double
             Size of the disc in radians.
 
@@ -1033,7 +1050,7 @@ cdef class Healpix(object):
 
         Notes
         -----
-        1. This is a cython-domain only method.
+        1. This is a Cython-domain only method.
         '''
 
         cdef:
@@ -1073,21 +1090,22 @@ cdef class Healpix(object):
             self, double theta, double phi, double disc_size_rad
             ):
         '''
-        Return hpx indices of a disc around (theta, phi).
+        Return hpx indices of a disc around :math:`(\\vartheta, \\varphi)`.
 
-        This uses the phi=180 disc routine and shifts the pixels along ring.
+        This uses `query_disc_phi180` and shifts the pixels along ring.
+
         Wrapper around the cython-only (private) method _query_disc.
 
         Parameters
         ----------
         theta/phi : double
-            Coordinates in radians.
+            Coordinates :math:`(\\vartheta, \\varphi)` in radians.
         disc_size_rad : double
             Size of the disc in radians.
 
         Returns
         -------
-        disc_indices : std::vector[unsigned 64-bit int]
+        disc_indices : `~numpy.array` of unsigned 64-bit ints
             The HEALPix indices of the disc.
         '''
 

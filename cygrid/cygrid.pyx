@@ -89,7 +89,7 @@ FLOAT32 = np.dtype(np.float32)
 FLOAT64 = np.dtype(np.float64)
 
 
-__all__ = ['WcsGrid', 'SlGrid']
+__all__ = ['Cygrid', 'WcsGrid', 'SlGrid']
 
 
 from .kernels cimport (
@@ -136,30 +136,35 @@ class ShapeError(Exception):
 
 cdef class Cygrid(object):
     '''
-    Fast cython-powered gridding software. Base class.
+    Fast Cython-powered gridding software, base class.
 
-    The method is a based on serialized convolution with finite gridding
-     kernels. Currently, only Gaussian kernels are provided (which has the
-     drawback of slight degradation of the effective resolution). The algorithm
-     has very small memory footprint, allows easy parallelization, and is very
-     fast.
+    DO NOT USE DIRECTLY, BUT THE DERIVED CLASSES `~cygrid.WcsGrid` OR
+    `~cygrid.SlGrid`.
 
-    Look into the "grid" method help for more information on how to use this.
+    The underlying algorithm is a based on serialized convolution with finite
+    gridding kernels. Currently, only Gaussian kernels are provided (which has
+    the drawback of slight degradation of the effective resolution). The
+    algorithm has very small memory footprint, allows easy parallelization,
+    and is very fast.
+
+    Look into the `~cygrid.Cygrid.set_kernel` and `~cygrid.Cygrid.grid`
+    methods help for more information on how to use this.
 
     Internally, we make use of the HEALPix representation for book-keeping.
-     The idea is the following: for each input point we query which HPX pixels
-     are located within the required convolution kernel radius (using
-     HEALPix query_disc function). Likewise, for the target map pixels
-     (any WCS projection) we calculate the HPX index they live in. By a simple
-     cross-matching (hash-map based) we can thus easily find out which input
-     pixels contribute to which output pixels. In practice it is a little more
-     complicated, because world pixels could share the same HPX index. We
-     use lists (or rather C++ vectors) to account for this.
+    The idea is the following: for each input point we query which HEALPix
+    pixels are located within the required convolution kernel radius (using
+    HEALPix `query_disc` function). Likewise, for the target map pixels (any
+    WCS projection) we calculate the HEALPix index they live in. By a simple
+    cross- matching (hash-map based) we can thus easily find out which input
+    pixels contribute to which output pixels. In practice it is a little more
+    complicated, because world pixels could share the same HEALPix index. We
+    use lists (or rather C++ vectors) to account for this.
 
     Parameters
     ----------
     Optional keyword arguments:
-        dbg_messages: do debugging output
+        dbg_messages : Boolean (default: False)
+            Do debugging output
     '''
 
     cdef:
@@ -211,15 +216,15 @@ cdef class Cygrid(object):
         '''
         Change maximum number of threads to use.
 
-        This is a convenience function, to call omp_set_num_threads(),
-        which is not possible during runtime from python.
+        This is a convenience function, to call `omp_set_num_threads()`,
+        which is otherwise not possible during runtime from Python.
         '''
 
         openmp.omp_set_num_threads(nthreads)
 
     def _prepare(self, *args, **kwargs):
         '''
-        Preparation function, called by derived classes (the implementations).
+        Preparation function, called by derived Classes.
 
         Needs to fill/prepare the following class members:
 
@@ -252,35 +257,40 @@ cdef class Cygrid(object):
 
         Parameters
         ----------
-        kernel_type : string type (python3: unicode, python2: bytes)
-            set the kernel type, the following names/types are available:
+        kernel_type : str
+            Set the kernel type.
+
+            The following names/types are available:
             'gauss1d', 'gauss2d', 'tapered_sinc' (see Notes for details)
-        kernel_params : array-like (anything that can be casted to numpy.array)
-            set the kernel parameters for the chosen type (see Notes for
+        kernel_params : `~numpy.array`
+            Set the kernel parameters for the chosen type (see Notes for
             details)
         sphere_radius : double
             Kernel sphere radius.
+
             This is controls out to which distance the kernel
             is computed for. For Gaussian kernels, values much larger
-            than 3 (sigma) do not make much sense.
+            than :math:`3\\ldots4 \\sigma_\\mathrm{k}` do not make much sense.
         hpx_max_resolution : double
-            Maximum acceptable HPX resolution (kernel_sigma[_maj] / 2.
-            is a reasonable value).
+            Maximum acceptable HPX resolution
+            (:math:`\\sigma_\\mathrm{k}^{[\\mathrm{maj}]} / 2` is a
+            reasonable value).
 
         Notes
         -----
-        Below you find a list of kernel-names and required parameters:
+        Below you find a list of kernel-names and required parameters::
+
             'gauss1d', (kernel_sigma,)
             'gauss2d', (kernel_sigma_maj, kernel_sigma_min, PA)
             'tapered_sinc', (kernel_sigma, param_a, param_b)
 
-        Except for PA, param_a and param_b all numbers are in units of degrees.
-        PA (the position angle) is in units of radians (for efficiency).
-        Param_a and Param_b should be 2.52 and 1.55, respectively, for optimal
-        results!
+        All numbers are in units of degrees, except for `PA`, `param_a` and
+        `param_b`. `PA` (the position angle) is in units of radians (for
+        efficiency). `param_a` and `param_b` should be `2.52` and `1.55`,
+        respectively, for optimal results!
 
         The kernel size (sigma) defines the amount of "smoothness"
-        applied to the data. If in doubt a good value is about 25%
+        applied to the data. If in doubt a good value is about 50%
         of the true/input angular resolution of the data (this will result
         in about 10% degradation of the final angular resolution.)
         '''
@@ -387,21 +397,21 @@ cdef class Cygrid(object):
             dtype='float32',
             ):
         '''
-        Grid irregular data points (spectra) into the data cubes.
+        Grid irregularly positioned data points (spectra) into the data cube.
 
         After successful gridding, you can obtain the resulting datacube with
-        the "get_datacube method".
+        the `~cygrid.Cygrid.get_datacube` method. The associated weight cube
+        is accessible with `~cygrid.Cygrid.get_weights`.
 
         Parameters
         ----------
-        lons, lats : numpy.ndarray (float64), 1D
-            Flat lists of coordinates.
-        data/weights : numpy.ndarray (float32 or float64), 2D
-            The spectra and their weights for each of the given coordinate
-            pairs (lons, lats). First axis must match lons/lats size.
-            Second axis is the spectral dimension.
-        dtype : string-like
-            Output format of data cube, either 'float32' (default) or 'float64'
+        lons, lats : `~numpy.array` [1D] of float64
+            Flat lists/arrays of input coordinates :math:`(l, b)`.
+        data/weights : `~numpy.array` [2D] of float32 or float64
+            The spectra and their weights (optional) for each of the given
+            coordinate pairs, :math:`(l, b)`. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don't have spectra, but just values.
+        dtype : str ['float32' or 'float64']
+            Desired output format of data cube. (Default: 'float32').
 
         Raises
         ------
@@ -411,10 +421,10 @@ cdef class Cygrid(object):
 
         Notes
         -----
-        - All input parameters need to C-contiguous
-          (use numpy.ascontiguousarray to recast if necessary)
+        - All input parameters need to be C-contiguous.
+          (Use `~numpy.ascontiguousarray` to recast, if necessary.)
         - It is possible to produce maps instead of datacubes by using
-          spectra of length 1.
+          spectra of length One.
         '''
 
         if weights is None:
@@ -579,44 +589,62 @@ cdef class Cygrid(object):
                 ))
 
     def get_datacube(self):
-        '''Return final data cube.'''
+        '''
+        Return final data.
+
+        Returns
+        -------
+        data : `~numpy.array` [2D or 3D] of float32 or float64
+            The gridded spectral data.
+        '''
         return self.datacube / self.weightscube
 
     def get_weights(self):
-        '''Return final weights cube.'''
+        '''
+        Return final weights.
+
+        Returns
+        -------
+        weights : `~numpy.array` [2D or 3D] of float32 or float64
+            The gridded spectral weights.
+        '''
         return self.weightscube
 
     def get_unweighted_datacube(self):
-        '''Return unweighted data cube.'''
+        '''
+        Return final unweighted data. (For debugging only.)
+
+        Returns
+        -------
+        unweighted_data : `~numpy.array` [2D or 3D] of float32 or float64
+            The gridded spectral unweighted data.
+        '''
         return self.datacube
 
 
 cdef class WcsGrid(Cygrid):
     '''
-    WCS-grid-version of cygrid.
+    WCS version of `~cygrid.Cygrid`.
 
     Parameters
     ----------
-    header : Dictionary or anything that fits into astropy.wcs.WCS
-        The header must contain a valid wcs representation for a 3-dimensional
-        data cube (spatial-spatial-frequency).
+    header : Dictionary or anything that fits into `~astropy.wcs.WCS`
+        The header must contain a valid `~astropy.wcs.WCS` representation for
+        a three-dimensional data cube (spatial-spatial-frequency).
+    dbg_messages : Boolean, optional (Default: False)
+        Do debugging output.
+    datacube : `~numpy.array` [3D] of float32 or float64, optional (Default: None)
+        Provide pre-allocated or even pre-filled `~numpy.array` for datacube.
 
-    Optional keyword arguments:
-        dbg_messages: do debugging output
-        datacube : floating-point numpy.ndarray
-            Provide pre-allocated numpy array for datacube.
-            Usually (if datacube=None, the default) a datacube object will
-            be created automatically according to fits header dictionary.
-            Providing datacube manually might be worthwhile if some kind of
-            repeated/iterative gridding process is desired. However, for
-            almost all use cases it will be sufficient to repeatedly call the
-            grid method.
-
-            Cygrid won't clear the memory itself initially, so make sure to
-            handle this correctly.
-
-        weightcube : floating-point numpy.ndarray
-            As datacube but for the weight array.
+        Usually (if `datacube=None`, the default) a datacube object will
+        be created automatically according to the given FITS header
+        dictionary. Providing datacube manually might be worthwhile if some
+        kind of repeated/iterative gridding process is desired. However, for
+        almost all use cases it will be sufficient to repeatedly call the
+        grid method. Cygrid won't clear the memory itself initially, so make
+        sure to handle this correctly.
+    weightcube : `~numpy.array` [3D] of float32 or float64, optional (Default: None)
+        As `datacube` but for the weight array.
 
     Raises
     ------
@@ -626,6 +654,53 @@ cdef class WcsGrid(Cygrid):
         Weightcube dtype doesn't match datacube dtype.
     ShapeError
         Datacube/weightcube shape doesn't match fits header.
+
+    Examples
+    --------
+    The following provides a minimal example. For more detailed information
+    we refer to the user manual or the Jupyter tutorial notebooks::
+
+        from astropy.io import fits
+        import matplotlib.pyplot as plt
+        import cygrid
+
+        # read-in data
+        lon, lat, rawdata = get_data()
+
+        # define target FITS/WCS header
+        header = create_fits_header()
+
+        # prepare gridder
+        kernelsize_sigma = 0.2
+
+        kernel_type = 'gauss1d'
+        kernel_params = (kernelsize_sigma, )  # must be a tuple
+        kernel_support = 3 * kernelsize_sigma
+        hpx_maxres = kernelsize_sigma / 2
+
+        mygridder = cygrid.WcsGrid(header)
+        mygridder.set_kernel(
+            kernel_type,
+            kernel_params,
+            kernel_support,
+            hpx_maxres,
+            )
+
+        # do the actual gridding
+        mygridder.grid(lon, lat, rawdata)
+
+        # query result and store to disk ...
+        data_cube = mygridder.get_datacube()
+        fits.writeto('example.fits', header=header, data=data_cube)
+
+        # ... or plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection=WCS(header).celestial)
+        ax.imshow(
+            data_cube[0], origin='lower', interpolation='nearest'
+            )
+        plt.show()
+
     '''
 
     cdef:
@@ -717,25 +792,86 @@ cdef class WcsGrid(Cygrid):
                 )
 
     def get_wcs(self):
-        '''Return WCS object for reference.'''
+        '''
+        Return WCS object for reference.
+
+        Returns
+        -------
+        wcs : `~astropy.wcs.WCS`
+            WCS object created from input header dictionary.
+        '''
         return self.wcs
 
     def get_world_coords(self):
-        '''Return world coordinates of cube's xy-plane'''
+        '''
+        Return world coordinates of the datacube's xy-plane
+
+        Returns
+        -------
+        lons/lats : `~numpy.array` [2D]
+            World coordinates :math:`(l, b)` of the datacube.
+        '''
         return self.xwcs, self.ywcs
 
     def get_pixel_coords(self):
-        '''Return pixel coordinates of cube's xy-plane'''
+        '''
+        Return pixel coordinates of the datacube's xy-plane
+
+        Returns
+        -------
+        x/y : `~numpy.array` [2D]
+            Pixel coordinates :math:`(x, y)` of the datacube.
+        '''
         return self.xpix, self.ypix
 
     def get_header(self):
-        '''Return header object for reference.'''
+        '''
+        Return header object for reference.
+
+        Returns
+        -------
+        header : dict or `~astropy.wcs.WCS`-compatible
+            Header object provided to the constructor.
+        '''
         return self.header
+
+    def get_datacube(self):
+        '''
+        Return final data cube.
+
+        Returns
+        -------
+        data : `~numpy.array` [3D] of float32 or float64
+            The gridded data cube as defined by WCS header.
+        '''
+        return self.datacube / self.weightscube
+
+    def get_weights(self):
+        '''
+        Return final weights.
+
+        Returns
+        -------
+        weights : `~numpy.array` [3D] of float32 or float64
+            The gridded weights cube as defined by WCS header.
+        '''
+        return self.weightscube
+
+    def get_unweighted_datacube(self):
+        '''
+        Return final unweighted data. (For debugging only.)
+
+        Returns
+        -------
+        unweighted_data : `~numpy.array` [3D] of float32 or float64
+            The gridded unweighted data cube as defined by WCS header.
+        '''
+        return self.datacube
 
 
 cdef class SlGrid(Cygrid):
     '''
-    Sight line-grid version of cygrid.
+    Sight line version of `~cygrid.Cygrid`.
 
     The sight line gridder can be used to resample input data to any collection
     of output coordinates. For example, one could grid to the (list of)
@@ -748,23 +884,21 @@ cdef class SlGrid(Cygrid):
         Coordinates of sight lines to grid onto.
     naxes3 : int
         Length of spectral axis.
+    dbg_messages : Boolean, optional (Default: False)
+        Do debugging output.
+    datacube : `~numpy.array` [2D] of float32 or float64, optional (Default: None)
+        Provide pre-allocated or even pre-filled `~numpy.array` for datacube.
 
-    Optional keyword arguments:
-        dbg_messages: do debugging output
-        datacube : floating-point numpy.ndarray
-            Provide pre-allocated numpy array for datacube.
-            Usually (if datacube=None, the default) a datacube object will
-            be created automatically according to fits header dictionary.
-            Providing datacube manually might be worthwhile if some kind of
-            repeated/iterative gridding process is desired. However, for
-            almost all use cases it will be sufficient to repeatedly call the
-            grid method.
+        Usually (if `datacube=None`, the default) a datacube object will
+        be created automatically according to the given FITS header
+        dictionary. Providing datacube manually might be worthwhile if some
+        kind of repeated/iterative gridding process is desired. However, for
+        almost all use cases it will be sufficient to repeatedly call the
+        grid method. Cygrid won't clear the memory itself initially, so make
+        sure to handle this correctly.
 
-            Cygrid won't clear the memory itself initially, so make sure to
-            handle this correctly.
-
-        weightcube : floating-point numpy.ndarray
-            As datacube but for the weight array.
+    weightcube : `~numpy.array` [2D] of float32 or float64, optional (Default: None)
+        As `datacube` but for the weight array.
 
     Raises
     ------
@@ -774,6 +908,45 @@ cdef class SlGrid(Cygrid):
         Weightcube dtype doesn't match datacube dtype.
     ShapeError
         Datacube/weightcube shape doesn't match sight line dimensions.
+
+    Examples
+    --------
+    The following provides a minimal example. For more detailed information
+    we refer to the user manual or the Jupyter tutorial notebooks::
+
+        from astropy.io import fits
+        import matplotlib.pyplot as plt
+        import cygrid
+
+        # read-in data, lon/lat are 1D, input_signal has 2nd dimension: 1,
+        # i.e., we are not gridding spectra but single values
+        input_lon, input_lat, input_signal = get_data()
+
+        # prepare gridder
+        kernelsize_sigma = 0.2
+
+        kernel_type = 'gauss1d'
+        kernel_params = (kernelsize_sigma, )  # must be a tuple
+        kernel_support = 3 * kernelsize_sigma
+        hpx_maxres = kernelsize_sigma / 2
+
+        mygridder = cygrid.SlGrid(target_lon, target_lat, 1)
+        mygridder.set_kernel(
+            kernel_type,
+            kernel_params,
+            kernel_support,
+            hpx_maxres,
+            )
+
+        # do the actual gridding
+        mygridder.grid(input_lon, input_lat, input_signal)
+        target_signal = gridder.get_datacube()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.scatter(target_lon, target_lat, c=target_signal[:, 0])
+        plt.show()
+
     '''
 
     cdef:
@@ -841,3 +1014,36 @@ cdef class SlGrid(Cygrid):
 
         # keep flat versions for later use
         self.ypix_f, self.xpix_f = self.ypix.flatten(), self.xpix.flatten()
+
+    def get_datacube(self):
+        '''
+        Return final data.
+
+        Returns
+        -------
+        data : `~numpy.array` [2D] of float32 or float64
+            The gridded spectral data for each of the input positions.
+        '''
+        return self.datacube / self.weightscube
+
+    def get_weights(self):
+        '''
+        Return final weights.
+
+        Returns
+        -------
+        weights : `~numpy.array` [2D] of float32 or float64
+            The gridded spectral weights for each of the input positions.
+        '''
+        return self.weightscube
+
+    def get_unweighted_datacube(self):
+        '''
+        Return final unweighted data. (For debugging only.)
+
+        Returns
+        -------
+        unweighted_data : `~numpy.array` [2D] of float32 or float64
+            The gridded spectral unweighted data for each of the input positions.
+        '''
+        return self.datacube

@@ -49,6 +49,7 @@ cdef unicode ustring(s):
     '''
     From cython docs: http://docs.cython.org/src/tutorial/strings.html
     '''
+
     if type(s) is unicode:
         # fast path for most common case(s)
         return <unicode>s
@@ -78,8 +79,8 @@ cdef uint64_t ilog2(uint64_t arg) nogil:
     Notes
     -----
     1. This function was adapted from the HEALPix C++ library.
-     (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-     see http://healpix.sourceforge.net)
+       (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
+       see http://healpix.sourceforge.net)
 
     2. Cython-only to allow GIL-releasing.
     '''
@@ -116,8 +117,8 @@ cdef uint64_t isqrt(uint64_t arg) nogil:
     Notes
     -----
     1. This function was adapted from the HEALPix C++ library.
-     (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-     see http://healpix.sourceforge.net)
+       (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
+       see http://healpix.sourceforge.net)
 
     2. Cython-only to allow GIL-releasing.
     '''
@@ -139,9 +140,9 @@ cdef int64_t imod(int64_t a, int64_t b) nogil:
         return r
 
 
-cdef double fmodulo (double v1, double v2) nogil:
+cdef double fmodulo(double v1, double v2) nogil:
     '''
-    Compute remainder of division v1 / v2
+    Compute remainder of division v1 / v2.
 
     Parameters
     ----------
@@ -174,23 +175,23 @@ cdef double fmodulo (double v1, double v2) nogil:
 
 cpdef uint64_t nside_to_order(uint64_t nside):
     '''
-    Compute HEALPix order from nside.
+    Compute HEALPix `order` from `nside`.
 
     Parameters
     ----------
     nside : uint64_t
-        HEALPix nside parameter.
+        HEALPix `nside` parameter.
 
     Raises
     ------
     ValueError
-        Invalid value for nside (must be positive).
+        Invalid value for `nside` (must be positive).
 
     Notes
     -----
     This function was adapted from the HEALPix C++ library.
-     (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-     see http://healpix.sourceforge.net)
+    (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
+    see http://healpix.sourceforge.net)
     '''
 
     if nside <= 0:
@@ -203,23 +204,23 @@ cpdef uint64_t nside_to_order(uint64_t nside):
 
 cpdef uint64_t npix_to_nside(uint64_t npix):
     '''
-    Compute HEALPix nside from npix.
+    Compute HEALPix `nside` from `npix`.
 
     Parameters
     ----------
     npix : uint64_t
-        HEALPix npix parameter.
+        HEALPix `npix` parameter.
 
     Raises
     ------
     ValueError
-        Invalid value for npix.
+        Invalid value for `npix`.
 
     Notes
     -----
     This function was adapted from the HEALPix C++ library.
-     (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
-     see http://healpix.sourceforge.net)
+    (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
+    see http://healpix.sourceforge.net)
     '''
 
     cdef uint64_t res = isqrt(npix // 12)
@@ -242,7 +243,7 @@ cdef double true_angular_distance(
     Notes
     -----
     1. Based on Haversine formula. Good accuracy for distances < 2*pi
-     See http://en.wikipedia.org/wiki/Haversine_formula.
+       See http://en.wikipedia.org/wiki/Haversine_formula.
 
     2. Cython-only to allow GIL-releasing.
     '''
@@ -267,7 +268,7 @@ cdef double great_circle_bearing(
     Notes
     -----
     1. Based on Haversine formula. Good accuracy for distances < 2*pi
-     See http://en.wikipedia.org/wiki/Haversine_formula.
+       See http://en.wikipedia.org/wiki/Haversine_formula.
 
     2. Cython-only to allow GIL-releasing.
     '''
@@ -283,38 +284,6 @@ cdef double great_circle_bearing(
         cos(b1) * sin(b2) - sin(b1) * cos_b2 * cos(l_diff_rad)
         )
 
-# cdef void fill_time_info(
-#         uint64_t code, uint64_t is_prange,
-#         vector[vector[uint64_t]] &timing_info
-#         ) nogil:
-#     '''
-#     Fill a timing info object (for speed testing).
-#     '''
-
-#     cdef vector[uint64_t] _vec
-
-#     _vec.push_back(code)
-#     _vec.push_back(is_prange)
-#     _vec.push_back(<uint64_t> time(NULL))
-#     timing_info.push_back(_vec)
-
-# cdef void print_time_info(vector[vector[uint64_t]] timing_info):
-#     '''
-#     Print timing info object.
-#     '''
-
-#     cdef:
-#         uint64_t code, is_prange, last_time = timing_info[0][2]
-#         vector[uint64_t] _vec
-#         vector[vector[uint64_t]].iterator _it
-
-#     print('timing info', timing_info.size())
-#     _it = timing_info.begin()
-#     while _it != timing_info.end():
-#         _vec = deref(_it)
-#         print(_vec[0], _vec[1], _vec[2] - last_time)
-#         last_time = _vec[2]
-#         inc(_it)
 
 cdef void fill_time_info(
         vector[TimingInfo] &timing_info,
@@ -327,8 +296,8 @@ cdef void fill_time_info(
     this_info.parstate = parstate
     this_info.curtime = <uint64_t> time(NULL)
 
-
     timing_info.push_back(this_info)
+
 
 cdef void print_time_info(vector[TimingInfo] timing_info):
 

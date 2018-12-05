@@ -217,7 +217,7 @@ B[i,j]`), which gives :math:`R_{i,j}`.
     step-by-step.
 
 The cygrid algorithm
---------------------
+====================
 
 The great advantage of the approach described above, is, that it can be
 straightforwardly applied to spherical geometry, which is necessary for map
