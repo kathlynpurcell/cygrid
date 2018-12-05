@@ -122,5 +122,5 @@ use the `~cygrid.SlGrid` class::
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(target_lon, target_lat, c=target_signal[0])
+    ax.scatter(target_lon, target_lat, c=target_signal[:, 0])
     plt.show()
