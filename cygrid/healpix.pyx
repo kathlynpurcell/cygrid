@@ -100,16 +100,16 @@ cdef class Healpix(object):
     '''
     Helper class for HEALPix operations.
 
-    Implements conversion between world and pixel coordinates (RING
-    representation only). Also provides a query_disc method that returns
-    a disc footprint for phi = 180 deg for a given ring.
+    Implements conversion between HEALPix world and pixel coordinates ('RING'
+    representation only). Also provides a `query_disc` method that returns
+    a disc footprint for :math:`\\varphi = 180^\\circ` for a given ring.
 
     Parameters
     ----------
     nside : unsigned 64-bit int
-        The HEALPix nside parameter.
+        The HEALPix `nside` parameter.
     scheme : enum
-        The HEALPix scheme. Currently, only RING is supported.
+        The HEALPix `scheme`. Currently, only 'RING' is supported.
 
     Notes
     -----
@@ -133,7 +133,7 @@ cdef class Healpix(object):
     property nside:
         '''
         property nside : unsigned 64-bit int
-            The HEALPix nside parameter. (Re-)setting nside updates other
+            The HEALPix 'nside' parameter. (Re-)setting 'nside' updates other
             properties.
         '''
 
@@ -148,7 +148,7 @@ cdef class Healpix(object):
     property scheme:
         '''
         property scheme : enum
-            The HEALPix scheme. Currently only RING is supported.
+            The HEALPix 'scheme'. Currently only 'RING' is supported.
         '''
 
         def __get__(self):
@@ -165,7 +165,7 @@ cdef class Healpix(object):
     property npix:
         '''
         property npix : unsigned 64-bit int
-            Return the HEALPix npix parameter.
+            Return the HEALPix 'npix' parameter.
         '''
 
         def __get__(self):
@@ -174,7 +174,7 @@ cdef class Healpix(object):
     property nrings:
         '''
         property nrings : unsigned 64-bit int
-            Return the HEALPix nrings parameter.
+            Return the HEALPix 'nrings' parameter.
         '''
 
         def __get__(self):
@@ -183,7 +183,7 @@ cdef class Healpix(object):
     property order:
         '''
         property order : unsigned 64-bit int
-            Return the HEALPix order parameter.
+            Return the HEALPix 'order' parameter.
         '''
 
         def __get__(self):
@@ -192,7 +192,7 @@ cdef class Healpix(object):
     property npface:
         '''
         property nface : unsigned 64-bit int
-            Return the HEALPix nface parameter.
+            Return the HEALPix 'nface' parameter.
         '''
 
         def __get__(self):
@@ -201,7 +201,7 @@ cdef class Healpix(object):
     property ncap:
         '''
         property ncap : unsigned 64-bit int
-            Return the HEALPix ncap parameter.
+            Return the HEALPix 'ncap' parameter.
         '''
 
         def __get__(self):
@@ -210,7 +210,8 @@ cdef class Healpix(object):
     property omega:
         '''
         property omega : double
-            Return the solid angle of the HEALPix pixels for current nside.
+            Return the solid angle, 'omega' of the HEALPix pixels
+            for current `nside`.
         '''
 
         def __get__(self):
@@ -219,7 +220,7 @@ cdef class Healpix(object):
     property resolution:
         '''
         property resolution : double
-            Return the angular size of the HEALPix pixels for current nside.
+            Return the angular size of the HEALPix pixels for current `nside`.
         '''
 
         def __get__(self):
@@ -227,10 +228,11 @@ cdef class Healpix(object):
 
     cpdef _update_params(self):
         '''
-        Update HEALPix parameters if necessary (_params_dirty is True).
+        Update HEALPix parameters if necessary (when `_params_dirty`
+        is set to True).
 
-        Note, another private method (_on_nside_changed) is called that can
-        be used by derived classes to hook-in.
+        Note, another private method (`_on_nside_changed`) is called
+        that can be used by derived classes to hook-in.
         '''
 
         if self._params_dirty:
@@ -250,7 +252,7 @@ cdef class Healpix(object):
             self._on_nside_changed()
 
     cpdef _on_nside_changed(self):
-        '''Can be used in derived classes to react to nside changes.'''
+        '''Can be used in derived classes to react to `nside` changes.'''
         pass
 
     cdef inline void _get_ring_info_small(
@@ -267,19 +269,20 @@ cdef class Healpix(object):
         ----------
         ring : unsigned 64-bit int
             The HEALPix ring parameter to get information on.
-        startpix : unsigned 64-bit int; return value
+        startpix : unsigned 64-bit int; return value (call-by-reference)
             The HEALPix index of the first pixel in ring.
-        num_pix_in_ring : unsigned 64-bit int; return value
+        num_pix_in_ring : unsigned 64-bit int; return value (call-by-reference)
             The number of HEALPix pixels in ring.
-        shifted : bool; return value
-            Whether the central HEALPix pixel is shifted.
+        shifted : bool; return value (call-by-reference)
+            Whether the central HEALPix pixel in that ring is shifted from
+            :math:`\\varphi=180^\\circ`.
 
         Notes
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
 
         cdef uint64_t nr
@@ -312,7 +315,8 @@ cdef class Healpix(object):
         '''
         Return start index and number of pixels per healpix ring.
 
-        Wrapper around the cython-only (private) method _get_ring_info_small.
+        Wrapper around the Cython-only (private) method
+        `_get_ring_info_small`.
 
         Parameters
         ----------
@@ -321,13 +325,13 @@ cdef class Healpix(object):
 
         Returns
         -------
-        (startpix, num_pix_in_ring, shifted) : tuple
-            startpix : unsigned 64-bit int
-                The HEALPix index of the first pixel in ring.
-            num_pix_in_ring : unsigned 64-bit int
-                The number of HEALPix pixels in ring.
-            shifted : bool
-                Whether the central HEALPix pixel is shifted.
+        startpix : unsigned 64-bit int
+            The HEALPix index of the first pixel in ring.
+        num_pix_in_ring : unsigned 64-bit int
+            The number of HEALPix pixels in ring.
+        shifted : bool
+            Whether the central HEALPix pixel in that ring is shifted from
+            :math:`\\varphi=180^\\circ`.
 
         Raises
         ------
@@ -348,24 +352,24 @@ cdef class Healpix(object):
 
     cdef uint64_t _pix2ring(self, uint64_t pix) nogil:
         '''
-        Return ring index of hpx pixel.
+        Return 'ring' number that contains the HEALPix pixel, 'pix'.
 
         Parameters
         ----------
         pix : unsigned 64-bit int
-            The HEALPix index for which to query the ring.
+            The HEALPix index.
 
         Returns
         -------
         ring : unsigned 64-bit int
-            The HEALPix ring index.
+            The HEALPix ring.
 
         Notes
         -----
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
 
         if pix < self._ncap:
@@ -387,19 +391,19 @@ cdef class Healpix(object):
 
     def pix2ring(self, uint64_t pix):
         '''
-        Return ring index of hpx pixel.
+        Return 'ring' number that contains the HEALPix pixel, 'pix'.
 
-        Wrapper around the cython-only (private) method _pix2ring.
+        Wrapper around the Cython-only (private) method _pix2ring.
 
         Parameters
         ----------
         pix : unsigned 64-bit int
-            The HEALPix index for which to query the ring.
+            The HEALPix index.
 
         Returns
         -------
         ring : unsigned 64-bit int
-            The HEALPix ring index.
+            The HEALPix ring.
 
         Raises
         ------
@@ -413,6 +417,21 @@ cdef class Healpix(object):
         return self._pix2ring(pix)
 
     def pix2ring_many(self, long[::1] pix):
+        '''
+        Return 'ring' numbers containing HEALPix pixels given in array, 'pix'.
+
+        Wrapper around the Cython-only (private) method _pix2ring.
+
+        Parameters
+        ----------
+        pix : `~numpy.array` of unsigned 64-bit ints
+            The HEALPix indices.
+
+        Returns
+        -------
+        ring : `~numpy.array` of unsigned 64-bit ints
+            The HEALPix rings.
+        '''
 
         cdef:
 
@@ -436,20 +455,20 @@ cdef class Healpix(object):
             bool have_sin_theta
             ) nogil:
         '''
-        Convert location (z, phi) to HEALPix Index.
+        Convert location :math:`(z, \\varphi)` to HEALPix index.
 
         Parameters
         ----------
         z : double
-            z coordinate (z = cos(theta)).
+            :math:`z` coordinate (:math:`z = \\cos(\\vartheta)`).
         phi : double
-            phi coordinate.
+            :math:`\\varphi` coordinate.
         sin_theta : double
-            For very small theta, one should provide additionally the sin of
-            theta to avoid numerical inaccuracy. In that case, set
-            have_sin_theta to true.
+            For very small :math:`\\vartheta`, one should provide
+            additionally the sine of :math:`\\vartheta` to avoid numerical
+            inaccuracy. In that case, set `have_sin_theta` to true.
         have_sin_theta : bool
-            See sin_theta.
+            See `sin_theta`.
 
         Returns
         -------
@@ -461,7 +480,7 @@ cdef class Healpix(object):
         1. This function was adapted from the HEALPix C++ library.
          (Copyright (C) 2003-2012 Max-Planck-Society; author Martin Reinecke;
          see `<http://healpix.sourceforge.net>`_)
-        2. This is a cython-domain only method.
+        2. This is a Cython-domain only method.
         '''
 
         cdef:
@@ -514,14 +533,14 @@ cdef class Healpix(object):
 
     cdef uint64_t _ang2pix(self, double theta, double phi) nogil:
         '''
-        Return the pixel index containing the angular coordinates (phi, theta).
+        Return the pixel index containing the angular coordinates :math:`(\\varphi, \\vartheta)`.
 
         Parameters
         ----------
         theta : double
-            theta coordinate (theta = PI/2 - latitude).
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
         phi : double
-            phi coordinate (longitude).
+            :math:`\\varphi` coordinate (longitude).
 
         Returns
         -------
@@ -543,16 +562,16 @@ cdef class Healpix(object):
 
     def ang2pix(self, double theta, double phi):
         '''
-        Return the pixel index containing the angular coordinates (phi, theta).
+        Return the pixel index containing the angular coordinates :math:`(\\varphi, \\vartheta)`.
 
-        Wrapper around the cython-only (private) method _ang2pix.
+        Wrapper around the Cython-only (private) method _ang2pix.
 
         Parameters
         ----------
         theta : double
-            theta coordinate (theta = PI/2 - latitude).
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
         phi : double
-            phi coordinate (longitude).
+            :math:`\\varphi` coordinate (longitude).
 
         Returns
         -------
@@ -571,6 +590,28 @@ cdef class Healpix(object):
         return self._ang2pix(theta, phi)
 
     def ang2pix_many(self, double[::1] theta, double[::1] phi):
+        '''
+        Return the pixel indices containing the angular coordinates of :math:`(\\varphi, \\vartheta)` arrays.
+
+        Wrapper around the Cython-only (private) method _ang2pix.
+
+        Parameters
+        ----------
+        theta : `~numpy.array` of doubles
+            :math:`\\vartheta` coordinate (:math:`\\vartheta = \\pi/2 - \\mathrm{latitude}`).
+        phi : `~numpy.array` of doubles
+            :math:`\\varphi` coordinate (longitude).
+
+        Returns
+        -------
+        pix : `~numpy.array` of unsigned 64-bit ints
+            The HEALPix pixel index.
+
+        Raises
+        ------
+        ValueError
+            Invalid theta value.
+        '''
 
         cdef:
 
