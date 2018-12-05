@@ -231,8 +231,9 @@ we made an animation that demonstrates how the algorithm works
 step-by-step.</p>
 </div>
 </div>
+</div>
 <div class="section" id="the-cygrid-algorithm">
-<h3>The cygrid algorithm<a class="headerlink" href="#the-cygrid-algorithm" title="Permalink to this headline">¶</a></h3>
+<h2>The cygrid algorithm<a class="headerlink" href="#the-cygrid-algorithm" title="Permalink to this headline">¶</a></h2>
 <p>The great advantage of the approach described above, is, that it can be
 straightforwardly applied to spherical geometry, which is necessary for map
 making in geographic information systems and astronomy. The sampled
@@ -253,7 +254,6 @@ coordinates, it is not an easy task to identify pixels within a certain
 sphere!). On top of that, cygrid uses some clever cashing techniques and can
 profit from multi-core CPUs to further increase the computational speed of the
 gridding process. For details, we refer to the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>.</p>
-</div>
 <div class="section" id="comparison-with-scipy-griddata">
 <h3>Comparison with scipy.griddata<a class="headerlink" href="#comparison-with-scipy-griddata" title="Permalink to this headline">¶</a></h3>
 <p>After reading all of the above, you’re now probably curious, how <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
@@ -459,7 +459,9 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 <li><a class="reference internal" href="#introduction">Introduction</a><ul>
 <li><a class="reference internal" href="#data-gridding">Data gridding</a></li>
 <li><a class="reference internal" href="#convolution-based-gridding">Convolution based gridding</a></li>
-<li><a class="reference internal" href="#the-cygrid-algorithm">The cygrid algorithm</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-cygrid-algorithm">The cygrid algorithm</a><ul>
 <li><a class="reference internal" href="#comparison-with-scipy-griddata">Comparison with scipy.griddata</a></li>
 <li><a class="reference internal" href="#angular-resolution">Angular resolution</a></li>
 <li><a class="reference internal" href="#kernel-parameters">Kernel parameters</a></li>
