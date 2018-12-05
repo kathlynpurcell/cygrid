@@ -176,10 +176,10 @@ radius) is changed, things need to be completely recomputed.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.HpxHashTable.ang2pix" title="cygrid.HpxHashTable.ang2pix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ang2pix</span></code></a>(self,&nbsp;double&nbsp;theta,&nbsp;double&nbsp;phi)</td>
-<td>Return the pixel index containing the angular coordinates (phi, theta).</td>
+<td>Return the pixel index containing the angular coordinates <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.HpxHashTable.ang2pix_many" title="cygrid.HpxHashTable.ang2pix_many"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ang2pix_many</span></code></a>(self,&nbsp;double[,&nbsp;double[)</td>
-<td></td>
+<td>Return the pixel indices containing the angular coordinates of <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span> arrays.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.HpxHashTable.clear_hashes" title="cygrid.HpxHashTable.clear_hashes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_hashes</span></code></a>(self)</td>
 <td>Clear all internal dictionaries.</td>
@@ -194,10 +194,10 @@ radius) is changed, things need to be completely recomputed.</p>
 <td></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.HpxHashTable.pix2ring" title="cygrid.HpxHashTable.pix2ring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix2ring</span></code></a>(self,&nbsp;uint64_t&nbsp;pix)</td>
-<td>Return ring index of hpx pixel.</td>
+<td>Return ‘ring’ number that contains the HEALPix pixel, ‘pix’.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#cygrid.HpxHashTable.pix2ring_many" title="cygrid.HpxHashTable.pix2ring_many"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pix2ring_many</span></code></a>(self,&nbsp;long[)</td>
-<td></td>
+<td>Return ‘ring’ numbers containing HEALPix pixels given in array, ‘pix’.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#cygrid.HpxHashTable.query_disc" title="cygrid.HpxHashTable.query_disc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_disc</span></code></a>(self,&nbsp;double&nbsp;theta,&nbsp;double&nbsp;phi,&nbsp;…)</td>
 <td>Return hpx indices of a disc around (theta, phi).</td>
@@ -216,7 +216,7 @@ radius) is changed, things need to be completely recomputed.</p>
 <code class="descname">ncap</code><a class="headerlink" href="#cygrid.HpxHashTable.ncap" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property ncap <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>Return the HEALPix ncap parameter.</dd>
+<dd>Return the HEALPix ‘ncap’ parameter.</dd>
 </dl>
 </dd></dl>
 
@@ -225,7 +225,7 @@ radius) is changed, things need to be completely recomputed.</p>
 <code class="descname">npface</code><a class="headerlink" href="#cygrid.HpxHashTable.npface" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property nface <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>Return the HEALPix nface parameter.</dd>
+<dd>Return the HEALPix ‘nface’ parameter.</dd>
 </dl>
 </dd></dl>
 
@@ -234,7 +234,7 @@ radius) is changed, things need to be completely recomputed.</p>
 <code class="descname">npix</code><a class="headerlink" href="#cygrid.HpxHashTable.npix" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property npix <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>Return the HEALPix npix parameter.</dd>
+<dd>Return the HEALPix ‘npix’ parameter.</dd>
 </dl>
 </dd></dl>
 
@@ -243,7 +243,7 @@ radius) is changed, things need to be completely recomputed.</p>
 <code class="descname">nrings</code><a class="headerlink" href="#cygrid.HpxHashTable.nrings" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property nrings <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>Return the HEALPix nrings parameter.</dd>
+<dd>Return the HEALPix ‘nrings’ parameter.</dd>
 </dl>
 </dd></dl>
 
@@ -252,7 +252,7 @@ radius) is changed, things need to be completely recomputed.</p>
 <code class="descname">nside</code><a class="headerlink" href="#cygrid.HpxHashTable.nside" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property nside <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>The HEALPix nside parameter. (Re-)setting nside updates other
+<dd>The HEALPix ‘nside’ parameter. (Re-)setting ‘nside’ updates other
 properties.</dd>
 </dl>
 </dd></dl>
@@ -262,7 +262,8 @@ properties.</dd>
 <code class="descname">omega</code><a class="headerlink" href="#cygrid.HpxHashTable.omega" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property omega <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd>Return the solid angle of the HEALPix pixels for current nside.</dd>
+<dd>Return the solid angle, ‘omega’ of the HEALPix pixels
+for current <a class="reference internal" href="#cygrid.HpxHashTable.nside" title="cygrid.HpxHashTable.nside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nside</span></code></a>.</dd>
 </dl>
 </dd></dl>
 
@@ -271,7 +272,7 @@ properties.</dd>
 <code class="descname">order</code><a class="headerlink" href="#cygrid.HpxHashTable.order" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property order <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd>Return the HEALPix order parameter.</dd>
+<dd>Return the HEALPix ‘order’ parameter.</dd>
 </dl>
 </dd></dl>
 
@@ -280,7 +281,7 @@ properties.</dd>
 <code class="descname">resolution</code><a class="headerlink" href="#cygrid.HpxHashTable.resolution" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property resolution <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd>Return the angular size of the HEALPix pixels for current nside.</dd>
+<dd>Return the angular size of the HEALPix pixels for current <a class="reference internal" href="#cygrid.HpxHashTable.nside" title="cygrid.HpxHashTable.nside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nside</span></code></a>.</dd>
 </dl>
 </dd></dl>
 
@@ -289,7 +290,7 @@ properties.</dd>
 <code class="descname">scheme</code><a class="headerlink" href="#cygrid.HpxHashTable.scheme" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>property scheme <span class="classifier-delimiter">:</span> <span class="classifier">enum</span></dt>
-<dd>The HEALPix scheme. Currently only RING is supported.</dd>
+<dd>The HEALPix ‘scheme’. Currently only ‘RING’ is supported.</dd>
 </dl>
 </dd></dl>
 
@@ -297,18 +298,18 @@ properties.</dd>
 <dl class="method">
 <dt id="cygrid.HpxHashTable.ang2pix">
 <code class="descname">ang2pix</code><span class="sig-paren">(</span><em>self</em>, <em>double theta</em>, <em>double phi</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.HpxHashTable.ang2pix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the pixel index containing the angular coordinates (phi, theta).</p>
-<p>Wrapper around the cython-only (private) method _ang2pix.</p>
+<dd><p>Return the pixel index containing the angular coordinates <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span>.</p>
+<p>Wrapper around the Cython-only (private) method _ang2pix.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>theta</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">theta coordinate (theta = PI/2 - latitude).</p>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\vartheta\)</span> coordinate (<span class="math notranslate nohighlight">\(\vartheta = \pi/2 - \mathrm{latitude}\)</span>).</p>
 </dd>
 <dt><strong>phi</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double</span></dt>
-<dd><p class="first last">phi coordinate (longitude).</p>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\varphi\)</span> coordinate (longitude).</p>
 </dd>
 </dl>
 </td>
@@ -334,7 +335,39 @@ properties.</dd>
 <dl class="method">
 <dt id="cygrid.HpxHashTable.ang2pix_many">
 <code class="descname">ang2pix_many</code><span class="sig-paren">(</span><em>self</em>, <em>double[::1] theta</em>, <em>double[::1] phi</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.HpxHashTable.ang2pix_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the pixel indices containing the angular coordinates of <span class="math notranslate nohighlight">\((\varphi, \vartheta)\)</span> arrays.</p>
+<p>Wrapper around the Cython-only (private) method _ang2pix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>theta</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of doubles</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\vartheta\)</span> coordinate (<span class="math notranslate nohighlight">\(\vartheta = \pi/2 - \mathrm{latitude}\)</span>).</p>
+</dd>
+<dt><strong>phi</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of doubles</span></dt>
+<dd><p class="first last"><span class="math notranslate nohighlight">\(\varphi\)</span> coordinate (longitude).</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>pix</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
+<dd><p class="first last">The HEALPix pixel index.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ValueError</strong></dt>
+<dd><p class="first last">Invalid theta value.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="cygrid.HpxHashTable.clear_hashes">
@@ -346,7 +379,8 @@ properties.</dd>
 <dt id="cygrid.HpxHashTable.get_ring_info_small">
 <code class="descname">get_ring_info_small</code><span class="sig-paren">(</span><em>self</em>, <em>uint64_t ring</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.HpxHashTable.get_ring_info_small" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return start index and number of pixels per healpix ring.</p>
-<p>Wrapper around the cython-only (private) method _get_ring_info_small.</p>
+<p>Wrapper around the Cython-only (private) method
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_ring_info_small</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -359,18 +393,15 @@ properties.</dd>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>(startpix, num_pix_in_ring, shifted)</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
-<dd><dl class="first last docutils">
-<dt>startpix <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
+<dt><strong>startpix</strong> <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
 <dd><p class="first last">The HEALPix index of the first pixel in ring.</p>
 </dd>
-<dt>num_pix_in_ring <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
+<dt><strong>num_pix_in_ring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
 <dd><p class="first last">The number of HEALPix pixels in ring.</p>
 </dd>
-<dt>shifted <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether the central HEALPix pixel is shifted.</p>
-</dd>
-</dl>
+<dt><strong>shifted</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Whether the central HEALPix pixel in that ring is shifted from
+<span class="math notranslate nohighlight">\(\varphi=180^\circ\)</span>.</p>
 </dd>
 </dl>
 </td>
@@ -435,22 +466,22 @@ properties.</dd>
 <dl class="method">
 <dt id="cygrid.HpxHashTable.pix2ring">
 <code class="descname">pix2ring</code><span class="sig-paren">(</span><em>self</em>, <em>uint64_t pix</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.HpxHashTable.pix2ring" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return ring index of hpx pixel.</p>
-<p>Wrapper around the cython-only (private) method _pix2ring.</p>
+<dd><p>Return ‘ring’ number that contains the HEALPix pixel, ‘pix’.</p>
+<p>Wrapper around the Cython-only (private) method _pix2ring.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>pix</strong> <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd><p class="first last">The HEALPix index for which to query the ring.</p>
+<dd><p class="first last">The HEALPix index.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>ring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">unsigned 64-bit int</span></dt>
-<dd><p class="first last">The HEALPix ring index.</p>
+<dd><p class="first last">The HEALPix ring.</p>
 </dd>
 </dl>
 </td>
@@ -469,7 +500,29 @@ properties.</dd>
 <dl class="method">
 <dt id="cygrid.HpxHashTable.pix2ring_many">
 <code class="descname">pix2ring_many</code><span class="sig-paren">(</span><em>self</em>, <em>long[::1] pix</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.HpxHashTable.pix2ring_many" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return ‘ring’ numbers containing HEALPix pixels given in array, ‘pix’.</p>
+<p>Wrapper around the Cython-only (private) method _pix2ring.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>pix</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
+<dd><p class="first last">The HEALPix indices.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ring</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of unsigned 64-bit ints</span></dt>
+<dd><p class="first last">The HEALPix rings.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="cygrid.HpxHashTable.query_disc">
@@ -584,7 +637,7 @@ will be set such that the HPX resolution is better than target_res.</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 03 Dec 2018. <br/>
+    Last built 05 Dec 2018. <br/>
   </p>
 </footer>
   </body>
