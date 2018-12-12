@@ -13,12 +13,12 @@ Introduction
 
 
 `Cygrid` allows to resample a number of spectra (or data points) to a regular
-grid - a data cube - using any valid astronomical FITS/WCS projection. The
-method is a based on serialized convolution with finite gridding kernels.
-Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
-(which has the drawback of slight degradation of the effective resolution).
-The algorithm has very small memory footprint, allows easy parallelization,
-and is very fast.
+grid - a data cube - using any valid astronomical FITS/WCS projection (see
+`~astropy.wcs`). The method is a based on serialized convolution with finite
+gridding kernels. Currently, only Gaussian (radial-symmetric or elliptical)
+kernels are provided (which has the drawback of slight degradation of the
+effective resolution). The algorithm has very small memory footprint, allows
+easy parallelization, and is very fast.
 
 Cygrid is already used in several "production" systems, for example it was
 utilized for two major 21-cm HI surveys, EBHIS and HI4PI. Nevertheless,
@@ -319,6 +319,8 @@ the effective angular resolution of the data is degraded:
 where :math:`\sigma_\mathrm{out}` is the standard deviation of the resulting
 effective beam width (given it's Gaussian), :math:`\sigma_\mathrm{in}` is the
 width of the input beam, and :math:`\sigma_{k}` is the width of the kernel.
+Therefore, `~cygrid` may not be the first choice if it comes to the task of
+re-projecting data (see :ref:`reprojection-label`).
 
 .. note::
 
@@ -377,44 +379,225 @@ of the used caches. A good value for this is :math:`\sigma_k/2`.
 How to use cygrid? Simple tasks
 ======================================
 
-TODO: this was shifted to quick tour
+Using `~cygrid` consists of four main steps:
 
-Simple example::
+    1. Reading the raw data,
+    2. Defining the output coordinate system and frame (by means of
+       `~astropy.wcs`),
+    3. Setting up the gridder, i.e., the kernel parameters with
+       `~cygrid.WcsGrid.set_kernel`,
+    4. Feed the raw data into the gridder with the `~cygrid.WcsGrid.grid`
+       method.
 
-    from astropy.io import fits
+In the following, we will explain in more detail, how each of the steps works.
+As `~cygrid` doesn't ship with a large raw data set that could be read-in,
+we will simply create a mock data set, with the help of a utility function,
+`~cygrid.produce_mock_data`::
+
+    >>> import numpy as np
+    >>> import cygrid
+    >>> from astropy.utils.misc import NumpyRNGContext
+
+    >>> mapcenter = 60., 30.  # all in degrees
+    >>> mapsize = 5., 5.
+    >>> beamsize_fwhm = 0.1
+    >>> num_samples = 10 ** 6
+    >>> num_sources = 20
+
+    >>> # see cygrid's manual for a description of the produce_mock_data function
+    >>> with NumpyRNGContext(1):
+    ...     lons, lats, signal = cygrid.produce_mock_data(
+    ...         mapcenter, mapsize, beamsize_fwhm, num_samples, num_sources
+    ...         )
+
+    >>> np.set_printoptions(precision=4)
+    >>> print(lons)  # doctest: +FLOAT_CMP
+    [59.473  61.3992 56.8253 ... 59.957  57.5156 59.176 ]
+    >>> print(lats)  # doctest: +FLOAT_CMP
+    [28.0106 31.0641 30.3142 ... 28.5785 32.1307 28.8626]
+    >>> print(signal)  # doctest: +FLOAT_CMP
+    [ 0.0856  1.1899 -0.3375 ...  1.7997 -0.5739  0.0358]
+
+.. note::
+
+    With the `~astropy.utils.misc.NumpyRNGContext` context, it is possible
+    to specify the seed for all NumPy random numbers.
+
+The next step is to define a FITS/`~astropy.wcs` compatible header that
+defines the image into which we want to grid the data. There is one subtle
+detail that is important - `~cygrid` always expects spectral data (and
+`~cygrid.WcsGrid` will always produce a data cube), therefore, we need to
+define a 3D FITS header with a spectral dimension of length One::
+
+    >>> # define target grid (via FITS header according to WCS convention)
+    >>> # a good pixel size is a third of the FWHM of the PSF (avoids aliasing)
+    >>> pixsize = beamsize_fwhm / 3.
+    >>> dnaxis1 = int(mapsize[0] / pixsize)
+    >>> dnaxis2 = int(mapsize[1] / pixsize)
+
+    >>> target_header = {
+    ...     'NAXIS': 3,
+    ...     'NAXIS1': dnaxis1,
+    ...     'NAXIS2': dnaxis2,
+    ...     'NAXIS3': 1,  # need dummy spectral axis
+    ...     'CTYPE1': 'RA---SIN',
+    ...     'CTYPE2': 'DEC--SIN',
+    ...     'CUNIT1': 'deg',
+    ...     'CUNIT2': 'deg',
+    ...     'CDELT1': -pixsize,
+    ...     'CDELT2': pixsize,
+    ...     'CRPIX1': dnaxis1 / 2.,
+    ...     'CRPIX2': dnaxis2 / 2.,
+    ...     'CRVAL1': mapcenter[0],
+    ...     'CRVAL2': mapcenter[1],
+    ...     }
+
+This header can be put into the `~cygrid.WcsGrid` constructor, which is
+the Class that has to be used for this kind of image gridding::
+
+    >>> gridder = cygrid.WcsGrid(target_header)
+
+Before the gridder is ready to use, one needs to setup the kernel parameters
+(see also :ref:`kernel-parameters-label`):
+
+    >>> kernelsize_fwhm = 2.5 / 60.  # degrees
+    >>> kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
+    >>> sphere_radius = 3. * kernelsize_sigma
+
+    >>> gridder.set_kernel(
+    ...     'gauss1d',
+    ...     (kernelsize_sigma,),
+    ...     sphere_radius,
+    ...     kernelsize_sigma / 2.
+    ...     )
+
+Finally, we call the `~cygrid.WcsGrid.grid` method, into which the raw data
+is fed. Again, to handle continuum data, we need to add a dummy dimension (to
+the `signal`)::
+
+    >>> gridder.grid(lons, lats, signal[:, np.newaxis])
+
+The result can be queried using the `~cygrid.WcsGrid.get_data` method::
+
+    >>> gridded_data = gridder.get_datacube()
+    >>> print(gridded_data)  # doctest: +FLOAT_CMP
+    [[[ 0.0869 -0.0552  0.0602 ... -0.009   0.0505  0.1381]
+      [ 0.0588 -0.1365 -0.1029 ... -0.0086 -0.056  -0.0552]
+      [ 0.0436 -0.0653 -0.0837 ... -0.0123 -0.0365 -0.0475]
+      ...
+      [-0.0235 -0.0198 -0.0256 ... -0.0158  0.1301  0.0874]
+      [-0.1522 -0.0549 -0.0798 ... -0.0556  0.0926  0.0633]
+      [-0.0982 -0.0861 -0.0834 ...  0.1075  0.1174  0.1166]]]
+
+As said above, this has three dimensions, but the third axis (the spectral
+axis) has length-1 and is not necessary in this case. We can get rid of it::
+
+    >>> print(gridded_data.shape)
+    (1, 150, 150)
+    >>> gridded_map = gridded_data.squeeze()
+    >>> print(gridded_map.shape)
+    (150, 150)
+
+.. note::
+
+    We follow the standard convention, that the data cube axes are ordered
+    as: `(z, y, x)`.
+
+For many use cases, you will want to save your image to FITS::
+
+    >>> from astropy.io import fits
+
+    >>> fits.writeto('example.fits', header=target_header, data=gridded_data)  # doctest: +SKIP
+
+.. note::
+
+    If you only want to store a 2D image, you'll need to strip the third
+    dimension from your FITS header.
+
+We can also plot the result, using the `~astropy.visualization.wcsaxes`
+package (for convenience, we provide the full script):
+
+.. plot::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from astropy.wcs import WCS
+    from astropy.utils.misc import NumpyRNGContext
     import cygrid
 
-    # read-in data
-    lon, lat, signal = get_data()
+    mapcenter = 60., 30.  # all in degrees
+    mapsize = 5., 5.
+    beamsize_fwhm = 0.1
+    num_samples = 10 ** 6
+    num_sources = 20
 
-    # define target FITS/WCS header
-    header = create_fits_header()
+    with NumpyRNGContext(1):
+        lons, lats, signal = cygrid.produce_mock_data(
+            mapcenter, mapsize, beamsize_fwhm, num_samples, num_sources
+            )
 
-    # prepare gridder
-    kernelsize_sigma = 0.2
+    pixsize = beamsize_fwhm / 3.
+    dnaxis1 = int(mapsize[0] / pixsize)
+    dnaxis2 = int(mapsize[1] / pixsize)
 
-    kernel_type = 'gauss1d'
-    kernel_params = (kernelsize_sigma, )  # must be a tuple
-    kernel_support = 3 * kernelsize_sigma
-    hpx_maxres = kernelsize_sigma / 2
+    target_header = {
+        'NAXIS': 3,
+        'NAXIS1': dnaxis1,
+        'NAXIS2': dnaxis2,
+        'NAXIS3': 1,  # need dummy spectral axis
+        'CTYPE1': 'RA---SIN',
+        'CTYPE2': 'DEC--SIN',
+        'CUNIT1': 'deg',
+        'CUNIT2': 'deg',
+        'CDELT1': -pixsize,
+        'CDELT2': pixsize,
+        'CRPIX1': dnaxis1 / 2.,
+        'CRPIX2': dnaxis2 / 2.,
+        'CRVAL1': mapcenter[0],
+        'CRVAL2': mapcenter[1],
+        }
 
-    mygridder = cygrid.WcsGrid(header)
-    mygridder.set_kernel(
-        kernel_type,
-        kernel_params,
-        kernel_support,
-        hpx_maxres,
+    gridder = cygrid.WcsGrid(target_header)
+
+    kernelsize_fwhm = 2.5 / 60.  # degrees
+    kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
+    sphere_radius = 3. * kernelsize_sigma
+
+    gridder.set_kernel(
+        'gauss1d',
+        (kernelsize_sigma,),
+        sphere_radius,
+        kernelsize_sigma / 2.
         )
+    gridder.grid(lons, lats, signal[:, np.newaxis])
+    gridded_map = gridder.get_datacube().squeeze()
 
-    # do the actual gridding
-    mygridder.grid(lon, lat, signal)
+    target_wcs = gridder.get_wcs()
 
-    # query result and store to disk
-    data_cube = mygridder.get_datacube()
-    fits.writeto('example.fits', header=header, data=data_cube)
+    fig = plt.figure(figsize=(7, 7))
+    ax = fig.add_subplot(111, projection=target_wcs.celestial)
+    im = ax.imshow(
+        gridded_map, vmin=-0.5, vmax=8.0,
+        origin='lower', interpolation='nearest'
+        )
+    lon, lat = ax.coords
+    lon.set_axislabel('R.A. [deg]')
+    lat.set_axislabel('Dec [deg]')
+    plt.show()
 
 
-How does cygrid compare to scipy.griddata or reproject?
+.. note::
+
+    If you use `~matplotlib.pyplot.imshow` for plotting, you need the
+    `origin='lower'` option to ensure that the result is not vertically
+    flipped. Also we recommend to use `interpolation='nearest'` to avoid
+    additional interpolation of the result by `~matplotlib.pyplot.imshow`.
+
+
+
+.. _reprojection-label:
+
+How does cygrid compare to re-projection?
 --------------------------------------------------------
 
 

@@ -24,3 +24,4 @@ if not _ASTROPY_SETUP_:
     from .healpix import *
     from .hphashtab import *
     from .helpers import *
+    from .mock import *
