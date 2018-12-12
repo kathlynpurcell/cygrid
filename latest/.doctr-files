@@ -1,8 +1,10 @@
 latest/_images/user_manual-1.png
 latest/_images/user_manual-2.png
 latest/_images/user_manual-3.png
+latest/_images/user_manual-4.png
 latest/_modules/cygrid.html
 latest/_modules/cygrid/_astropy_init.html
+latest/_modules/cygrid/mock.html
 latest/_modules/index.html
 latest/_sources/api/cygrid.Cygrid.rst.txt
 latest/_sources/api/cygrid.Healpix.rst.txt
@@ -12,6 +14,7 @@ latest/_sources/api/cygrid.UnsupportedPythonError.rst.txt
 latest/_sources/api/cygrid.WcsGrid.rst.txt
 latest/_sources/api/cygrid.npix_to_nside.rst.txt
 latest/_sources/api/cygrid.nside_to_order.rst.txt
+latest/_sources/api/cygrid.produce_mock_data.rst.txt
 latest/_sources/api/cygrid.test.rst.txt
 latest/_sources/importing_cygrid.rst.txt
 latest/_sources/index.rst.txt
@@ -57,6 +60,7 @@ latest/api/cygrid.UnsupportedPythonError.html
 latest/api/cygrid.WcsGrid.html
 latest/api/cygrid.npix_to_nside.html
 latest/api/cygrid.nside_to_order.html
+latest/api/cygrid.produce_mock_data.html
 latest/api/cygrid.test.html
 latest/genindex.html
 latest/importing_cygrid.html
@@ -73,6 +77,9 @@ latest/plot_directive/user_manual-2.png
 latest/plot_directive/user_manual-3.hires.png
 latest/plot_directive/user_manual-3.pdf
 latest/plot_directive/user_manual-3.png
+latest/plot_directive/user_manual-4.hires.png
+latest/plot_directive/user_manual-4.pdf
+latest/plot_directive/user_manual-4.png
 latest/quick_tour.html
 latest/search.html
 latest/searchindex.js
@@ -88,4 +95,8 @@ latest/user_manual-3.hires.png
 latest/user_manual-3.pdf
 latest/user_manual-3.png
 latest/user_manual-3.py
+latest/user_manual-4.hires.png
+latest/user_manual-4.pdf
+latest/user_manual-4.png
+latest/user_manual-4.py
 latest/user_manual.html

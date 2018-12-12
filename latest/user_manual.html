@@ -79,12 +79,12 @@
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a> allows to resample a number of spectra (or data points) to a regular
-grid - a data cube - using any valid astronomical FITS/WCS projection. The
-method is a based on serialized convolution with finite gridding kernels.
-Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
-(which has the drawback of slight degradation of the effective resolution).
-The algorithm has very small memory footprint, allows easy parallelization,
-and is very fast.</p>
+grid - a data cube - using any valid astronomical FITS/WCS projection (see
+<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>). The method is a based on serialized convolution with finite
+gridding kernels. Currently, only Gaussian (radial-symmetric or elliptical)
+kernels are provided (which has the drawback of slight degradation of the
+effective resolution). The algorithm has very small memory footprint, allows
+easy parallelization, and is very fast.</p>
 <p>Cygrid is already used in several “production” systems, for example it was
 utilized for two major 21-cm HI surveys, EBHIS and HI4PI. Nevertheless,
 we cannot guarantee that it’s completely bug-free. We kindly invite you to
@@ -242,7 +242,7 @@ to display the map in rectangular coordinates. Therefore, a certain map
 projections has to be specified, as well.</p>
 <p>However, there are libraries to easily convert between the world coordinates
 (longitude and latitude) and pixel coordinates (<span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>), such
-as <a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.0.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>. Then one only needs to use the true-angular distance
+as <a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>. Then one only needs to use the true-angular distance
 function instead instead of the simple Cartesian distance and the above
 formulas can be applied.</p>
 <p>Of course, in practice there is a little bit more to it. One has to deal with
@@ -280,7 +280,9 @@ the effective angular resolution of the data is degraded:</p>
 \[\sigma_\mathrm{out}^2 = \sigma_\mathrm{in}^2 + \sigma_k^2\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma_\mathrm{out}\)</span> is the standard deviation of the resulting
 effective beam width (given it’s Gaussian), <span class="math notranslate nohighlight">\(\sigma_\mathrm{in}\)</span> is the
-width of the input beam, and <span class="math notranslate nohighlight">\(\sigma_{k}\)</span> is the width of the kernel.</p>
+width of the input beam, and <span class="math notranslate nohighlight">\(\sigma_{k}\)</span> is the width of the kernel.
+Therefore, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> may not be the first choice if it comes to the task of
+re-projecting data (see <a class="reference internal" href="#reprojection-label"><span class="std std-ref">How does cygrid compare to re-projection?</span></a>).</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">One can convert between the standard-deviation width and the FWHM via
@@ -329,43 +331,159 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 </div>
 <div class="section" id="how-to-use-cygrid-simple-tasks">
 <h2>How to use cygrid? Simple tasks<a class="headerlink" href="#how-to-use-cygrid-simple-tasks" title="Permalink to this headline">¶</a></h2>
-<p>TODO: this was shifted to quick tour</p>
-<p>Simple example:</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
-<span class="kn">import</span> <span class="nn">cygrid</span>
+<p>Using <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> consists of four main steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Reading the raw data,</li>
+<li>Defining the output coordinate system and frame (by means of
+<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>),</li>
+<li>Setting up the gridder, i.e., the kernel parameters with
+<a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>,</li>
+<li>Feed the raw data into the gridder with the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>
+method.</li>
+</ol>
+</div></blockquote>
+<p>In the following, we will explain in more detail, how each of the steps works.
+As <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> doesn’t ship with a large raw data set that could be read-in,
+we will simply create a mock data set, with the help of a utility function,
+<a class="reference internal" href="api/cygrid.produce_mock_data.html#cygrid.produce_mock_data" title="cygrid.produce_mock_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">produce_mock_data</span></code></a>:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">cygrid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.utils.misc</span> <span class="k">import</span> <span class="n">NumpyRNGContext</span>
 
-<span class="c1"># read-in data</span>
-<span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapcenter</span> <span class="o">=</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">30.</span>  <span class="c1"># all in degrees</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapsize</span> <span class="o">=</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">5.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beamsize_fwhm</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_sources</span> <span class="o">=</span> <span class="mi">20</span>
 
-<span class="c1"># define target FITS/WCS header</span>
-<span class="n">header</span> <span class="o">=</span> <span class="n">create_fits_header</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># see cygrid&#39;s manual for a description of the produce_mock_data function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">NumpyRNGContext</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">produce_mock_data</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">mapcenter</span><span class="p">,</span> <span class="n">mapsize</span><span class="p">,</span> <span class="n">beamsize_fwhm</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_sources</span>
+<span class="gp">... </span>        <span class="p">)</span>
 
-<span class="c1"># prepare gridder</span>
-<span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="mf">0.2</span>
-
-<span class="n">kernel_type</span> <span class="o">=</span> <span class="s1">&#39;gauss1d&#39;</span>
-<span class="n">kernel_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,</span> <span class="p">)</span>  <span class="c1"># must be a tuple</span>
-<span class="n">kernel_support</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
-<span class="n">hpx_maxres</span> <span class="o">=</span> <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mi">2</span>
-
-<span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
-<span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
-    <span class="n">kernel_type</span><span class="p">,</span>
-    <span class="n">kernel_params</span><span class="p">,</span>
-    <span class="n">kernel_support</span><span class="p">,</span>
-    <span class="n">hpx_maxres</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<span class="c1"># do the actual gridding</span>
-<span class="n">mygridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
-
-<span class="c1"># query result and store to disk</span>
-<span class="n">data_cube</span> <span class="o">=</span> <span class="n">mygridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
-<span class="n">fits</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="s1">&#39;example.fits&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data_cube</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>  
+<span class="go">[59.473  61.3992 56.8253 ... 59.957  57.5156 59.176 ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>  
+<span class="go">[28.0106 31.0641 30.3142 ... 28.5785 32.1307 28.8626]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>  
+<span class="go">[ 0.0856  1.1899 -0.3375 ...  1.7997 -0.5739  0.0358]</span>
 </pre></div>
 </div>
-<div class="section" id="how-does-cygrid-compare-to-scipy-griddata-or-reproject">
-<h3>How does cygrid compare to scipy.griddata or reproject?<a class="headerlink" href="#how-does-cygrid-compare-to-scipy-griddata-or-reproject" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">With the <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.utils.misc.NumpyRNGContext.html#astropy.utils.misc.NumpyRNGContext" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumpyRNGContext</span></code></a> context, it is possible
+to specify the seed for all NumPy random numbers.</p>
+</div>
+<p>The next step is to define a FITS/<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a> compatible header that
+defines the image into which we want to grid the data. There is one subtle
+detail that is important - <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always expects spectral data (and
+<a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a> will always produce a data cube), therefore, we need to
+define a 3D FITS header with a spectral dimension of length One:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># define target grid (via FITS header according to WCS convention)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># a good pixel size is a third of the FWHM of the PSF (avoids aliasing)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pixsize</span> <span class="o">=</span> <span class="n">beamsize_fwhm</span> <span class="o">/</span> <span class="mf">3.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dnaxis1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mapsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixsize</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dnaxis2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mapsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixsize</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_header</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;NAXIS&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;NAXIS1&#39;</span><span class="p">:</span> <span class="n">dnaxis1</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;NAXIS2&#39;</span><span class="p">:</span> <span class="n">dnaxis2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;NAXIS3&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># need dummy spectral axis</span>
+<span class="gp">... </span>    <span class="s1">&#39;CTYPE1&#39;</span><span class="p">:</span> <span class="s1">&#39;RA---SIN&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CTYPE2&#39;</span><span class="p">:</span> <span class="s1">&#39;DEC--SIN&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CUNIT1&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CUNIT2&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CDELT1&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">pixsize</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CDELT2&#39;</span><span class="p">:</span> <span class="n">pixsize</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CRPIX1&#39;</span><span class="p">:</span> <span class="n">dnaxis1</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CRPIX2&#39;</span><span class="p">:</span> <span class="n">dnaxis2</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;CRVAL1&#39;</span><span class="p">:</span> <span class="n">mapcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;CRVAL2&#39;</span><span class="p">:</span> <span class="n">mapcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">}</span>
+</pre></div>
+</div>
+<p>This header can be put into the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a> constructor, which is
+the Class that has to be used for this kind of image gridding:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">target_header</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Before the gridder is ready to use, one needs to setup the kernel parameters
+(see also <a class="reference internal" href="#kernel-parameters-label"><span class="std std-ref">Kernel parameters</span></a>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="o">/</span> <span class="mf">60.</span>  <span class="c1"># degrees</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="n">kernelsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
+<span class="gp">... </span>    <span class="n">sphere_radius</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
+<span class="gp">... </span>    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we call the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> method, into which the raw data
+is fed. Again, to handle continuum data, we need to add a dummy dimension (to
+the <a class="reference external" href="https://docs.python.org/3/library/signal.html#module-signal" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal</span></code></a>):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The result can be queried using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data</span></code> method:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_data</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="p">)</span>  
+<span class="go">[[[ 0.0869 -0.0552  0.0602 ... -0.009   0.0505  0.1381]</span>
+<span class="go">  [ 0.0588 -0.1365 -0.1029 ... -0.0086 -0.056  -0.0552]</span>
+<span class="go">  [ 0.0436 -0.0653 -0.0837 ... -0.0123 -0.0365 -0.0475]</span>
+<span class="go">  ...</span>
+<span class="go">  [-0.0235 -0.0198 -0.0256 ... -0.0158  0.1301  0.0874]</span>
+<span class="go">  [-0.1522 -0.0549 -0.0798 ... -0.0556  0.0926  0.0633]</span>
+<span class="go">  [-0.0982 -0.0861 -0.0834 ...  0.1075  0.1174  0.1166]]]</span>
+</pre></div>
+</div>
+<p>As said above, this has three dimensions, but the third axis (the spectral
+axis) has length-1 and is not necessary in this case. We can get rid of it:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(1, 150, 150)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_map</span> <span class="o">=</span> <span class="n">gridded_data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_map</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(150, 150)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We follow the standard convention, that the data cube axes are ordered
+as: <code class="xref py py-obj docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p>
+</div>
+<p>For many use cases, you will want to save your image to FITS:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fits</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="s1">&#39;example.fits&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">target_header</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gridded_data</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you only want to store a 2D image, you’ll need to strip the third
+dimension from your FITS header.</p>
+</div>
+<p>We can also plot the result, using the <a class="reference external" href="http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html#module-astropy.visualization.wcsaxes" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcsaxes</span></code></a>
+package (for convenience, we provide the full script):</p>
+<p>(<a class="reference external" href=".//user_manual-4.py">Source code</a>, <a class="reference external" href=".//user_manual-4.png">png</a>, <a class="reference external" href=".//user_manual-4.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-4.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/user_manual-4.png" src="_images/user_manual-4.png" />
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you use <a class="reference external" href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.imshow.html#matplotlib.pyplot.imshow" title="(in Matplotlib v3.0.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imshow</span></code></a> for plotting, you need the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">origin='lower'</span></code> option to ensure that the result is not vertically
+flipped. Also we recommend to use <code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolation='nearest'</span></code> to avoid
+additional interpolation of the result by <a class="reference external" href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.imshow.html#matplotlib.pyplot.imshow" title="(in Matplotlib v3.0.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imshow</span></code></a>.</p>
+</div>
+<div class="section" id="how-does-cygrid-compare-to-re-projection">
+<span id="reprojection-label"></span><h3>How does cygrid compare to re-projection?<a class="headerlink" href="#how-does-cygrid-compare-to-re-projection" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="how-to-use-cygrid-advanced-tasks">
@@ -409,7 +527,10 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 <tr class="row-even"><td><a class="reference internal" href="api/cygrid.nside_to_order.html#cygrid.nside_to_order" title="cygrid.nside_to_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nside_to_order</span></code></a>(uint64_t&nbsp;nside)</td>
 <td>Compute HEALPix <code class="xref py py-obj docutils literal notranslate"><span class="pre">order</span></code> from <code class="xref py py-obj docutils literal notranslate"><span class="pre">nside</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.test.html#cygrid.test" title="cygrid.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>(**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="api/cygrid.produce_mock_data.html#cygrid.produce_mock_data" title="cygrid.produce_mock_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">produce_mock_data</span></code></a>(mapcenter,&nbsp;mapsize,&nbsp;…)</td>
+<td>Produce mock raw data (including coordinate pairs) for testing.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/cygrid.test.html#cygrid.test" title="cygrid.test"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test</span></code></a>(**kwargs)</td>
 <td>Run the tests for the package.</td>
 </tr>
 </tbody>
@@ -468,7 +589,7 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 </ul>
 </li>
 <li><a class="reference internal" href="#how-to-use-cygrid-simple-tasks">How to use cygrid? Simple tasks</a><ul>
-<li><a class="reference internal" href="#how-does-cygrid-compare-to-scipy-griddata-or-reproject">How does cygrid compare to scipy.griddata or reproject?</a></li>
+<li><a class="reference internal" href="#how-does-cygrid-compare-to-re-projection">How does cygrid compare to re-projection?</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#how-to-use-cygrid-advanced-tasks">How to use cygrid? Advanced tasks</a><ul>
@@ -504,7 +625,7 @@ of the used caches. A good value for this is <span class="math notranslate nohig
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 05 Dec 2018. <br/>
+    Last built 12 Dec 2018. <br/>
   </p>
 </footer>
   </body>
