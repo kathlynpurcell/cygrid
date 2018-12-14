@@ -376,7 +376,7 @@ of the used caches. A good value for this is :math:`\sigma_k/2`.
 
 
 
-How to use cygrid? Simple tasks
+Simple gridding tasks
 ======================================
 
 Using `~cygrid` consists of four main steps:
@@ -518,6 +518,7 @@ We can also plot the result, using the `~astropy.visualization.wcsaxes`
 package (for convenience, we provide the full script):
 
 .. plot::
+    :include-source:
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -600,8 +601,209 @@ package (for convenience, we provide the full script):
 How does cygrid compare to re-projection?
 --------------------------------------------------------
 
+Sometimes one already has a set of gridded data but wants to convert it to
+another coordinate system or frame/projection. For this, the `reproject
+package <https://pypi.org/project/reproject/>`_ is probably better suited, as
+it allows to do it without the loss of angular resolution discussed in :ref
+:angular-resolution-label. However, that doesn't mean that `~cygrid` isn't
+able to do it. Suppose you have some Planck satellite data of M31 in
+equatorial coordinates and want to over-plot an image of the HI as observed by
+`EBHIS <https://www.aanda.org/component/article?access=doi&doi=10.1051/0004-6361/2015270 07>`_,
+which perhaps you have in galactic coordinates, only. To show how this
+works, we'll query some example data from `NASA SkyView
+<https://skyview.gsfc.nasa.gov/current/cgi/titlepage.pl>`_ with the help of
+the awesome `astroquery <http://www.astropy.org/astroquery/>`_ package.:
 
-How to use cygrid? Advanced tasks
+.. plot::
+    :context: reset
+    :nofigs:
+    :include-source:
+    :align: center
+
+    from astropy import units as u
+    from astropy.utils.data import conf
+    from astroquery.skyview import SkyView
+
+
+    # Loading data from SkyView can take a while, hence the longer timeout
+    conf.remote_timeout = 60.
+
+    kwargs = dict(
+        radius=3 * u.deg,
+        pixels='500',
+        scaling='Linear',
+        )
+    paths = SkyView().get_images(
+        position='00 42 44.330 +41 16 07.50',
+        coordinates='J2000', survey=['Planck 857'], **kwargs
+        )  # doctest: +ELLIPSIS
+    planck_header, planck_data = paths[0][0].header, paths[0][0].data
+
+    paths = SkyView().get_images(
+        position='121.174322 -21.573311',
+        coordinates='Galactic', survey=['EBHIS'], **kwargs
+        )  # doctest: +ELLIPSIS
+    ebhis_header, ebhis_data = paths[0][0].header, paths[0][0].data
+
+Let's plot the two maps:
+
+.. plot::
+    :context:
+    :include-source:
+    :align: center
+
+    from astropy.wcs import WCS
+    import matplotlib.pyplot as plt
+
+
+    planck_wcs, ebhis_wcs = WCS(planck_header), WCS(ebhis_header)
+
+    fig = plt.figure(figsize=(12, 6))
+    ax1 = fig.add_subplot(1,2,1, projection=planck_wcs)
+    ax1.imshow(planck_data, origin='lower')
+    ax1.set_title('Planck 857 GHz')
+    ax1.coords['ra'].set_axislabel('Right Ascension')
+    ax1.coords['dec'].set_axislabel('Declination')
+
+    ax2 = fig.add_subplot(1,2,2, projection=ebhis_wcs)
+    ax2.imshow(ebhis_data, origin='lower')
+    ax2.set_title('EBHIS 21-cm HI line')
+    ax2.coords['glon'].set_axislabel('Galactic Longitude')
+    ax2.coords['glat'].set_axislabel('Galactic Latitude')
+    ax2.coords['glat'].set_axislabel_position('r')
+    ax2.coords['glat'].set_ticklabel_position('r')
+
+Before the data can be re-gridded, we need to extract the world coordinates
+of the EBHIS FITS header and convert them to the equatorial system:
+
+.. plot::
+    :context:
+    :nofigs:
+    :include-source:
+    :align: center
+
+    import numpy as np
+    from astropy.coordinates import SkyCoord
+
+
+    ebhis_glon_pix, ebhis_glat_pix = np.meshgrid(
+        np.arange(ebhis_header['NAXIS1']),
+        np.arange(ebhis_header['NAXIS2'])
+        )
+    ebhis_lon_world, ebhis_lat_world = ebhis_wcs.all_pix2world(
+        ebhis_glon_pix, ebhis_glat_pix, 0
+        )
+    ebhis_coords_gal = SkyCoord(
+        ebhis_lon_world, ebhis_lat_world, frame='galactic', unit='deg'
+        )
+    ebhis_coords_eq = ebhis_coords_gal.icrs
+
+This seems a bit messy, but if you need this often, just put it into a
+function. We can now set-up `~cygrid.WcsGrid` and put the EBHIS data
+into the `~cygrid.WcsGrid.grid` method, as usual:
+
+
+.. plot::
+    :context:
+    :nofigs:
+    :include-source:
+    :align: center
+
+    import cygrid
+
+
+    # need to add dummy axis again
+    ebhis_target_header = planck_header.copy()
+    ebhis_target_header['NAXIS'] = 3
+    ebhis_target_header['NAXIS3'] = 1
+
+    gridder = cygrid.WcsGrid(ebhis_target_header)
+
+    # EBHIS resolution is 10.8', but image is strongly oversampled, so we use
+    # a kernel of 0.012 (twice the pixel size)
+    kernelsize_fwhm = 0.012
+    kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
+    sphere_radius = 4. * kernelsize_sigma
+
+    gridder.set_kernel(
+        'gauss1d',
+        (kernelsize_sigma,),
+        sphere_radius,
+        kernelsize_sigma / 2.
+        )
+
+    gridder.grid(
+        ebhis_coords_eq.ra.value.flatten(),
+        ebhis_coords_eq.dec.value.flatten(),
+        ebhis_data.reshape(-1, 1)
+        )
+    ebhis_data_regridded = gridder.get_datacube().squeeze()
+
+
+.. plot::
+    :context:
+    :align: center
+
+    fig.clear()
+    ax1 = fig.add_subplot(1,2,1, projection=planck_wcs)
+    ax1.imshow(planck_data, origin='lower')
+    ax1.set_title('Planck 857 GHz')
+
+    ax2 = fig.add_subplot(1,2,2, projection=planck_wcs)
+    ax2.imshow(ebhis_data_regridded, origin='lower')
+    ax2.set_title('EBHIS 21-cm HI line')
+
+    for ax in [ax1, ax2]:
+        ax.coords['ra'].set_axislabel('Right Ascension')
+        ax.coords['dec'].set_axislabel('Declination')
+
+    ax2.coords['ra'].set_axislabel_position('r')
+    ax2.coords['dec'].set_ticklabel_position('r')
+
+By coincidence, only a slight rotation was necessary, which is why only few
+blank pixels are visible at the edges. For convenience, we also show,
+how to do the same with the `reproject
+<https://pypi.org/project/reproject/>`_ package:
+
+.. plot::
+    :context:
+    :nofigs:
+    :include-source:
+    :align: center
+
+    from reproject import reproject_interp
+
+
+    ebhis_data_reprojected, footprint = reproject_interp(
+        (ebhis_data, ebhis_header), planck_header
+        )
+
+And for the sake of completeness, here is the plot:
+
+.. plot::
+    :context:
+    :align: center
+
+    fig.clear()
+    ax1 = fig.add_subplot(1,2,1, projection=planck_wcs)
+    ax1.imshow(planck_data, origin='lower')
+    ax1.set_title('Planck 857 GHz')
+
+    ax2 = fig.add_subplot(1,2,2, projection=planck_wcs)
+    ax2.imshow(ebhis_data_reprojected, origin='lower')
+    ax2.set_title('EBHIS 21-cm HI line')
+
+    for ax in [ax1, ax2]:
+        ax.coords['ra'].set_axislabel('Right Ascension')
+        ax.coords['dec'].set_axislabel('Declination')
+
+    ax2.coords['ra'].set_axislabel_position('r')
+    ax2.coords['dec'].set_ticklabel_position('r')
+
+
+
+
+Advanced gridding tasks
 =========================================
 
 .. _serialization-label:

@@ -329,8 +329,8 @@ three times longer. The internally HPX resolution defines only some details
 of the used caches. A good value for this is <span class="math notranslate nohighlight">\(\sigma_k/2\)</span>.</p>
 </div>
 </div>
-<div class="section" id="how-to-use-cygrid-simple-tasks">
-<h2>How to use cygrid? Simple tasks<a class="headerlink" href="#how-to-use-cygrid-simple-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-gridding-tasks">
+<h2>Simple gridding tasks<a class="headerlink" href="#simple-gridding-tasks" title="Permalink to this headline">¶</a></h2>
 <p>Using <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> consists of four main steps:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -471,6 +471,73 @@ dimension from your FITS header.</p>
 </div>
 <p>We can also plot the result, using the <a class="reference external" href="http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html#module-astropy.visualization.wcsaxes" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcsaxes</span></code></a>
 package (for convenience, we provide the full script):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">astropy.wcs</span> <span class="kn">import</span> <span class="n">WCS</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.misc</span> <span class="kn">import</span> <span class="n">NumpyRNGContext</span>
+<span class="kn">import</span> <span class="nn">cygrid</span>
+
+<span class="n">mapcenter</span> <span class="o">=</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">30.</span>  <span class="c1"># all in degrees</span>
+<span class="n">mapsize</span> <span class="o">=</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">5.</span>
+<span class="n">beamsize_fwhm</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span>
+<span class="n">num_sources</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="k">with</span> <span class="n">NumpyRNGContext</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">produce_mock_data</span><span class="p">(</span>
+        <span class="n">mapcenter</span><span class="p">,</span> <span class="n">mapsize</span><span class="p">,</span> <span class="n">beamsize_fwhm</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_sources</span>
+        <span class="p">)</span>
+
+<span class="n">pixsize</span> <span class="o">=</span> <span class="n">beamsize_fwhm</span> <span class="o">/</span> <span class="mf">3.</span>
+<span class="n">dnaxis1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mapsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixsize</span><span class="p">)</span>
+<span class="n">dnaxis2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mapsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">pixsize</span><span class="p">)</span>
+
+<span class="n">target_header</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;NAXIS&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s1">&#39;NAXIS1&#39;</span><span class="p">:</span> <span class="n">dnaxis1</span><span class="p">,</span>
+    <span class="s1">&#39;NAXIS2&#39;</span><span class="p">:</span> <span class="n">dnaxis2</span><span class="p">,</span>
+    <span class="s1">&#39;NAXIS3&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># need dummy spectral axis</span>
+    <span class="s1">&#39;CTYPE1&#39;</span><span class="p">:</span> <span class="s1">&#39;RA---SIN&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CTYPE2&#39;</span><span class="p">:</span> <span class="s1">&#39;DEC--SIN&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CUNIT1&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CUNIT2&#39;</span><span class="p">:</span> <span class="s1">&#39;deg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CDELT1&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">pixsize</span><span class="p">,</span>
+    <span class="s1">&#39;CDELT2&#39;</span><span class="p">:</span> <span class="n">pixsize</span><span class="p">,</span>
+    <span class="s1">&#39;CRPIX1&#39;</span><span class="p">:</span> <span class="n">dnaxis1</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+    <span class="s1">&#39;CRPIX2&#39;</span><span class="p">:</span> <span class="n">dnaxis2</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+    <span class="s1">&#39;CRVAL1&#39;</span><span class="p">:</span> <span class="n">mapcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="s1">&#39;CRVAL2&#39;</span><span class="p">:</span> <span class="n">mapcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">}</span>
+
+<span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">target_header</span><span class="p">)</span>
+
+<span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="o">/</span> <span class="mf">60.</span>  <span class="c1"># degrees</span>
+<span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="n">kernelsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
+
+<span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
+    <span class="n">sphere_radius</span><span class="p">,</span>
+    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="p">)</span>
+<span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+<span class="n">gridded_map</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+<span class="n">target_wcs</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_wcs</span><span class="p">()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">target_wcs</span><span class="o">.</span><span class="n">celestial</span><span class="p">)</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+    <span class="n">gridded_map</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+    <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+    <span class="p">)</span>
+<span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">coords</span>
+<span class="n">lon</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;R.A. [deg]&#39;</span><span class="p">)</span>
+<span class="n">lat</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Dec [deg]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <p>(<a class="reference external" href=".//user_manual-4.py">Source code</a>, <a class="reference external" href=".//user_manual-4.png">png</a>, <a class="reference external" href=".//user_manual-4.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-4.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/user_manual-4.png" src="_images/user_manual-4.png" />
@@ -484,10 +551,151 @@ additional interpolation of the result by <a class="reference external" href="ht
 </div>
 <div class="section" id="how-does-cygrid-compare-to-re-projection">
 <span id="reprojection-label"></span><h3>How does cygrid compare to re-projection?<a class="headerlink" href="#how-does-cygrid-compare-to-re-projection" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes one already has a set of gridded data but wants to convert it to
+another coordinate system or frame/projection. For this, the <a class="reference external" href="https://pypi.org/project/reproject/">reproject
+package</a> is probably better suited, as
+it allows to do it without the loss of angular resolution discussed in :ref
+:angular-resolution-label. However, that doesn’t mean that <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> isn’t
+able to do it. Suppose you have some Planck satellite data of M31 in
+equatorial coordinates and want to over-plot an image of the HI as observed by
+<a class="reference external" href="https://www.aanda.org/component/article?access=doi&amp;doi=10.1051/0004-6361/201527007">EBHIS</a>,
+which perhaps you have in galactic coordinates, only. To show how this
+works, we’ll query some example data from <a class="reference external" href="https://skyview.gsfc.nasa.gov/current/cgi/titlepage.pl">NASA SkyView</a> with the help of
+the awesome <a class="reference external" href="http://www.astropy.org/astroquery/">astroquery</a> package.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.data</span> <span class="kn">import</span> <span class="n">conf</span>
+<span class="kn">from</span> <span class="nn">astroquery.skyview</span> <span class="kn">import</span> <span class="n">SkyView</span>
+
+
+<span class="c1"># Loading data from SkyView can take a while, hence the longer timeout</span>
+<span class="n">conf</span><span class="o">.</span><span class="n">remote_timeout</span> <span class="o">=</span> <span class="mf">60.</span>
+
+<span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">pixels</span><span class="o">=</span><span class="s1">&#39;500&#39;</span><span class="p">,</span>
+    <span class="n">scaling</span><span class="o">=</span><span class="s1">&#39;Linear&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="n">SkyView</span><span class="p">()</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span>
+    <span class="n">position</span><span class="o">=</span><span class="s1">&#39;00 42 44.330 +41 16 07.50&#39;</span><span class="p">,</span>
+    <span class="n">coordinates</span><span class="o">=</span><span class="s1">&#39;J2000&#39;</span><span class="p">,</span> <span class="n">survey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Planck 857&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>  <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="n">planck_header</span><span class="p">,</span> <span class="n">planck_data</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+
+<span class="n">paths</span> <span class="o">=</span> <span class="n">SkyView</span><span class="p">()</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span>
+    <span class="n">position</span><span class="o">=</span><span class="s1">&#39;121.174322 -21.573311&#39;</span><span class="p">,</span>
+    <span class="n">coordinates</span><span class="o">=</span><span class="s1">&#39;Galactic&#39;</span><span class="p">,</span> <span class="n">survey</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;EBHIS&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>  <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="n">ebhis_header</span><span class="p">,</span> <span class="n">ebhis_data</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//user_manual-5.py">Source code</a>)</p>
+<p>Let’s plot the two maps:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.wcs</span> <span class="kn">import</span> <span class="n">WCS</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+
+<span class="n">planck_wcs</span><span class="p">,</span> <span class="n">ebhis_wcs</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">planck_header</span><span class="p">),</span> <span class="n">WCS</span><span class="p">(</span><span class="n">ebhis_header</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">planck_wcs</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">planck_data</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Planck 857 GHz&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Right Ascension&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Declination&#39;</span><span class="p">)</span>
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">ebhis_wcs</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ebhis_data</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;EBHIS 21-cm HI line&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;glon&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Galactic Longitude&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;glat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Galactic Latitude&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;glat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel_position</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;glat&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_ticklabel_position</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//user_manual-6.py">Source code</a>, <a class="reference external" href=".//user_manual-6.png">png</a>, <a class="reference external" href=".//user_manual-6.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-6.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="_images/user_manual-6.png" src="_images/user_manual-6.png" />
+</div>
+<p>Before the data can be re-gridded, we need to extract the world coordinates
+of the EBHIS FITS header and convert them to the equatorial system:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="n">SkyCoord</span>
+
+
+<span class="n">ebhis_glon_pix</span><span class="p">,</span> <span class="n">ebhis_glat_pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ebhis_header</span><span class="p">[</span><span class="s1">&#39;NAXIS1&#39;</span><span class="p">]),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ebhis_header</span><span class="p">[</span><span class="s1">&#39;NAXIS2&#39;</span><span class="p">])</span>
+    <span class="p">)</span>
+<span class="n">ebhis_lon_world</span><span class="p">,</span> <span class="n">ebhis_lat_world</span> <span class="o">=</span> <span class="n">ebhis_wcs</span><span class="o">.</span><span class="n">all_pix2world</span><span class="p">(</span>
+    <span class="n">ebhis_glon_pix</span><span class="p">,</span> <span class="n">ebhis_glat_pix</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="p">)</span>
+<span class="n">ebhis_coords_gal</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+    <span class="n">ebhis_lon_world</span><span class="p">,</span> <span class="n">ebhis_lat_world</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;galactic&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;deg&#39;</span>
+    <span class="p">)</span>
+<span class="n">ebhis_coords_eq</span> <span class="o">=</span> <span class="n">ebhis_coords_gal</span><span class="o">.</span><span class="n">icrs</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//user_manual-7.py">Source code</a>)</p>
+<p>This seems a bit messy, but if you need this often, just put it into a
+function. We can now set-up <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a> and put the EBHIS data
+into the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> method, as usual:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cygrid</span>
+
+
+<span class="c1"># need to add dummy axis again</span>
+<span class="n">ebhis_target_header</span> <span class="o">=</span> <span class="n">planck_header</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">ebhis_target_header</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ebhis_target_header</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">ebhis_target_header</span><span class="p">)</span>
+
+<span class="c1"># EBHIS resolution is 10.8&#39;, but image is strongly oversampled, so we use</span>
+<span class="c1"># a kernel of 0.012 (twice the pixel size)</span>
+<span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">0.012</span>
+<span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="n">kernelsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">4.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
+
+<span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
+    <span class="n">sphere_radius</span><span class="p">,</span>
+    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="p">)</span>
+
+<span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">ebhis_coords_eq</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+    <span class="n">ebhis_coords_eq</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+    <span class="n">ebhis_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="n">ebhis_data_regridded</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//user_manual-8.py">Source code</a>)</p>
+<p>(<a class="reference external" href=".//user_manual-9.py">Source code</a>, <a class="reference external" href=".//user_manual-9.png">png</a>, <a class="reference external" href=".//user_manual-9.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-9.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="_images/user_manual-9.png" src="_images/user_manual-9.png" />
+</div>
+<p>By coincidence, only a slight rotation was necessary, which is why only few
+blank pixels are visible at the edges. For convenience, we also show,
+how to do the same with the <a class="reference external" href="https://pypi.org/project/reproject/">reproject</a> package:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">reproject</span> <span class="kn">import</span> <span class="n">reproject_interp</span>
+
+
+<span class="n">ebhis_data_reprojected</span><span class="p">,</span> <span class="n">footprint</span> <span class="o">=</span> <span class="n">reproject_interp</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">ebhis_data</span><span class="p">,</span> <span class="n">ebhis_header</span><span class="p">),</span> <span class="n">planck_header</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//user_manual-10.py">Source code</a>)</p>
+<p>And for the sake of completeness, here is the plot:</p>
+<p>(<a class="reference external" href=".//user_manual-11.py">Source code</a>, <a class="reference external" href=".//user_manual-11.png">png</a>, <a class="reference external" href=".//user_manual-11.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-11.pdf">pdf</a>)</p>
+<div class="figure align-center">
+<img alt="_images/user_manual-11.png" src="_images/user_manual-11.png" />
 </div>
 </div>
-<div class="section" id="how-to-use-cygrid-advanced-tasks">
-<h2>How to use cygrid? Advanced tasks<a class="headerlink" href="#how-to-use-cygrid-advanced-tasks" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="advanced-gridding-tasks">
+<h2>Advanced gridding tasks<a class="headerlink" href="#advanced-gridding-tasks" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="decrease-memory-footprint">
 <span id="serialization-label"></span><h3>Decrease memory footprint<a class="headerlink" href="#decrease-memory-footprint" title="Permalink to this headline">¶</a></h3>
 </div>
@@ -588,11 +796,11 @@ additional interpolation of the result by <a class="reference external" href="ht
 <li><a class="reference internal" href="#kernel-parameters">Kernel parameters</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-to-use-cygrid-simple-tasks">How to use cygrid? Simple tasks</a><ul>
+<li><a class="reference internal" href="#simple-gridding-tasks">Simple gridding tasks</a><ul>
 <li><a class="reference internal" href="#how-does-cygrid-compare-to-re-projection">How does cygrid compare to re-projection?</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-to-use-cygrid-advanced-tasks">How to use cygrid? Advanced tasks</a><ul>
+<li><a class="reference internal" href="#advanced-gridding-tasks">Advanced gridding tasks</a><ul>
 <li><a class="reference internal" href="#decrease-memory-footprint">Decrease memory footprint</a></li>
 <li><a class="reference internal" href="#sight-line-gridding">Sight-line gridding</a></li>
 </ul>
@@ -625,7 +833,7 @@ additional interpolation of the result by <a class="reference external" href="ht
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 12 Dec 2018. <br/>
+    Last built 14 Dec 2018. <br/>
   </p>
 </footer>
   </body>
