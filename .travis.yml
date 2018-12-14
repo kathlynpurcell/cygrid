@@ -36,13 +36,13 @@ env:
 
         - OMP_NUM_THREADS=2
         - TWINE_USERNAME=bwinkel
-        
+
         # For this package-template, we include examples of Cython modules,
         # so Cython is required for testing. If your package does not include
         # Cython code, you can set CONDA_DEPENDENCIES=''
         - CONDA_DEPENDENCIES='Cython pytest'
-        - CONDA_DEPENDENCIES_DOC='Cython sphinx-astropy pytest scipy'
-        
+        - CONDA_DEPENDENCIES_DOC='Cython sphinx-astropy pytest scipy astroquery reproject'
+
         # List other runtime dependencies for the package that are available as
         # pip packages here.
         - PIP_DEPENDENCIES=''
@@ -62,7 +62,7 @@ env:
         # in FLAKE8_OPT, for example:
         # - FLAKE8_OPT='--ignore=E501'
         - FLAKE8_OPT=''
-        
+
         # Doctr deploy key for bwinkel/cygrid
         - secure: "LeULuJ+925uj1rkhDgZdjVXbMcoZGtskAbzMmOmYhyYnQVyjHIYdIqlY7XFuxOk0GuGbzQcdo5U/bx5qAt4gYsgxf+X5aUdj0xTV0Q89+jm/QUyCYwan+PE9fxbprg7xiMsCUt5j7f7gk4cerBTFiuUMZt1U7v/jwvMZsZfHtkU7wp1oU4X0bqioJFlHGF2DmAcVj+3eLv8RoUAsiOceRKmrAEp/vcN6IC6Hu547UmwmW6oCs1+/mK+ZdNkI+mxEyZs5AYbb/eIFhzqKcC7vn+K9PqEUYc7JPMZsBJQoAQNZyHFIXm1hUkPqTNw9K4BTeQaWW3Yr7JJmpN0pI0I1vmGj8QDb1xF1UH9qxJ22t3yNdvjNNbBUzvsyFy2cDVuYzwH5ztxhCiGUgflSJlxOL982nbBoBJfJj2Y1kWAu0cZfKTHbf/ZrBHlT7yLd7sLrDPyrHduyt0qIDw+Fe4fn2i7b3OeZU3/AzfVYOAdnHOF0IWWXRYleeLrwsxfobDWQD1oSDrT9ZfIOo/9G7AIJ8EmeGDgTzEPwl8z+/v2tGdIt3VD2Ryt1qVC2t0Ke8EctSUf6ufM5mH1soJ7mVuUXGymifbNxeFCDhZNaijJbqEmdIoUKY+c2vM3cHY3Ue5KWW1Rrd0BC0gMgADI+yu6ftUHSweUYT8xZe/W9tXG0PnM="
 
@@ -150,11 +150,11 @@ matrix:
         - os: linux
           env: ASTROPY_VERSION=development
                EVENT_TYPE='pull_request push cron'
-        
+
         # No python 2.7 support anymore!
         # - os: linux
         #   env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
-        
+
         # - os: linux
         #   env: ASTROPY_VERSION=lts
 
