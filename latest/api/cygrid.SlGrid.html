@@ -174,30 +174,48 @@ we refer to the user manual or the Jupyter tutorial notebooks:</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.clear_data_and_weights" title="cygrid.SlGrid.clear_data_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_data_and_weights</span></code></a>(self)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.clear_cache" title="cygrid.SlGrid.clear_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_cache</span></code></a>(self)</td>
+<td>Clear all internal caches/dictionaries.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.clear_data_and_weights" title="cygrid.SlGrid.clear_data_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_data_and_weights</span></code></a>(self)</td>
 <td>Reset data and weights arrays.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.get_datacube" title="cygrid.SlGrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a>(self)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.get_datacube" title="cygrid.SlGrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a>(self)</td>
 <td>Return final data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.get_unweighted_datacube" title="cygrid.SlGrid.get_unweighted_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unweighted_datacube</span></code></a>(self)</td>
+<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.get_unweighted_datacube" title="cygrid.SlGrid.get_unweighted_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unweighted_datacube</span></code></a>(self)</td>
 <td>Return final unweighted data.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.get_weights" title="cygrid.SlGrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>(self)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.get_weights" title="cygrid.SlGrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>(self)</td>
 <td>Return final weights.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.grid" title="cygrid.SlGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>(self,&nbsp;ndarray&nbsp;lons,&nbsp;ndarray&nbsp;lats,&nbsp;…)</td>
+<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.grid" title="cygrid.SlGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>(self,&nbsp;ndarray&nbsp;lons,&nbsp;ndarray&nbsp;lats,&nbsp;…)</td>
 <td>Grid irregularly positioned data points (spectra) into the data cube.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.set_kernel" title="cygrid.SlGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>(self,&nbsp;kernel_type,&nbsp;kernel_params,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.set_kernel" title="cygrid.SlGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>(self,&nbsp;kernel_type,&nbsp;kernel_params,&nbsp;…)</td>
 <td>Set the gridding kernel type and parameters.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#cygrid.SlGrid.set_num_threads" title="cygrid.SlGrid.set_num_threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_num_threads</span></code></a>(self,&nbsp;int&nbsp;nthreads)</td>
+<tr class="row-even"><td><a class="reference internal" href="#cygrid.SlGrid.set_num_threads" title="cygrid.SlGrid.set_num_threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_num_threads</span></code></a>(self,&nbsp;int&nbsp;nthreads)</td>
 <td>Change maximum number of threads to use.</td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="cygrid.SlGrid.clear_cache">
+<code class="descname">clear_cache</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.clear_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all internal caches/dictionaries.</p>
+<p class="rubric">Notes</p>
+<p>To speed-up processing, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> uses internal caches (see <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid
+paper</a> for
+details). This is usually a minor contribution to the total memory
+usage, but there could be scenarios, e.g., when one grids into very
+large maps having very small pixel sizes, that the internal cache
+grows too much. In this case, we recommend to sort the input data by
+latitude, grid the data in chunks, and call this function every now
+and then.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="cygrid.SlGrid.clear_data_and_weights">
 <code class="descname">clear_data_and_weights</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.clear_data_and_weights" title="Permalink to this definition">¶</a></dt>
@@ -392,7 +410,7 @@ which is otherwise not possible during runtime from Python.</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 14 Dec 2018. <br/>
+    Last built 15 Dec 2018. <br/>
   </p>
 </footer>
   </body>

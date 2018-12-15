@@ -10,6 +10,7 @@ WcsGrid
 
    .. autosummary::
 
+      ~WcsGrid.clear_cache
       ~WcsGrid.clear_data_and_weights
       ~WcsGrid.get_datacube
       ~WcsGrid.get_header
@@ -24,6 +25,7 @@ WcsGrid
 
    .. rubric:: Methods Documentation
 
+   .. automethod:: clear_cache
    .. automethod:: clear_data_and_weights
    .. automethod:: get_datacube
    .. automethod:: get_header

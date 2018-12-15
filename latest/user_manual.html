@@ -330,7 +330,7 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 </div>
 </div>
 <div class="section" id="simple-gridding-tasks">
-<h2>Simple gridding tasks<a class="headerlink" href="#simple-gridding-tasks" title="Permalink to this headline">¶</a></h2>
+<span id="simple-gridding-label"></span><h2>Simple gridding tasks<a class="headerlink" href="#simple-gridding-tasks" title="Permalink to this headline">¶</a></h2>
 <p>Using <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> consists of four main steps:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -413,7 +413,7 @@ the Class that has to be used for this kind of image gridding:</p>
 </div>
 <p>Before the gridder is ready to use, one needs to setup the kernel parameters
 (see also <a class="reference internal" href="#kernel-parameters-label"><span class="std std-ref">Kernel parameters</span></a>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="o">/</span> <span class="mf">60.</span>  <span class="c1"># degrees</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># degrees; beam / 2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="n">kernelsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
 </pre></div>
@@ -435,13 +435,13 @@ the <a class="reference external" href="https://docs.python.org/3/library/signal
 <p>The result can be queried using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data</span></code> method:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_data</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="p">)</span>  
-<span class="go">[[[ 0.0869 -0.0552  0.0602 ... -0.009   0.0505  0.1381]</span>
-<span class="go">  [ 0.0588 -0.1365 -0.1029 ... -0.0086 -0.056  -0.0552]</span>
-<span class="go">  [ 0.0436 -0.0653 -0.0837 ... -0.0123 -0.0365 -0.0475]</span>
+<span class="go">[[[ 0.0519 -0.0529  0.0298 ...  0.0086  0.0492  0.1135]</span>
+<span class="go">  [ 0.0456 -0.0954 -0.0979 ... -0.0122 -0.0485 -0.0387]</span>
+<span class="go">  [ 0.0309 -0.0625 -0.0642 ... -0.0075 -0.0275 -0.038 ]</span>
 <span class="go">  ...</span>
-<span class="go">  [-0.0235 -0.0198 -0.0256 ... -0.0158  0.1301  0.0874]</span>
-<span class="go">  [-0.1522 -0.0549 -0.0798 ... -0.0556  0.0926  0.0633]</span>
-<span class="go">  [-0.0982 -0.0861 -0.0834 ...  0.1075  0.1174  0.1166]]]</span>
+<span class="go">  [-0.0313 -0.0172 -0.0346 ... -0.008   0.117   0.0905]</span>
+<span class="go">  [-0.1239 -0.0636 -0.0854 ... -0.0311  0.0787  0.0655]</span>
+<span class="go">  [-0.0851 -0.0691 -0.0671 ...  0.1039  0.1192  0.0964]]]</span>
 </pre></div>
 </div>
 <p>As said above, this has three dimensions, but the third axis (the spectral
@@ -687,7 +687,13 @@ how to do the same with the <a class="reference external" href="https://pypi.org
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//user_manual-10.py">Source code</a>)</p>
-<p>And for the sake of completeness, here is the plot:</p>
+<p>This seems much easier than the <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> approach, though very similar steps
+are necessary (they are just encapsulated in the function). The <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
+interface is more low-level in that sense, but this allows much more
+customization. One common use case would be to smooth the Planck satellite
+map to the EBHIS angular resolution, for example, which would all certain
+kinds of analyses, e.g., to compare the flux density per pixel of the two data
+sets. For the sake of completeness, here are the resulting plots:</p>
 <p>(<a class="reference external" href=".//user_manual-11.py">Source code</a>, <a class="reference external" href=".//user_manual-11.png">png</a>, <a class="reference external" href=".//user_manual-11.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-11.pdf">pdf</a>)</p>
 <div class="figure align-center">
 <img alt="_images/user_manual-11.png" src="_images/user_manual-11.png" />
@@ -696,16 +702,178 @@ how to do the same with the <a class="reference external" href="https://pypi.org
 </div>
 <div class="section" id="advanced-gridding-tasks">
 <h2>Advanced gridding tasks<a class="headerlink" href="#advanced-gridding-tasks" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="decrease-memory-footprint">
-<span id="serialization-label"></span><h3>Decrease memory footprint<a class="headerlink" href="#decrease-memory-footprint" title="Permalink to this headline">¶</a></h3>
-</div>
 <div class="section" id="sight-line-gridding">
 <h3>Sight-line gridding<a class="headerlink" href="#sight-line-gridding" title="Permalink to this headline">¶</a></h3>
+<p>Certainly a less common use case is to employ <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> to grid a data set to
+a list of (irregular) coordinates - which makes only sense for true data
+gridding (and not re-projecting data) or if one needs to change the angular
+resolution (down-sampling). Another use case would be to create a HEALPix map
+from a large raw data set. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> sight-line gridder can do all of
+that, which is demonstrated in <a class="reference external" href="https://github.com/bwinkel/cygrid/blob/apt/notebooks/04_sightline_gridding.ipynb">this notebook</a>.</p>
+<p>Here, we explain the interface of the <a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid" title="cygrid.SlGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SlGrid</span></code></a> class. Gridding
+consists of the same four steps explained in <a class="reference internal" href="#simple-gridding-label"><span class="std std-ref">Simple gridding tasks</span></a>, but
+instead of providing a FITS header, one feeds a list of target coordinate
+pairs to the constructor:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">cygrid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.utils.misc</span> <span class="k">import</span> <span class="n">NumpyRNGContext</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapcenter</span> <span class="o">=</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">30.</span>  <span class="c1"># all in degrees</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapsize</span> <span class="o">=</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">5.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beamsize_fwhm</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_sources</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># see cygrid&#39;s manual for a description of the produce_mock_data function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">NumpyRNGContext</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">produce_mock_data</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">mapcenter</span><span class="p">,</span> <span class="n">mapsize</span><span class="p">,</span> <span class="n">beamsize_fwhm</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_sources</span>
+<span class="gp">... </span>        <span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">61.</span><span class="p">,</span> <span class="mf">59.1</span><span class="p">,</span> <span class="mf">62.7</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">28.</span><span class="p">,</span> <span class="mf">30.6</span><span class="p">,</span> <span class="mf">29.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lons</span><span class="p">,</span> <span class="n">target_lats</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_fwhm</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="n">kernelsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
+<span class="gp">... </span>    <span class="n">sphere_radius</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
+<span class="gp">... </span>    <span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_sightlines</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span>  
+<span class="gp">... </span>    <span class="s1">&#39;lon  lat  sightline-value</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="s1">&#39;</span><span class="si">{:4.1f}</span><span class="s1"> </span><span class="si">{:4.1f}</span><span class="s1"> </span><span class="si">{:6.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">target_lons</span><span class="p">,</span> <span class="n">target_lats</span><span class="p">,</span> <span class="n">gridded_sightlines</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="p">))</span>
+<span class="go">lon  lat  sightline-value</span>
+<span class="go">61.0 28.0 -0.117</span>
+<span class="go">59.1 30.6  0.159</span>
+<span class="go">62.7 29.5 -0.099</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="decrease-memory-footprint">
+<span id="serialization-label"></span><h3>Decrease memory footprint<a class="headerlink" href="#decrease-memory-footprint" title="Permalink to this headline">¶</a></h3>
+<p>If you have very large raw data sets (e.g., spectral data), chances are high
+that you can’t load them all to your computer’s memory and feed them into the
+<a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> method in one call. However, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> was designed to
+allow serial data processing, which means one can repeatedly call
+<a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> with different chunks of data and they all get gridded
+to the output datacube:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set-up target map/datacube</span>
+<span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+<span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+    <span class="c1"># user needs to handle reading the data per chunk</span>
+    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">rawdata</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="n">mygridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">rawdata</span><span class="p">)</span>
+
+<span class="n">data_cube</span> <span class="o">=</span> <span class="n">mygridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>With this approach, we were able to process the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...594A.116H">HI4PI</a> survey, which is
+several tens of Tbytes of raw data and grid that into a full-sky data cube
+(about 30 GBytes) in few hours. For this task one still needs a potent
+workstation (128 GB RAM), but this is due to the large output data cube size.</p>
+<p>To speed-up processing, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> uses internal caches (see <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a>
+for details). This is usually a minor contribution to the total memory usage,
+but there could be scenarios, e.g., when one grids into very large maps having
+very small pixel sizes, that the internal cache grows too much. In this case,
+we recommend to sort the input data by latitude, grid the data in chunks, and
+call <a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid.clear_cache" title="cygrid.Cygrid.clear_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_cache</span></code></a> every now and then. (Please follow this
+recipe only, if you’re sure that the internal cache is your problem.)
+The same approach can also help, if you have rather large gridding kernels,
+which have sizes of several hundreds or more pixels in the target map (e.g.,
+when you aim for relatively strong smoothing of the data).</p>
+</div>
+<div class="section" id="elliptical-gridding-kernels">
+<h3>Elliptical gridding kernels<a class="headerlink" href="#elliptical-gridding-kernels" title="Permalink to this headline">¶</a></h3>
+<p>It is also possible to use an elliptical 2D Gaussian kernel, which can be
+useful, if one wants to smooth interferometric data (often having elliptical
+beams) to a spherical effective angular resolution. One simply has to
+choose an appropriate option in the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a> method,
+e.g.:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">beam_maj</span><span class="p">,</span> <span class="n">beam_min</span><span class="p">,</span> <span class="n">beam_PA</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">30.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">desired_resolution</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k_fwhm_maj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">desired_resolution</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">beam_maj</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k_fwhm_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">desired_resolution</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">beam_min</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:.3f}</span><span class="s1"> </span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k_fwhm_maj</span><span class="p">,</span> <span class="n">k_fwhm_min</span><span class="p">))</span>
+<span class="go">0.150 0.229</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fwhm_to_sigma</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k_maj</span><span class="p">,</span> <span class="n">k_min</span> <span class="o">=</span> <span class="n">k_fwhm_maj</span> <span class="o">*</span> <span class="n">fwhm_to_sigma</span><span class="p">,</span> <span class="n">k_fwhm_min</span> <span class="o">*</span> <span class="n">fwhm_to_sigma</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sphere_radius</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">k_maj</span>  <span class="c1"># choose major kernel size</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">internal_hpx_res</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">k_min</span>  <span class="c1"># choose minor kernel size</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>  <span class="c1"># DOCTEST: +SKIP</span>
+<span class="gp">... </span>    <span class="s1">&#39;gauss2d&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">k_maj</span><span class="p">,</span> <span class="n">k_min</span><span class="p">,</span> <span class="n">beam_PA</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">sphere_radius</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">internal_hpx_res</span>
+<span class="gp">... </span>    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">beam_PA</span></code> is the parallactic angle of the beam. It is non-trivial, to
+treat this properly, especially on the sphere. For the <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid paper</a> we made
+a nice example plot, which demonstrates this:</p>
+<a class="reference internal image-reference" href="_images/cygrid_demo_zea_elliptical.png"><img alt="cygrid elliptical demo" src="_images/cygrid_demo_zea_elliptical.png" style="width: 85%;" /></a>
 </div>
 </div>
 <div class="section" id="benchmarking">
 <h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this headline">¶</a></h2>
-<p>see paper</p>
+<p>From the beginning, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> was designed with performance in mind. The
+algorithm can be run on parallel threads, which allows us to profit from
+multi-core CPUs. However, much of the speed comes from applying clever methods
+to avoid unnecessary computations. One example is a fast cached approach to
+find the relevant map pixels around each raw-data sample position.</p>
+<p>We did several tests to benchmark <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>, in which we vary the number of
+raw data samples or the target map size, and repeat for different numbers of
+CPU cores. The resulting processing speed is compared vs. the
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function, which serves as a baseline
+(although, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function is not really useful
+for many potential tasks that <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> can solve, it can be assumed that it
+is optimized for speed).</p>
+<p>The following figure shows the processing times for a
+<span class="math notranslate nohighlight">\(5^\circ\times5^\circ\)</span> target map. For spectral data (with many spectral
+channels), running the gridder is mostly limited by the IO speed with which
+the data can be read from disk. To estimate the influence of the convolution
+with the kernel, a single-valued signal is gridded (aka a continuum map). The
+test was repeated for different number of input samples (uniformly distributed
+over the map), ranging from 1000 to 400 billion(!). The width of the gridding
+kernel was <span class="math notranslate nohighlight">\(\vartheta_\mathrm{fwhm} = 300''\)</span>, the map pixel size was
+<span class="math notranslate nohighlight">\(200''\)</span>. Below about 200 thousand samples, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> was considerably
+slower than <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> (with “linear” or “cubic”
+interpolation method), because there is overhead involved with the
+construction of the internal caches. Beyond this point, and especially, when
+running <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> on a multi-core CPU, way faster (more than an order of
+magnitude with 16 cores). Furthermore, with “linear” and “cubic”
+interpolation, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> is limited to 16.7 million
+samples. The “nearest neighbor” method is faster than <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> (single-core),
+but on a dual-core <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is competitive, and much faster on quad-cores
+(once 10+ million samples are gridded).</p>
+<a class="reference internal image-reference" href="_images/cygrid_speed_testdensity_scipy.png"><img alt="cygrid vs. scipy speed test - fixed field size, increasing density" src="_images/cygrid_speed_testdensity_scipy.png" style="width: 85%;" /></a>
+<p>The speed gain for multi-core CPUs is only kicking in once a certain number of
+samples is involved, but unfortunately it is not linear with the number of
+cores:</p>
+<a class="reference internal image-reference" href="_images/cygrid_speed_testdensity_scipy_perfgain.png"><img alt="CPU cores performance gain - fixed field size, increasing density" src="_images/cygrid_speed_testdensity_scipy_perfgain.png" style="width: 85%;" /></a>
+<p>As can be seen, for a 16-core CPU, the speed gain is only about 8-fold (still,
+for this example, 400 billion samples were finished after only 300 seconds).</p>
+<p>In a second, more challenging test, we changed the target field size (from
+<span class="math notranslate nohighlight">\(0.1^\circ\times0.1^\circ\)</span> to <span class="math notranslate nohighlight">\(60^\circ\times60^\circ\)</span>). At the
+same time we increased the number of input samples, such that a constant
+density of 100 thousand samples per square degrees was maintained:</p>
+<a class="reference internal image-reference" href="_images/cygrid_speed_testfieldsize_scipy.png"><img alt="cygrid vs. scipy speed test - increasing field size, fixed density" src="_images/cygrid_speed_testfieldsize_scipy.png" style="width: 85%;" /></a>
+<a class="reference internal image-reference" href="_images/cygrid_speed_testfieldsize_scipy_perfgain.png"><img alt="CPU cores performance gain - increasing field size, fixed density" src="_images/cygrid_speed_testfieldsize_scipy_perfgain.png" style="width: 85%;" /></a>
 </div>
 <div class="section" id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h2>
@@ -801,8 +969,9 @@ how to do the same with the <a class="reference external" href="https://pypi.org
 </ul>
 </li>
 <li><a class="reference internal" href="#advanced-gridding-tasks">Advanced gridding tasks</a><ul>
-<li><a class="reference internal" href="#decrease-memory-footprint">Decrease memory footprint</a></li>
 <li><a class="reference internal" href="#sight-line-gridding">Sight-line gridding</a></li>
+<li><a class="reference internal" href="#decrease-memory-footprint">Decrease memory footprint</a></li>
+<li><a class="reference internal" href="#elliptical-gridding-kernels">Elliptical gridding kernels</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#benchmarking">Benchmarking</a></li>
@@ -833,7 +1002,7 @@ how to do the same with the <a class="reference external" href="https://pypi.org
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 14 Dec 2018. <br/>
+    Last built 15 Dec 2018. <br/>
   </p>
 </footer>
   </body>

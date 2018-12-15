@@ -10,6 +10,7 @@ SlGrid
 
    .. autosummary::
 
+      ~SlGrid.clear_cache
       ~SlGrid.clear_data_and_weights
       ~SlGrid.get_datacube
       ~SlGrid.get_unweighted_datacube
@@ -20,6 +21,7 @@ SlGrid
 
    .. rubric:: Methods Documentation
 
+   .. automethod:: clear_cache
    .. automethod:: clear_data_and_weights
    .. automethod:: get_datacube
    .. automethod:: get_unweighted_datacube

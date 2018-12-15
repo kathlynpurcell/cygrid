@@ -72,10 +72,7 @@
 <p>Cygrid allows to resample a number of spectra (or data points) to a regular
 grid - a data cube - using any valid astronomical FITS/WCS projection. The
 method is a based on serialized convolution with finite gridding kernels.
-Currently, only Gaussian (radial-symmetric or elliptical) kernels are provided
-(which has the drawback of slight degradation of the effective resolution).
-The algorithm has very small memory footprint, allows easy parallelization,
-and is very fast.</p>
+The underlying algorithm has very small memory footprint, was designed to allow parallelization, and is very fast.</p>
 <p>The cygrid package is available for Linux, Windows, and MacOS operating
 systems. To improve computation speed, the <a class="reference external" href="https://www.openmp.org/">OpenMP technology</a> is used. Therefore, a suitable C++ compiler must
 be installed on your system, if you build from source. For convenience, we
@@ -153,7 +150,7 @@ for the packaging.</p>
   <p>
     &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 14 Dec 2018. <br/>
+    Last built 15 Dec 2018. <br/>
   </p>
 </footer>
   </body>
