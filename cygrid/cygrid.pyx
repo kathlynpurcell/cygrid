@@ -239,6 +239,24 @@ cdef class Cygrid(object):
 
         raise NotImplementedError('This is the base class. Use child classes!')
 
+    def clear_cache(self):
+        '''
+        Clear all internal caches/dictionaries.
+
+        Notes
+        -----
+
+        To speed-up processing, `~cygrid` uses internal caches (see `Cygrid
+        paper <http://adsabs.harvard.edu/abs/2016A%26A...591A..12W>`_ for
+        details). This is usually a minor contribution to the total memory
+        usage, but there could be scenarios, e.g., when one grids into very
+        large maps having very small pixel sizes, that the internal cache
+        grows too much. In this case, we recommend to sort the input data by
+        latitude, grid the data in chunks, and call this function every now
+        and then.'''
+
+        self.my_hpx_hashtab.clear_hashes
+
     def clear_data_and_weights(self):
         '''
         Reset data and weights arrays. (Caches stay filled!)

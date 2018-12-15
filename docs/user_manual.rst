@@ -375,6 +375,7 @@ three times longer. The internally HPX resolution defines only some details
 of the used caches. A good value for this is :math:`\sigma_k/2`.
 
 
+.. _simple-gridding-label:
 
 Simple gridding tasks
 ======================================
@@ -460,7 +461,7 @@ the Class that has to be used for this kind of image gridding::
 Before the gridder is ready to use, one needs to setup the kernel parameters
 (see also :ref:`kernel-parameters-label`):
 
-    >>> kernelsize_fwhm = 2.5 / 60.  # degrees
+    >>> kernelsize_fwhm = 0.05  # degrees; beam / 2
     >>> kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
     >>> sphere_radius = 3. * kernelsize_sigma
 
@@ -481,13 +482,13 @@ The result can be queried using the `~cygrid.WcsGrid.get_data` method::
 
     >>> gridded_data = gridder.get_datacube()
     >>> print(gridded_data)  # doctest: +FLOAT_CMP
-    [[[ 0.0869 -0.0552  0.0602 ... -0.009   0.0505  0.1381]
-      [ 0.0588 -0.1365 -0.1029 ... -0.0086 -0.056  -0.0552]
-      [ 0.0436 -0.0653 -0.0837 ... -0.0123 -0.0365 -0.0475]
+    [[[ 0.0519 -0.0529  0.0298 ...  0.0086  0.0492  0.1135]
+      [ 0.0456 -0.0954 -0.0979 ... -0.0122 -0.0485 -0.0387]
+      [ 0.0309 -0.0625 -0.0642 ... -0.0075 -0.0275 -0.038 ]
       ...
-      [-0.0235 -0.0198 -0.0256 ... -0.0158  0.1301  0.0874]
-      [-0.1522 -0.0549 -0.0798 ... -0.0556  0.0926  0.0633]
-      [-0.0982 -0.0861 -0.0834 ...  0.1075  0.1174  0.1166]]]
+      [-0.0313 -0.0172 -0.0346 ... -0.008   0.117   0.0905]
+      [-0.1239 -0.0636 -0.0854 ... -0.0311  0.0787  0.0655]
+      [-0.0851 -0.0691 -0.0671 ...  0.1039  0.1192  0.0964]]]
 
 As said above, this has three dimensions, but the third axis (the spectral
 axis) has length-1 and is not necessary in this case. We can get rid of it::
@@ -778,7 +779,13 @@ how to do the same with the `reproject
         (ebhis_data, ebhis_header), planck_header
         )
 
-And for the sake of completeness, here is the plot:
+This seems much easier than the `~cygrid` approach, though very similar steps
+are necessary (they are just encapsulated in the function). The `~cygrid`
+interface is more low-level in that sense, but this allows much more
+customization. One common use case would be to smooth the Planck satellite
+map to the EBHIS angular resolution, for example, which would all certain
+kinds of analyses, e.g., to compare the flux density per pixel of the two data
+sets. For the sake of completeness, here are the resulting plots:
 
 .. plot::
     :context:
@@ -802,25 +809,213 @@ And for the sake of completeness, here is the plot:
 
 
 
-
 Advanced gridding tasks
 =========================================
+
+
+Sight-line gridding
+-------------------
+
+Certainly a less common use case is to employ `~cygrid` to grid a data set to
+a list of (irregular) coordinates - which makes only sense for true data
+gridding (and not re-projecting data) or if one needs to change the angular
+resolution (down-sampling). Another use case would be to create a HEALPix map
+from a large raw data set. The `~cygrid` sight-line gridder can do all of
+that, which is demonstrated in `this notebook
+<https://github.com/bwinkel/cygrid/blob/apt/notebooks/04_sightline_gridding.ipynb>`_.
+
+Here, we explain the interface of the `~cygrid.SlGrid` class. Gridding
+consists of the same four steps explained in :ref:`simple-gridding-label`, but
+instead of providing a FITS header, one feeds a list of target coordinate
+pairs to the constructor::
+
+    >>> import numpy as np
+    >>> import cygrid
+    >>> from astropy.utils.misc import NumpyRNGContext
+
+    >>> mapcenter = 60., 30.  # all in degrees
+    >>> mapsize = 5., 5.
+    >>> beamsize_fwhm = 0.1
+    >>> num_samples = 10 ** 6
+    >>> num_sources = 20
+
+    >>> # see cygrid's manual for a description of the produce_mock_data function
+    >>> with NumpyRNGContext(1):
+    ...     lons, lats, signal = cygrid.produce_mock_data(
+    ...         mapcenter, mapsize, beamsize_fwhm, num_samples, num_sources
+    ...         )
+
+    >>> target_lons = np.array([61., 59.1, 62.7])
+    >>> target_lats = np.array([28., 30.6, 29.5])
+    >>> gridder = cygrid.SlGrid(target_lons, target_lats, 1)
+
+    >>> kernelsize_fwhm = 0.05
+    >>> kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
+    >>> sphere_radius = 3. * kernelsize_sigma
+
+    >>> gridder.set_kernel(
+    ...     'gauss1d',
+    ...     (kernelsize_sigma,),
+    ...     sphere_radius,
+    ...     kernelsize_sigma / 2.
+    ...     )
+
+    >>> gridder.grid(lons, lats, signal[:, np.newaxis])
+
+    >>> gridded_sightlines = gridder.get_datacube().squeeze()
+    >>> print(  # doctest: +FLOAT_CMP
+    ...     'lon  lat  sightline-value\n',
+    ...     '\n'.join(
+    ...         '{:4.1f} {:4.1f} {:6.3f}'.format(*t)
+    ...         for t in zip(target_lons, target_lats, gridded_sightlines)
+    ...         ))
+    lon  lat  sightline-value
+    61.0 28.0 -0.117
+    59.1 30.6  0.159
+    62.7 29.5 -0.099
 
 .. _serialization-label:
 
 Decrease memory footprint
 -------------------------
 
+If you have very large raw data sets (e.g., spectral data), chances are high
+that you can't load them all to your computer's memory and feed them into the
+`~cygrid.WcsGrid.grid` method in one call. However, `~cygrid` was designed to
+allow serial data processing, which means one can repeatedly call
+`~cygrid.WcsGrid.grid` with different chunks of data and they all get gridded
+to the output datacube::
 
-Sight-line gridding
--------------------
+    # set-up target map/datacube
+    mygridder = cygrid.WcsGrid(header)
+    mygridder.set_kernel(...)
 
+    for chunk in chunks:
+        # user needs to handle reading the data per chunk
+        lon, lat, rawdata = get_data(chunk)
+        mygridder.grid(lon, lat, rawdata)
+
+    data_cube = mygridder.get_datacube()
+
+With this approach, we were able to process the `HI4PI
+<http://adsabs.harvard.edu/abs/2016A%26A...594A.116H>`_ survey, which is
+several tens of Tbytes of raw data and grid that into a full-sky data cube
+(about 30 GBytes) in few hours. For this task one still needs a potent
+workstation (128 GB RAM), but this is due to the large output data cube size.
+
+To speed-up processing, `~cygrid` uses internal caches (see `Cygrid paper`_
+for details). This is usually a minor contribution to the total memory usage,
+but there could be scenarios, e.g., when one grids into very large maps having
+very small pixel sizes, that the internal cache grows too much. In this case,
+we recommend to sort the input data by latitude, grid the data in chunks, and
+call `~cygrid.Cygrid.clear_cache` every now and then. (Please follow this
+recipe only, if you're sure that the internal cache is your problem.)
+The same approach can also help, if you have rather large gridding kernels,
+which have sizes of several hundreds or more pixels in the target map (e.g.,
+when you aim for relatively strong smoothing of the data).
+
+
+Elliptical gridding kernels
+---------------------------
+
+It is also possible to use an elliptical 2D Gaussian kernel, which can be
+useful, if one wants to smooth interferometric data (often having elliptical
+beams) to a spherical effective angular resolution. One simply has to
+choose an appropriate option in the `~cygrid.WcsGrid.set_kernel` method,
+e.g.::
+
+    >>> beam_maj, beam_min, beam_PA = 0.2, 0.1, 30.
+    >>> desired_resolution = 0.25
+    >>> k_fwhm_maj = np.sqrt(desired_resolution ** 2 - beam_maj ** 2)
+    >>> k_fwhm_min = np.sqrt(desired_resolution ** 2 - beam_min ** 2)
+    >>> print('{:.3f} {:.3f}'.format(k_fwhm_maj, k_fwhm_min))
+    0.150 0.229
+
+    >>> fwhm_to_sigma = 1 / np.log(8 * np.sqrt(2))
+    >>> k_maj, k_min = k_fwhm_maj * fwhm_to_sigma, k_fwhm_min * fwhm_to_sigma
+    >>> sphere_radius = 3 * k_maj  # choose major kernel size
+    >>> internal_hpx_res = 0.5 * k_min  # choose minor kernel size
+
+    >>> gridder.set_kernel(  # DOCTEST: +SKIP
+    ...     'gauss2d',
+    ...     (k_maj, k_min, beam_PA),
+    ...     sphere_radius,
+    ...     internal_hpx_res
+    ...     )
+
+The `beam_PA` is the parallactic angle of the beam. It is non-trivial, to
+treat this properly, especially on the sphere. For the `Cygrid paper`_ we made
+a nice example plot, which demonstrates this:
+
+.. image:: images/cygrid_demo_zea_elliptical.*
+   :width: 85 %
+   :alt: cygrid elliptical demo
 
 
 
 Benchmarking
 ============
-see paper
+
+From the beginning, `~cygrid` was designed with performance in mind. The
+algorithm can be run on parallel threads, which allows us to profit from
+multi-core CPUs. However, much of the speed comes from applying clever methods
+to avoid unnecessary computations. One example is a fast cached approach to
+find the relevant map pixels around each raw-data sample position.
+
+We did several tests to benchmark `~cygrid`, in which we vary the number of
+raw data samples or the target map size, and repeat for different numbers of
+CPU cores. The resulting processing speed is compared vs. the
+`~scipy.interpolate.griddata` function, which serves as a baseline
+(although, the `~scipy.interpolate.griddata` function is not really useful
+for many potential tasks that `~cygrid` can solve, it can be assumed that it
+is optimized for speed).
+
+The following figure shows the processing times for a
+:math:`5^\circ\times5^\circ` target map. For spectral data (with many spectral
+channels), running the gridder is mostly limited by the IO speed with which
+the data can be read from disk. To estimate the influence of the convolution
+with the kernel, a single-valued signal is gridded (aka a continuum map). The
+test was repeated for different number of input samples (uniformly distributed
+over the map), ranging from 1000 to 400 billion(!). The width of the gridding
+kernel was :math:`\vartheta_\mathrm{fwhm} = 300''`, the map pixel size was
+:math:`200''`. Below about 200 thousand samples, `~cygrid` was considerably
+slower than `~scipy.interpolate.griddata` (with "linear" or "cubic"
+interpolation method), because there is overhead involved with the
+construction of the internal caches. Beyond this point, and especially, when
+running `~cygrid` on a multi-core CPU, way faster (more than an order of
+magnitude with 16 cores). Furthermore, with "linear" and "cubic"
+interpolation, `~scipy.interpolate.griddata` is limited to 16.7 million
+samples. The "nearest neighbor" method is faster than `~cygrid` (single-core),
+but on a dual-core `~cygrid` is competitive, and much faster on quad-cores
+(once 10+ million samples are gridded).
+
+.. image:: images/cygrid_speed_testdensity_scipy.*
+   :width: 85 %
+   :alt: cygrid vs. scipy speed test - fixed field size, increasing density
+
+The speed gain for multi-core CPUs is only kicking in once a certain number of
+samples is involved, but unfortunately it is not linear with the number of
+cores:
+
+.. image:: images/cygrid_speed_testdensity_scipy_perfgain.*
+   :width: 85 %
+   :alt: CPU cores performance gain - fixed field size, increasing density
+
+As can be seen, for a 16-core CPU, the speed gain is only about 8-fold (still,
+for this example, 400 billion samples were finished after only 300 seconds).
+
+In a second, more challenging test, we changed the target field size (from
+:math:`0.1^\circ\times0.1^\circ` to :math:`60^\circ\times60^\circ`). At the
+same time we increased the number of input samples, such that a constant
+density of 100 thousand samples per square degrees was maintained:
+
+.. image:: images/cygrid_speed_testfieldsize_scipy.*
+   :width: 85 %
+   :alt: cygrid vs. scipy speed test - increasing field size, fixed density
+
+.. image:: images/cygrid_speed_testfieldsize_scipy_perfgain.*
+   :width: 85 %
+   :alt: CPU cores performance gain - increasing field size, fixed density
 
 
 See Also
