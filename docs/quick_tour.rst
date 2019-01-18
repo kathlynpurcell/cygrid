@@ -81,7 +81,7 @@ method and do whatever you want with it, e.g., store it to a FITS file.
 .. note::
 
     This "minimal example" is also contained in a fully-working `Jupyter
-    tutorial notebook <https://github.com/bwinkel/cygrid/blob/master/notebooks/01_minimal.ipynb>`_.
+    tutorial notebook <https://github.com/bwinkel/cygrid/blob/master/notebooks/01_minimal_example.ipynb>`_.
 
 
 Gridding large data sets

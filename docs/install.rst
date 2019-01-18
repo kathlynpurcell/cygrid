@@ -9,7 +9,7 @@ cygrid has the following strict requirements:
 
 - `Python <http://www.python.org/>`__ 3.5 or later
 
-- `setuptools <https://pythonhosted.org/setuptools/>`__: Used for the package
+- `setuptools <https://setuptools.readthedocs.io/en/latest/>`__: Used for the package
   installation.
 
 - `Cython <http://cython.org/>`__ 0.24 or later
@@ -65,7 +65,7 @@ To install cygrid with `pip <http://www.pip-installer.org/en/latest/>`__, simply
     installation.  In this case you may consider using the ``--user`` option
     to install the package into your home directory.  You can read more
     about how to do this in the `pip documentation
-    <http://www.pip-installer.org/en/1.2.1/other-tools.html#using-pip-with-the-user-scheme>`__.
+    <https://pip.pypa.io/en/stable/user_guide/#user-installs>`__.
 
     We recommend to use a Python distribution, such as `Anaconda
     <https://www.continuum.io/downloads>`_, especially, if you are on
