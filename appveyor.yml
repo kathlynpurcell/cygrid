@@ -14,12 +14,12 @@ environment:
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
 
-      
+
       # For this package-template, we include examples of Cython modules,
       # so Cython is required for testing. If your package does not include
       # Cython code, you can set CONDA_DEPENDENCIES: ""
       CONDA_DEPENDENCIES: "Cython pytest"
-      
+
       # List other runtime dependencies for the package that are available as
       # pip packages here.
       PIP_DEPENDENCIES: ""
@@ -49,8 +49,10 @@ environment:
         NUMPY_VERSION: "stable"
 
       - PYTHON_VERSION: "3.6"
-        ASTROPY_VERSION: "2.0"
-        NUMPY_VERSION: "1.11"
+        # ASTROPY_VERSION: "2.0"
+        # NUMPY_VERSION: "1.11"
+        ASTROPY_VERSION: "stable"
+        NUMPY_VERSION: "stable"
         DO_RELEASE: "yes"
 
 platform:
