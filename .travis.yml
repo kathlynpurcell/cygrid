@@ -111,11 +111,17 @@ matrix:
           env:
             - COMPILER='gcc'
 
-        # MacOS X - conda-gcc
+        # MacOS X - conda-clang
         - os: osx
           osx_image: xcode8.3
           env:
             - DO_MAC_DIST=YES
+            - COMPILER='conda-clang'
+
+        # MacOS X - conda-gcc
+        - os: osx
+          osx_image: xcode8.3
+          env:
             - COMPILER='conda-gcc'
 
         # MacOS X - conda-llvm
@@ -199,10 +205,9 @@ matrix:
 
 before_install:
   - echo "CONDA_DEPENDENCIES:" $CONDA_DEPENDENCIES
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER != "conda-gcc" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "clang" ]]; then brew install libomp; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "llvm" ]]; then brew install llvm; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "gcc" ]]; then brew install gcc; brew link --overwrite gcc; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "clang" ]]; then brew update; brew install libomp; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "llvm" ]]; then brew update; brew install llvm; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "gcc" ]]; then brew update; brew install gcc; brew link --overwrite gcc; fi
   - 'if [[ $TRAVIS_OS_NAME == "osx" && $COMPILER == "gcc" ]]; then
        gcc --version;
        gcc-6 --version && export CC="gcc-6" && export CXX="g++-6" && export CPP="g++-6" && export LD="gcc-6" && export LDFLAGS="-Wl,-rpath,/usr/local/opt/gcc/lib/gcc/6/" || true;
@@ -237,6 +242,7 @@ install:
 
     # - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "conda-llvm" ]]; then conda install -c conda-forge llvm llvm-openmp; ls /Users/travis/miniconda/**/clang || true; ls /Users/travis/miniconda/**/gcc || true; fi
 
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "conda-clang" ]]; then conda install -c conda-forge clang_osx-64 clangxx_osx-64 llvm-openmp openmp; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "conda-gcc" ]]; then conda install -c conda-forge gcc; gcc --version || true; fi
 
 script:

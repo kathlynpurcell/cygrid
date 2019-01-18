@@ -37,11 +37,18 @@ def get_extensions():
         # os.environ["CPP"] = "cpp-6"
         # os.environ["CXX"] = "g++-6"
         # os.environ["LD"] = "gcc-6"
+        from subprocess import getoutput
+
+        extra_compile_args = [
+            '-fopenmp', '-O3', '-mmacosx-version-min=10.7', '-std=c++11',
+            ]
+        if ('clang' in getoutput('gcc -v')) and all(
+                'command not found' in getoutput('gcc-{:d} -v'.format(d))
+                for d in [6, 7, 8]
+                ):
+            extra_compile_args += ['-stdlib=libc++', ]
         comp_args = {
-            'extra_compile_args': [
-                '-fopenmp', '-O3', '-mmacosx-version-min=10.7', '-std=c++11',
-                # '-stdlib=libc++'
-                ],
+            'extra_compile_args': extra_compile_args,
             'extra_link_args': [
                 '-fopenmp',  # '-lgomp'
                 ],
