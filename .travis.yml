@@ -199,7 +199,7 @@ matrix:
 
 before_install:
   - echo "CONDA_DEPENDENCIES:" $CONDA_DEPENDENCIES
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER != "conda-gcc" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "clang" ]]; then brew install libomp; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "llvm" ]]; then brew install llvm; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ $COMPILER == "gcc" ]]; then brew install gcc; brew link --overwrite gcc; fi
