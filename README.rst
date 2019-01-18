@@ -87,6 +87,7 @@ Dependencies
 We kept the dependencies as minimal as possible. The following packages are
 required:
 
+- `Python 3.5` or later (`cygrid` versions prior to v1.0 support `Python 2.7`)
 - `numpy 1.10` or later
 - `cython 0.23.4` or later
 - `astropy 1.0` or later
