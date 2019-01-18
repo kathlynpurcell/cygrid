@@ -14,7 +14,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <link rel="shortcut icon" href="_static/astropy_logo.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -80,7 +81,7 @@
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference internal" href="api/cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a> allows to resample a number of spectra (or data points) to a regular
 grid - a data cube - using any valid astronomical FITS/WCS projection (see
-<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>). The method is a based on serialized convolution with finite
+<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>). The method is a based on serialized convolution with finite
 gridding kernels. Currently, only Gaussian (radial-symmetric or elliptical)
 kernels are provided (which has the drawback of slight degradation of the
 effective resolution). The algorithm has very small memory footprint, allows
@@ -99,7 +100,7 @@ also provide packages for the <a class="reference external" href="https://www.an
 <p>Gridding data is a ubiquitous task in many scientific applications, for
 example to make maps from measured raw data sets in astronomy or geographic
 information systems (GIS). Therefore, it is not surprising that also the
-popular <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span></code> library provides a function, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>,
+popular <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span></code> library provides a function, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>,
 which can be used for this purpose:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example adapted from &quot;scipy.interpolate.griddata&quot; docs</span>
 
@@ -147,14 +148,14 @@ which can be used for this purpose:</p>
 </div>
 <p>The points in the left panel show the positions, where the underlying
 function was sampled. As can be seen in the right panel,
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> does a good job in estimating the function
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> does a good job in estimating the function
 values (on a regular grid) from these irregularly sampled points.</p>
 <p>But what happens, if we add noise to the sampled data? Obviously, the gridded
 data will somehow be affected by the decreased signal-to-noise ratio and may
 not be a good description of the original (noise-free) function anymore. One
 possible counter could be to sample (aka observe) the function at more
 positions, because this should increase the signal-to-noise ratio in the
-gridded map. Unfortunately, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm
+gridded map. Unfortunately, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm
 doesn’t work this way:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate some data</span>
 <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># or 0.1</span>
@@ -174,7 +175,7 @@ doesn’t work this way:</p>
 <p>With a significantly small number of samples or too much noise (e.g., lower
 left panel), the gridded data is a very bad representation of the underlying
 function. But even with a large input sample size, the
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm produces strange outliers in the
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm produces strange outliers in the
 gridded map (bottom right panel), but at least one can still see traces of the
 original function.</p>
 </div>
@@ -242,7 +243,7 @@ to display the map in rectangular coordinates. Therefore, a certain map
 projections has to be specified, as well.</p>
 <p>However, there are libraries to easily convert between the world coordinates
 (longitude and latitude) and pixel coordinates (<span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>), such
-as <a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>. Then one only needs to use the true-angular distance
+as <a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>. Then one only needs to use the true-angular distance
 function instead instead of the simple Cartesian distance and the above
 formulas can be applied.</p>
 <p>Of course, in practice there is a little bit more to it. One has to deal with
@@ -257,7 +258,7 @@ gridding process. For details, we refer to the <a class="reference external" hre
 <div class="section" id="comparison-with-scipy-griddata">
 <h3>Comparison with scipy.griddata<a class="headerlink" href="#comparison-with-scipy-griddata" title="Permalink to this headline">¶</a></h3>
 <p>After reading all of the above, you’re now probably curious, how <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
-compares to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>. Here is the result:</p>
+compares to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>. Here is the result:</p>
 <p>(<a class="reference external" href=".//user_manual-3.py">Source code</a>, <a class="reference external" href=".//user_manual-3.png">png</a>, <a class="reference external" href=".//user_manual-3.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-3.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/user_manual-3.png" src="_images/user_manual-3.png" />
@@ -336,7 +337,7 @@ of the used caches. A good value for this is <span class="math notranslate nohig
 <div><ol class="arabic simple">
 <li>Reading the raw data,</li>
 <li>Defining the output coordinate system and frame (by means of
-<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>),</li>
+<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a>),</li>
 <li>Setting up the gridder, i.e., the kernel parameters with
 <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.set_kernel" title="cygrid.WcsGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>,</li>
 <li>Feed the raw data into the gridder with the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>
@@ -374,10 +375,10 @@ we will simply create a mock data set, with the help of a utility function,
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">With the <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.utils.misc.NumpyRNGContext.html#astropy.utils.misc.NumpyRNGContext" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumpyRNGContext</span></code></a> context, it is possible
+<p class="last">With the <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.utils.misc.NumpyRNGContext.html#astropy.utils.misc.NumpyRNGContext" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumpyRNGContext</span></code></a> context, it is possible
 to specify the seed for all NumPy random numbers.</p>
 </div>
-<p>The next step is to define a FITS/<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a> compatible header that
+<p>The next step is to define a FITS/<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a> compatible header that
 defines the image into which we want to grid the data. There is one subtle
 detail that is important - <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always expects spectral data (and
 <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a> will always produce a data cube), therefore, we need to
@@ -469,7 +470,7 @@ as: <code class="xref py py-obj docutils literal notranslate"><span class="pre">
 <p class="last">If you only want to store a 2D image, you’ll need to strip the third
 dimension from your FITS header.</p>
 </div>
-<p>We can also plot the result, using the <a class="reference external" href="http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html#module-astropy.visualization.wcsaxes" title="(in Astropy v3.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcsaxes</span></code></a>
+<p>We can also plot the result, using the <a class="reference external" href="http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html#module-astropy.visualization.wcsaxes" title="(in Astropy v3.1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcsaxes</span></code></a>
 package (for convenience, we provide the full script):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
@@ -839,8 +840,8 @@ find the relevant map pixels around each raw-data sample position.</p>
 <p>We did several tests to benchmark <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>, in which we vary the number of
 raw data samples or the target map size, and repeat for different numbers of
 CPU cores. The resulting processing speed is compared vs. the
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function, which serves as a baseline
-(although, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function is not really useful
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function, which serves as a baseline
+(although, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function is not really useful
 for many potential tasks that <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> can solve, it can be assumed that it
 is optimized for speed).</p>
 <p>The following figure shows the processing times for a
@@ -852,12 +853,12 @@ test was repeated for different number of input samples (uniformly distributed
 over the map), ranging from 1000 to 400 billion(!). The width of the gridding
 kernel was <span class="math notranslate nohighlight">\(\vartheta_\mathrm{fwhm} = 300''\)</span>, the map pixel size was
 <span class="math notranslate nohighlight">\(200''\)</span>. Below about 200 thousand samples, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> was considerably
-slower than <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> (with “linear” or “cubic”
+slower than <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> (with “linear” or “cubic”
 interpolation method), because there is overhead involved with the
 construction of the internal caches. Beyond this point, and especially, when
 running <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> on a multi-core CPU, way faster (more than an order of
 magnitude with 16 cores). Furthermore, with “linear” and “cubic”
-interpolation, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> is limited to 16.7 million
+interpolation, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> is limited to 16.7 million
 samples. The “nearest neighbor” method is faster than <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> (single-core),
 but on a dual-core <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is competitive, and much faster on quad-cores
 (once 10+ million samples are gridded).</p>
@@ -1000,9 +1001,9 @@ density of 100 thousand samples per square degrees was maintained:</p>
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>
-    &copy; Copyright 2018, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2. &nbsp;
-    Last built 15 Dec 2018. <br/>
+    &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3. &nbsp;
+    Last built 18 Jan 2019. <br/>
   </p>
 </footer>
   </body>
