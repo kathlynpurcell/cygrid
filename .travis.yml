@@ -180,6 +180,18 @@ matrix:
           env: MAIN_CMD='flake8 cygrid --count --show-source --statistics $FLAKE8_OPT' SETUP_CMD=''
 
     allow_failures:
+        # MacOS X - LLVM
+        # compiles and builds, but tests often not running (seg-fault?)
+        - os: osx
+          osx_image: xcode8.3
+          env:
+            - CC='/usr/local/opt/llvm/bin/clang'
+            - CXX='/usr/local/opt/llvm/bin/clang++'
+            - CXX11='/usr/local/opt/llvm/bin/clang++'
+            - LDFLAGS='-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib -lgomp'
+            - CPPFLAGS='-I/usr/local/opt/llvm/include -stdlib=libc++'
+            - COMPILER='llvm'
+
         # Do a PEP8 test with flake8
         # (allow to fail unless your code completely compliant)
         - os: linux
