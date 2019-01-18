@@ -139,7 +139,7 @@ however, you need to have the GCC C++ compiler (see below), otherwise you'll
 likely get some error message.
 
 Also, if you want to install from source, you must have a C++ compiler. There
-are basically two options, using the gcc suite (recommended) or LLVM.
+are basically two options, using the gcc suite (recommended) or clang/LLVM.
 
 gcc
 ~~~
@@ -167,8 +167,8 @@ gcc compilers instead of the standard clang:
 
 Then follow the instructions in :ref:`source_install`.
 
-LLVM
-~~~~
+clang/LLVM
+~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -186,7 +186,7 @@ Then follow the instructions in :ref:`source_install`.
 .. note::
 
     The MacOS wheel, which we provide on PyPI (for pip installation)
-    was built using gcc. So it may happen that you run into binary
+    was built using clang/LLVM. So it may happen that you run into binary
     incompatibilities if you use a different compiler suite on your computer.
     In such cases it may be necessary to build cygrid from source using
     your own compiler. Sometimes even different compiler versions
@@ -201,8 +201,18 @@ Then follow the instructions in :ref:`source_install`.
 
         conda install -c conda-forge gcc
 
-    will install the gcc compiler suite into your Anaconda installation
-    and  the instructions in :ref:`source_install` should work out-of-the-box.
+    This will install the gcc compiler suite into your Anaconda installation
+    and the instructions in :ref:`source_install` should work out-of-the-box.
+    If you prefer clang/LLVM, the following should install the necessary
+    conda packages:
+
+     .. code-block:: bash
+
+        conda install -c conda-forge clang_osx-64 clangxx_osx-64 llvm-openmp openmp
+
+    The `cygrid` package on `conda-forge <https://conda-forge.org/>`__
+    was created using the latter approach.
+
 
 .. _testing_installed_cygrid:
 
