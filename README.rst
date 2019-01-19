@@ -189,3 +189,23 @@ Preferred citation method
 =========================
 
 Please cite our `paper <http://adsabs.harvard.edu/abs/2016A%26A...591A..12W>`_ if you use `cygrid` for your projects.
+
+.. code-block:: latex
+
+    @ARTICLE{2016A&A...591A..12W,
+        author = {{Winkel}, B. and {Lenz}, D. and {Fl{\"o}er}, L.},
+        title = "{Cygrid: A fast Cython-powered convolution-based gridding module for Python}",
+        journal = {\aap},
+        archivePrefix = "arXiv",
+        eprint = {1604.06667},
+        primaryClass = "astro-ph.IM",
+        keywords = {methods: numerical, techniques: image processing},
+        year = 2016,
+        month = jun,
+        volume = 591,
+        eid = {A12},
+        pages = {A12},
+        doi = {10.1051/0004-6361/201628475},
+        adsurl = {http://adsabs.harvard.edu/abs/2016A%26A...591A..12W},
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+    }
