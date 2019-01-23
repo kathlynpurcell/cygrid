@@ -174,10 +174,11 @@ WCS), define gridding kernel and run the grid function:
 More use-cases and tutorials
 ----------------------------
 
-Check out the `Jupyter notebooks <http://nbviewer.jupyter.org/github/bwinkel/cygrid/blob/master/notebooks/index.ipynb>`_
+Check out the `user manual <https://bwinkel.github.io/cygrid/latest/>`_ or the
+`Jupyter tutorial notebooks <https://github.com/bwinkel/cygrid/tree/master/notebooks>`_
 in the repository for further examples of how to use `cygrid`. Note that you
-only view them on the nbviewer service, and will have to clone the repository
-or download the notebooks to run them on your machine.
+can only view the notebooks on GitHub, if you want to edit something
+it is necessary to clone the repository or download a notebook to run it on your machine.
 
 Who do I talk to?
 =================
