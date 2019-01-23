@@ -71,15 +71,19 @@ Features
 Installation
 ============
 
-The easiest way to install cygrid is via `pip`::
+We highly recommend to use `cygrid` with the `Anaconda Python distribution <https://www.anaconda.com/>`_, in which
+case installiation is as easy as ::
+
+    conda install -c conda-forge cygrid
+
+Otherwise, you should install cygrid via `pip`::
 
     pip install cygrid
 
-The installation is also possible from source. Download the tar.gz-file, extract (or clone from GitHub) and simply execute::
+The installation is also possible from source, but you'll need a C++ compiler. Download the tar.gz-file, extract
+(or clone from GitHub) and execute::
 
     python setup.py install
-
-Note, for Windows machines only Python 3.5+ is supported.
 
 Dependencies
 ------------
