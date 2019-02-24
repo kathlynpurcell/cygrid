@@ -182,7 +182,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral data.</p>
 </dd>
 </dl>
@@ -201,7 +201,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
+<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral unweighted data.</p>
 </dd>
 </dl>
@@ -220,7 +220,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
+<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D or 3D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral weights.</p>
 </dd>
 </dl>
@@ -242,10 +242,10 @@ is accessible with <a class="reference internal" href="#cygrid.Cygrid.get_weight
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
+<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
 <dd><p class="first last">Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
 </dd>
-<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
 <dd><p class="first last">The spectra and their weights (optional) for each of the given
 coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don’t have spectra, but just values.</p>
 </dd>
@@ -268,7 +268,7 @@ Number of spectral channels mismatch.</p>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li>All input parameters need to be C-contiguous.
-(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
+(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
 <li>It is possible to produce maps instead of datacubes by using
 spectra of length One.</li>
 </ul>
@@ -288,7 +288,7 @@ spectra of length One.</li>
 <p class="last">The following names/types are available:
 ‘gauss1d’, ‘gauss2d’, ‘tapered_sinc’ (see Notes for details)</p>
 </dd>
-<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt>
+<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt>
 <dd><p class="first last">Set the kernel parameters for the chosen type (see Notes for
 details)</p>
 </dd>
@@ -360,8 +360,8 @@ which is otherwise not possible during runtime from Python.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3. &nbsp;
-    Last built 01 Feb 2019. <br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
+    Last built 24 Feb 2019. <br/>
   </p>
 </footer>
   </body>

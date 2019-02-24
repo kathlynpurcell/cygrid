@@ -100,7 +100,7 @@ also provide packages for the <a class="reference external" href="https://www.an
 <p>Gridding data is a ubiquitous task in many scientific applications, for
 example to make maps from measured raw data sets in astronomy or geographic
 information systems (GIS). Therefore, it is not surprising that also the
-popular <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span></code> library provides a function, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>,
+popular <code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span></code> library provides a function, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>,
 which can be used for this purpose:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example adapted from &quot;scipy.interpolate.griddata&quot; docs</span>
 
@@ -148,14 +148,14 @@ which can be used for this purpose:</p>
 </div>
 <p>The points in the left panel show the positions, where the underlying
 function was sampled. As can be seen in the right panel,
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> does a good job in estimating the function
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> does a good job in estimating the function
 values (on a regular grid) from these irregularly sampled points.</p>
 <p>But what happens, if we add noise to the sampled data? Obviously, the gridded
 data will somehow be affected by the decreased signal-to-noise ratio and may
 not be a good description of the original (noise-free) function anymore. One
 possible counter could be to sample (aka observe) the function at more
 positions, because this should increase the signal-to-noise ratio in the
-gridded map. Unfortunately, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm
+gridded map. Unfortunately, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm
 doesn’t work this way:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate some data</span>
 <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># or 0.1</span>
@@ -175,7 +175,7 @@ doesn’t work this way:</p>
 <p>With a significantly small number of samples or too much noise (e.g., lower
 left panel), the gridded data is a very bad representation of the underlying
 function. But even with a large input sample size, the
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm produces strange outliers in the
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> algorithm produces strange outliers in the
 gridded map (bottom right panel), but at least one can still see traces of the
 original function.</p>
 </div>
@@ -258,7 +258,7 @@ gridding process. For details, we refer to the <a class="reference external" hre
 <div class="section" id="comparison-with-scipy-griddata">
 <h3>Comparison with scipy.griddata<a class="headerlink" href="#comparison-with-scipy-griddata" title="Permalink to this headline">¶</a></h3>
 <p>After reading all of the above, you’re now probably curious, how <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
-compares to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>. Here is the result:</p>
+compares to <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a>. Here is the result:</p>
 <p>(<a class="reference external" href=".//user_manual-3.py">Source code</a>, <a class="reference external" href=".//user_manual-3.png">png</a>, <a class="reference external" href=".//user_manual-3.hires.png">hires.png</a>, <a class="reference external" href=".//user_manual-3.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/user_manual-3.png" src="_images/user_manual-3.png" />
@@ -365,12 +365,14 @@ we will simply create a mock data set, with the help of a utility function,
 <span class="gp">... </span>        <span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&gt;=</span> <span class="s1">&#39;1.14&#39;</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>  
-<span class="go">[59.473  61.3992 56.8253 ... 59.957  57.5156 59.176 ]</span>
+<span class="go">[59.473  61.3992 56.8253 ..., 59.957  57.5156 59.176 ]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>  
-<span class="go">[28.0106 31.0641 30.3142 ... 28.5785 32.1307 28.8626]</span>
+<span class="go">[28.0106 31.0641 30.3142 ..., 28.5785 32.1307 28.8626]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>  
-<span class="go">[ 0.0856  1.1899 -0.3375 ...  1.7997 -0.5739  0.0358]</span>
+<span class="go">[ 0.0856  1.1899 -0.3375 ...,  1.7997 -0.5739  0.0358]</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -436,13 +438,13 @@ the <a class="reference external" href="https://docs.python.org/3/library/signal
 <p>The result can be queried using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data</span></code> method:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_data</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="p">)</span>  
-<span class="go">[[[ 0.0519 -0.0529  0.0298 ...  0.0086  0.0492  0.1135]</span>
-<span class="go">  [ 0.0456 -0.0954 -0.0979 ... -0.0122 -0.0485 -0.0387]</span>
-<span class="go">  [ 0.0309 -0.0625 -0.0642 ... -0.0075 -0.0275 -0.038 ]</span>
-<span class="go">  ...</span>
-<span class="go">  [-0.0313 -0.0172 -0.0346 ... -0.008   0.117   0.0905]</span>
-<span class="go">  [-0.1239 -0.0636 -0.0854 ... -0.0311  0.0787  0.0655]</span>
-<span class="go">  [-0.0851 -0.0691 -0.0671 ...  0.1039  0.1192  0.0964]]]</span>
+<span class="go">[[[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]</span>
+<span class="go">  [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]</span>
+<span class="go">  [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]</span>
+<span class="go">  ...,</span>
+<span class="go">  [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]</span>
+<span class="go">  [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]</span>
+<span class="go">  [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]]</span>
 </pre></div>
 </div>
 <p>As said above, this has three dimensions, but the third axis (the spectral
@@ -749,7 +751,7 @@ pairs to the constructor:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_sightlines</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s1">&#39;lon  lat  sightline-value</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
 <span class="gp">... </span>        <span class="s1">&#39;</span><span class="si">{:4.1f}</span><span class="s1"> </span><span class="si">{:4.1f}</span><span class="s1"> </span><span class="si">{:6.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
@@ -840,8 +842,8 @@ find the relevant map pixels around each raw-data sample position.</p>
 <p>We did several tests to benchmark <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>, in which we vary the number of
 raw data samples or the target map size, and repeat for different numbers of
 CPU cores. The resulting processing speed is compared vs. the
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function, which serves as a baseline
-(although, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function is not really useful
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function, which serves as a baseline
+(although, the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> function is not really useful
 for many potential tasks that <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> can solve, it can be assumed that it
 is optimized for speed).</p>
 <p>The following figure shows the processing times for a
@@ -853,12 +855,12 @@ test was repeated for different number of input samples (uniformly distributed
 over the map), ranging from 1000 to 400 billion(!). The width of the gridding
 kernel was <span class="math notranslate nohighlight">\(\vartheta_\mathrm{fwhm} = 300''\)</span>, the map pixel size was
 <span class="math notranslate nohighlight">\(200''\)</span>. Below about 200 thousand samples, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> was considerably
-slower than <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> (with “linear” or “cubic”
+slower than <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> (with “linear” or “cubic”
 interpolation method), because there is overhead involved with the
 construction of the internal caches. Beyond this point, and especially, when
 running <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> on a multi-core CPU, way faster (more than an order of
 magnitude with 16 cores). Furthermore, with “linear” and “cubic”
-interpolation, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> is limited to 16.7 million
+interpolation, <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.2.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">griddata</span></code></a> is limited to 16.7 million
 samples. The “nearest neighbor” method is faster than <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> (single-core),
 but on a dual-core <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is competitive, and much faster on quad-cores
 (once 10+ million samples are gridded).</p>
@@ -1002,8 +1004,8 @@ density of 100 thousand samples per square degrees was maintained:</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3. &nbsp;
-    Last built 01 Feb 2019. <br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
+    Last built 24 Feb 2019. <br/>
   </p>
 </footer>
   </body>

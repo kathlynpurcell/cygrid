@@ -101,8 +101,8 @@ survey on selected positions (not necessarily aligned with the pixels).</p>
 <dt><strong>dbg_messages</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Boolean, optional (Default: False)</span></dt>
 <dd><p class="first last">Do debugging output.</p>
 </dd>
-<dt><strong>datacube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
-<dd><p class="first">Provide pre-allocated or even pre-filled <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> for datacube.</p>
+<dt><strong>datacube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
+<dd><p class="first">Provide pre-allocated or even pre-filled <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> for datacube.</p>
 <p class="last">Usually (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube=None</span></code>, the default) a datacube object will
 be created automatically according to the given FITS header
 dictionary. Providing datacube manually might be worthwhile if some
@@ -111,7 +111,7 @@ almost all use cases it will be sufficient to repeatedly call the
 grid method. Cygrid won’t clear the memory itself initially, so make
 sure to handle this correctly.</p>
 </dd>
-<dt><strong>weightcube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
+<dt><strong>weightcube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
 <dd><p class="first last">As <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code> but for the weight array.</p>
 </dd>
 </dl>
@@ -232,7 +232,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral data for each of the input positions.</p>
 </dd>
 </dl>
@@ -251,7 +251,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral unweighted data for each of the input positions.</p>
 </dd>
 </dl>
@@ -270,7 +270,7 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
 <dd><p class="first last">The gridded spectral weights for each of the input positions.</p>
 </dd>
 </dl>
@@ -292,10 +292,10 @@ is accessible with <a class="reference internal" href="cygrid.Cygrid.html#cygrid
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
+<dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
 <dd><p class="first last">Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
 </dd>
-<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
 <dd><p class="first last">The spectra and their weights (optional) for each of the given
 coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don’t have spectra, but just values.</p>
 </dd>
@@ -318,7 +318,7 @@ Number of spectral channels mismatch.</p>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li>All input parameters need to be C-contiguous.
-(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
+(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
 <li>It is possible to produce maps instead of datacubes by using
 spectra of length One.</li>
 </ul>
@@ -338,7 +338,7 @@ spectra of length One.</li>
 <p class="last">The following names/types are available:
 ‘gauss1d’, ‘gauss2d’, ‘tapered_sinc’ (see Notes for details)</p>
 </dd>
-<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt>
+<dt><strong>kernel_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt>
 <dd><p class="first last">Set the kernel parameters for the chosen type (see Notes for
 details)</p>
 </dd>
@@ -410,8 +410,8 @@ which is otherwise not possible during runtime from Python.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3. &nbsp;
-    Last built 01 Feb 2019. <br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
+    Last built 24 Feb 2019. <br/>
   </p>
 </footer>
   </body>
