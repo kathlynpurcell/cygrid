@@ -31,7 +31,7 @@ for ax, (sigma, nsize) in zip(axes.flatten(), [
         sphere_radius,
         kernelsize_sigma / 2.
         )
-    gridder.grid(points[0], points[1], values[:, None])
+    gridder.grid(points[0], points[1], values)
     gridded = gridder.get_datacube().squeeze().reshape(grid_x.shape)
 
     ax.imshow(gridded, extent=(0,1,0,1), origin='lower', vmin=-0.3, vmax=0.3)

@@ -20,10 +20,9 @@ dnaxis1 = int(mapsize[0] / pixsize)
 dnaxis2 = int(mapsize[1] / pixsize)
 
 target_header = {
-    'NAXIS': 3,
+    'NAXIS': 2,
     'NAXIS1': dnaxis1,
     'NAXIS2': dnaxis2,
-    'NAXIS3': 1,  # need dummy spectral axis
     'CTYPE1': 'RA---SIN',
     'CTYPE2': 'DEC--SIN',
     'CUNIT1': 'deg',
@@ -48,7 +47,7 @@ gridder.set_kernel(
     sphere_radius,
     kernelsize_sigma / 2.
     )
-gridder.grid(lons, lats, signal[:, np.newaxis])
+gridder.grid(lons, lats, signal)
 gridded_map = gridder.get_datacube().squeeze()
 
 target_wcs = gridder.get_wcs()

@@ -245,9 +245,12 @@ is accessible with <a class="reference internal" href="#cygrid.Cygrid.get_weight
 <dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
 <dd><p class="first last">Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
 </dd>
-<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
+<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D or 2D] of float32 or float64</span></dt>
 <dd><p class="first last">The spectra and their weights (optional) for each of the given
-coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don’t have spectra, but just values.</p>
+coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Internally, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always works with a (possibly redundant) spectral axis. Thus, the gridded data returned by
+<a class="reference internal" href="#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> is always a 3D array. However,
+to simplify the interface, this method will add a
+spectral dimension for you, if you provide a 1D-array, only.</p>
 </dd>
 <dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str [‘float32’ or ‘float64’]</span></dt>
 <dd><p class="first last">Desired output format of data cube. (Default: ‘float32’).</p>
@@ -267,10 +270,8 @@ Number of spectral channels mismatch.</p>
 </table>
 <p class="rubric">Notes</p>
 <ul class="simple">
-<li>All input parameters need to be C-contiguous.
-(Use <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ascontiguousarray</span></code></a> to recast, if necessary.)</li>
-<li>It is possible to produce maps instead of datacubes by using
-spectra of length One.</li>
+<li>All input parameters need to be C-contiguous (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> will
+re-cast if necessary).</li>
 </ul>
 </dd></dl>
 

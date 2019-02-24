@@ -17,6 +17,7 @@ latest/_modules/index.html
 latest/_sources/api/cygrid.Cygrid.rst.txt
 latest/_sources/api/cygrid.Healpix.rst.txt
 latest/_sources/api/cygrid.HpxHashTable.rst.txt
+latest/_sources/api/cygrid.ShapeError.rst.txt
 latest/_sources/api/cygrid.SlGrid.rst.txt
 latest/_sources/api/cygrid.UnsupportedPythonError.rst.txt
 latest/_sources/api/cygrid.WcsGrid.rst.txt
@@ -64,6 +65,7 @@ latest/_static/websupport.js
 latest/api/cygrid.Cygrid.html
 latest/api/cygrid.Healpix.html
 latest/api/cygrid.HpxHashTable.html
+latest/api/cygrid.ShapeError.html
 latest/api/cygrid.SlGrid.html
 latest/api/cygrid.UnsupportedPythonError.html
 latest/api/cygrid.WcsGrid.html
