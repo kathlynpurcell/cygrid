@@ -89,7 +89,7 @@ FLOAT32 = np.dtype(np.float32)
 FLOAT64 = np.dtype(np.float64)
 
 
-__all__ = ['Cygrid', 'WcsGrid', 'SlGrid']
+__all__ = ['Cygrid', 'WcsGrid', 'SlGrid', 'ShapeError']
 
 
 from .kernels cimport (
@@ -425,9 +425,12 @@ cdef class Cygrid(object):
         ----------
         lons, lats : `~numpy.array` [1D] of float64
             Flat lists/arrays of input coordinates :math:`(l, b)`.
-        data/weights : `~numpy.array` [2D] of float32 or float64
+        data/weights : `~numpy.array` [1D or 2D] of float32 or float64
             The spectra and their weights (optional) for each of the given
-            coordinate pairs, :math:`(l, b)`. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don't have spectra, but just values.
+            coordinate pairs, :math:`(l, b)`. First axis must match lons/lats size. Internally, `~cygrid` always works with a (possibly redundant) spectral axis. Thus, the gridded data returned by
+            `~cygrid.Cygrid.get_datacube` is always a 3D array. However,
+            to simplify the interface, this method will add a
+            spectral dimension for you, if you provide a 1D-array, only.
         dtype : str ['float32' or 'float64']
             Desired output format of data cube. (Default: 'float32').
 
@@ -439,10 +442,8 @@ cdef class Cygrid(object):
 
         Notes
         -----
-        - All input parameters need to be C-contiguous.
-          (Use `~numpy.ascontiguousarray` to recast, if necessary.)
-        - It is possible to produce maps instead of datacubes by using
-          spectra of length One.
+        - All input parameters need to be C-contiguous (`~cygrid` will
+          re-cast if necessary).
         '''
 
         if weights is None:
@@ -454,8 +455,15 @@ cdef class Cygrid(object):
         if lons.ndim != 1 or lats.ndim != 1:
             raise ShapeError('Input coordinates must be 1D objects.')
 
-        if data.ndim != 2 or weights.ndim != 2:
-            raise ShapeError('Input data/weights must be 2D objects.')
+        if data.ndim != weights.ndim:
+            raise ShapeError('Data and weights arrays must have same shape.')
+
+        if data.ndim not in [1, 2]:
+            raise ShapeError('Input data/weights must be 1D or 2D objects.')
+
+        if data.ndim == 1:
+            data = data[:, np.newaxis]
+            weights = weights[:, np.newaxis]
 
         if not (
                 len(lons) == len(lats) == len(data) == len(weights)
@@ -467,6 +475,8 @@ cdef class Cygrid(object):
                 ):
             raise ShapeError('Number of spectral channels mismatch.')
 
+        arr_kw_32 = dict(dtype=FLOAT32, requirements='C')
+        arr_kw_64 = dict(dtype=FLOAT64, requirements='C')
         if dtype == 'float32':
 
             if self.dbg_messages:
@@ -474,8 +484,8 @@ cdef class Cygrid(object):
 
             self.datacube = self.datacube.astype(FLOAT32, copy=False)
             self.weightscube = self.weightscube.astype(FLOAT32, copy=False)
-            data = data.astype(FLOAT32, copy=False)
-            weights = weights.astype(FLOAT32, copy=False)
+            data = np.require(data, **arr_kw_32)
+            weights = np.require(weights, **arr_kw_32)
 
         elif dtype == 'float64':
 
@@ -484,14 +494,14 @@ cdef class Cygrid(object):
 
             self.datacube = self.datacube.astype(FLOAT64, copy=False)
             self.weightscube = self.weightscube.astype(FLOAT64, copy=False)
-            data = data.astype(FLOAT64, copy=False)
-            weights = weights.astype(FLOAT64, copy=False)
+            data = np.require(data, **arr_kw_64)
+            weights = np.require(weights, **arr_kw_64)
 
         else:
             raise TypeError("dtype must be one of 'float32' or 'float64'")
 
-        lons = lons.astype(FLOAT64, copy=False)
-        lats = lats.astype(FLOAT64, copy=False)
+        lons = np.require(lons, **arr_kw_64)
+        lats = np.require(lats, **arr_kw_64)
 
         self._grid(lons, lats, data, weights)
 
@@ -499,8 +509,8 @@ cdef class Cygrid(object):
             self,
             double[::1] lons not None,
             double[::1] lats not None,
-            cython.floating[:, :] data not None,
-            cython.floating[:, :] weights not None,
+            cython.floating[:, ::1] data not None,
+            cython.floating[:, ::1] weights not None,
             ):
 
 
@@ -728,8 +738,15 @@ cdef class WcsGrid(Cygrid):
 
     def _prepare(self, header, **kwargs):
 
+        # if naxis3 kwarg is set, it always takes precedence; if it is not
+        # set, NAXIS3 from header is used; if it is not even present in
+        # header, set to One
+        naxis3 = kwargs.get('naxis3', None)
+        if naxis3 is None:
+            naxis3 = header.get('NAXIS3', 1)
+
         self.header = header
-        self.zyx_shape = (header['NAXIS3'], header['NAXIS2'], header['NAXIS1'])
+        self.zyx_shape = (naxis3, header['NAXIS2'], header['NAXIS1'])
         self.yx_shape = self.zyx_shape[1:3]
 
         # Use astropy's wcs module to convert pixel <--> world coords
@@ -900,7 +917,7 @@ cdef class SlGrid(Cygrid):
     ----------
     sl_lons, sl_lats : numpy.ndarray (float64), 1D
         Coordinates of sight lines to grid onto.
-    naxes3 : int
+    naxes3 : int (Default: 1)
         Length of spectral axis.
     dbg_messages : Boolean, optional (Default: False)
         Do debugging output.
@@ -976,7 +993,7 @@ cdef class SlGrid(Cygrid):
             self,
             np.ndarray[double, ndim=1] sl_lons,
             np.ndarray[double, ndim=1] sl_lats,
-            long naxes3,
+            long naxes3=1,
             **kwargs
             ):
 
@@ -1042,7 +1059,7 @@ cdef class SlGrid(Cygrid):
         data : `~numpy.array` [2D] of float32 or float64
             The gridded spectral data for each of the input positions.
         '''
-        return self.datacube / self.weightscube
+        return self.datacube[:, 0] / self.weightscube[:, 0]
 
     def get_weights(self):
         '''
@@ -1053,7 +1070,7 @@ cdef class SlGrid(Cygrid):
         weights : `~numpy.array` [2D] of float32 or float64
             The gridded spectral weights for each of the input positions.
         '''
-        return self.weightscube
+        return self.weightscube[:, 0]
 
     def get_unweighted_datacube(self):
         '''
@@ -1064,4 +1081,4 @@ cdef class SlGrid(Cygrid):
         unweighted_data : `~numpy.array` [2D] of float32 or float64
             The gridded spectral unweighted data for each of the input positions.
         '''
-        return self.datacube
+        return self.datacube[:, 0]
