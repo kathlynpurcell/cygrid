@@ -27,6 +27,11 @@
 //
 // --------------------------------------------------------------------
 
+// Define maximal y-size of pixel indices
+// this is necessary to have a quick'n'dirty hash for the xpix-ypix pairs
+// otherwise we would need to provide a hash function to unordered_map,
+// (and we don't want to use the true y-size of the map, to avoid a dynamical
+// variable for this)
 #define MAX_Y (1073741824)  // 2^30
 
 // Constants needed for HPX

@@ -106,14 +106,10 @@ from .constants cimport DEG2RAD, RAD2DEG
 from .constants cimport PI, TWOTHIRD, TWOPI, HALFPI, INV_TWOPI, INV_HALFPI
 
 
-# Define maximal y-size of pixel indices
-#  this is necessary to have a quick'n'dirty hash for the xpix-ypix pairs
-#  otherwise we would need to provide a hash function to unordered_map,
-DEF MAX_Y = 2**30
-
 # define function pointers (1D and 2D), to allow user-chosen kernels
 # double distance, double bearing, double[::1] kernel_params)
 # (use bearing=NULL for 1D kernels)
+
 ctypedef double (*kernel_func_ptr_t)(double, double, double[::1]) nogil
 
 # we define two different floating types (a la cython.floating) to allow
