@@ -170,6 +170,7 @@ cdef class Cygrid(object):
     cdef:
         # datacube and weights objects, any or all dimensions can have length 1
         np.ndarray datacube, weightscube
+        np.dtype dtype
 
         # pixel/world coords (2D) of internal datacube spatial dims
         # if astropy is used, the coords may contain NaNs
@@ -195,13 +196,20 @@ cdef class Cygrid(object):
         HpxHashTable my_hpx_hashtab
         bint dbg_messages
 
+        bint cubes_prepared
+
+        tuple args
+        dict kwargs
+
     def __init__(self, *args, **kwargs):
         # Constructor will initalize necessary cube/weights arrays, setup cube
         # and wcs representation
 
-        self.dbg_messages = <bint> False
-        if 'dbg_messages' in kwargs:
-            self.dbg_messages = kwargs['dbg_messages']
+        self.datacube = kwargs.get('datacube', None)
+        self.weightscube = kwargs.get('weightcube', None)
+        self.dtype = np.dtype(kwargs.get('dtype', np.float32))
+
+        self.dbg_messages = <bint> kwargs.get('dbg_messages', False)
 
         self.my_hpx_hashtab = HpxHashTable(dbg_messages=self.dbg_messages)
 
@@ -209,8 +217,12 @@ cdef class Cygrid(object):
         self.last_hpxmaxres = -1.
         # self.bearing_needed = <bint> False
         self.kernel_set = <bint> False
+        self.cubes_prepared = <bint> False
 
-        self._prepare(*args, **kwargs)
+        # self.args = args
+        # self.kwargs = kwargs
+
+        self._prepare_spatial_coords(*args, **kwargs)
 
     def set_num_threads(self, int nthreads):
         '''
@@ -222,9 +234,9 @@ cdef class Cygrid(object):
 
         openmp.omp_set_num_threads(nthreads)
 
-    def _prepare(self, *args, **kwargs):
+    def _prepare_spatial_coords(self, *args, **kwargs):
         '''
-        Preparation function, called by derived Classes.
+        Preparation function for spatial coords, called by derived Classes.
 
         Needs to fill/prepare the following class members:
 
@@ -238,6 +250,71 @@ cdef class Cygrid(object):
         '''
 
         raise NotImplementedError('This is the base class. Use child classes!')
+
+    # def _prepare_cubes(self, *args, **kwargs):
+    #     '''
+    #     Preparation function to instantiate datacube and weightcube.
+
+    #     This is run at the first call of the `grid` method to automatically
+    #     handle dimensionality of the input data:
+
+    #         input raw data (signal) --> data/weight cubes
+    #         1D                          2D
+    #         2D                          3D
+    #     '''
+
+    #     raise NotImplementedError('This is the base class. Use child classes!')
+
+    def _prepare_cubes(self):
+        '''
+        Preparation function to instantiate datacube and weightcube.
+
+        This is run at the first call of the `grid` method to automatically
+        handle dimensionality of the input data:
+
+            input raw data (signal) --> data/weight cubes
+            1D                          2D
+            2D                          3D
+        '''
+
+        if self.datacube is None:
+            self.datacube = np.zeros(self.zyx_shape, dtype=self.dtype)
+        else:
+            if not isinstance(self.datacube, np.ndarray):
+                raise TypeError('Input datacube must be numpy array.')
+            if not (
+                    self.datacube.shape[0] == self.zyx_shape[0] and
+                    self.datacube.shape[1] == self.zyx_shape[1] and
+                    self.datacube.shape[2] == self.zyx_shape[2]
+                    ):
+                raise ShapeError("Datacube shape doesn't match fits header.")
+            if self.datacube.dtype not in [
+                    np.float32, np.float64
+                    ]:
+                raise TypeError(
+                    'Input datacube must have floating point type.'
+                    )
+            if self.datacube.dtype != self.dtype:
+                # TODO: should we print a warning?
+                self.dtype = self.datacube.dtype
+
+        if self.weightscube is None:
+            self.weightscube = np.zeros(self.zyx_shape, dtype=self.dtype)
+        else:
+            if not isinstance(self.weightscube, np.ndarray):
+                raise TypeError('Input weightcube must be numpy array.')
+            if not (
+                    self.datacube.shape[0] == self.weightscube.shape[0] and
+                    self.datacube.shape[1] == self.weightscube.shape[1] and
+                    self.datacube.shape[2] == self.weightscube.shape[2]
+                    ):
+                raise ShapeError(
+                    "Weightcube shape doesn't match datacube shape."
+                    )
+            if self.datacube.dtype != self.weightscube.dtype:
+                raise TypeError(
+                    "Weightcube dtype doesn't match datacube dtype."
+                    )
 
     def clear_cache(self):
         '''
@@ -446,6 +523,10 @@ cdef class Cygrid(object):
           re-cast if necessary).
         '''
 
+        if not self.cubes_prepared:
+            self._prepare_cubes()
+            self.cubes_prepared = <bint> True
+
         if weights is None:
             weights = np.ones_like(data)
 
@@ -512,7 +593,6 @@ cdef class Cygrid(object):
             cython.floating[:, ::1] data not None,
             cython.floating[:, ::1] weights not None,
             ):
-
 
         cdef:
             int64_t i  # Windows open-mp only works with signed loop vars
@@ -736,7 +816,7 @@ cdef class WcsGrid(Cygrid):
         object wcs
         np.ndarray coordmask_f
 
-    def _prepare(self, header, **kwargs):
+    def _prepare_spatial_coords(self, header, **kwargs):
 
         # if naxis3 kwarg is set, it always takes precedence; if it is not
         # set, NAXIS3 from header is used; if it is not even present in
@@ -757,43 +837,6 @@ cdef class WcsGrid(Cygrid):
             # some astropy versions have a bug
             self.wcs = wcs.WCS(self.header).sub(axes=[1, 2])
 
-        if 'datacube' in kwargs:
-            self.datacube = kwargs['datacube']
-            if not isinstance(self.datacube, np.ndarray):
-                raise TypeError('Input datacube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.zyx_shape[0] and
-                    self.datacube.shape[1] == self.zyx_shape[1] and
-                    self.datacube.shape[2] == self.zyx_shape[2]
-                    ):
-                raise ShapeError("Datacube shape doesn't match fits header.")
-            if self.datacube.dtype not in [
-                    np.float32, np.float64
-                    ]:
-                raise TypeError(
-                    'Input datacube must have floating point type.'
-                    )
-        else:
-            self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
-
-        if 'weightcube' in kwargs:
-            self.weightscube = kwargs['weightcube']
-            if not isinstance(self.weightscube, np.ndarray):
-                raise TypeError('Input weightcube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.weightscube.shape[0] and
-                    self.datacube.shape[1] == self.weightscube.shape[1] and
-                    self.datacube.shape[2] == self.weightscube.shape[2]
-                    ):
-                raise ShapeError(
-                    "Weightcube shape doesn't match datacube shape."
-                    )
-            if self.datacube.dtype != self.weightscube.dtype:
-                raise TypeError(
-                    "Weightcube dtype doesn't match datacube dtype."
-                    )
-        else:
-            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
 
         self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
 
@@ -989,7 +1032,7 @@ cdef class SlGrid(Cygrid):
         object wcs
         np.ndarray coordmask_f
 
-    def _prepare(
+    def _prepare_spatial_coords(
             self,
             np.ndarray[double, ndim=1] sl_lons,
             np.ndarray[double, ndim=1] sl_lats,
@@ -1000,45 +1043,45 @@ cdef class SlGrid(Cygrid):
         self.zyx_shape = (naxes3, 1, len(sl_lons))
         self.yx_shape = self.zyx_shape[1:3]
 
-        if 'datacube' in kwargs:
-            self.datacube = kwargs['datacube']
-            if not isinstance(self.datacube, np.ndarray):
-                raise TypeError('Input datacube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.zyx_shape[0] and
-                    self.datacube.shape[1] == self.zyx_shape[1] and
-                    self.datacube.shape[2] == self.zyx_shape[2]
-                    ):
-                raise ShapeError(
-                    "Datacube shape doesn't match sight line dimensions."
-                    )
-            if self.datacube.dtype not in [
-                    np.float32, np.float64
-                    ]:
-                raise TypeError(
-                    'Input datacube must have floating point type.'
-                    )
-        else:
-            self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
+        # if 'datacube' in kwargs:
+        #     self.datacube = kwargs['datacube']
+        #     if not isinstance(self.datacube, np.ndarray):
+        #         raise TypeError('Input datacube must be numpy array.')
+        #     if not (
+        #             self.datacube.shape[0] == self.zyx_shape[0] and
+        #             self.datacube.shape[1] == self.zyx_shape[1] and
+        #             self.datacube.shape[2] == self.zyx_shape[2]
+        #             ):
+        #         raise ShapeError(
+        #             "Datacube shape doesn't match sight line dimensions."
+        #             )
+        #     if self.datacube.dtype not in [
+        #             np.float32, np.float64
+        #             ]:
+        #         raise TypeError(
+        #             'Input datacube must have floating point type.'
+        #             )
+        # else:
+        #     self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
 
-        if 'weightcube' in kwargs:
-            self.weightscube = kwargs['weightcube']
-            if not isinstance(self.weightscube, np.ndarray):
-                raise TypeError('Input weightcube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.weightscube.shape[0] and
-                    self.datacube.shape[1] == self.weightscube.shape[1] and
-                    self.datacube.shape[2] == self.weightscube.shape[2]
-                    ):
-                raise ShapeError(
-                    "Weightcube shape doesn't match sight line dimensions."
-                    )
-            if self.datacube.dtype != self.weightscube.dtype:
-                raise TypeError(
-                    "Weightcube dtype doesn't match datacube dtype."
-                    )
-        else:
-            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
+        # if 'weightcube' in kwargs:
+        #     self.weightscube = kwargs['weightcube']
+        #     if not isinstance(self.weightscube, np.ndarray):
+        #         raise TypeError('Input weightcube must be numpy array.')
+        #     if not (
+        #             self.datacube.shape[0] == self.weightscube.shape[0] and
+        #             self.datacube.shape[1] == self.weightscube.shape[1] and
+        #             self.datacube.shape[2] == self.weightscube.shape[2]
+        #             ):
+        #         raise ShapeError(
+        #             "Weightcube shape doesn't match sight line dimensions."
+        #             )
+        #     if self.datacube.dtype != self.weightscube.dtype:
+        #         raise TypeError(
+        #             "Weightcube dtype doesn't match datacube dtype."
+        #             )
+        # else:
+        #     self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
 
         self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
         self.xwcs_f, self.ywcs_f = sl_lons, sl_lats
