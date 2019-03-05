@@ -69,7 +69,7 @@ class TestWcsGrid:
 
         self.kernel_args = (
             'gauss1d',
-            (0.5 / kernelsize_sigma ** 2,),
+            (kernelsize_sigma, ),
             support_radius,
             hpx_min_res,
             )
