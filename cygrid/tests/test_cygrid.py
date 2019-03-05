@@ -44,6 +44,7 @@ class TestWcsGrid:
         pixsize = self.beamsize_fwhm / 3.
         dnaxis1 = int(mapsize[0] / pixsize + 0.5)
         dnaxis2 = int(mapsize[1] / pixsize + 0.5)
+        self.yx_shape = dnaxis2, dnaxis1
         projection = 'SIN'
 
         self.header = {
@@ -84,7 +85,7 @@ class TestWcsGrid:
 
     def _do_gridding2d(self, signal, header, **kwargs):
 
-        mygridder = cygrid.WcsGrid(header, **kwargs)
+        mygridder = cygrid.WcsGrid(header, **kwargs, dbg_messages=True)
         mygridder.set_kernel(*self.kernel_args)
 
         mygridder.grid(self.xcoords, self.ycoords, signal[:, np.newaxis])
@@ -188,6 +189,68 @@ class TestWcsGrid:
 
         signal2_f_cont = np.require(self.signal2, self.signal2.dtype, 'F')
         self._do_gridding3d(signal2_f_cont, self.header, naxis3=2)
+
+    def test_datacube_array_ownership_1(self):
+        '''
+        If user provides a data cube, it must be made sure that no new
+        instance is created by cygrid (e.g., if dtype is wrong)
+        '''
+
+        datacube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
+        wcube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
+        header = self.header.copy()
+        header['NAXIS'] = 3
+        header['NAXIS3'] = 1
+
+        mygridder = cygrid.WcsGrid(
+            header, datacube=datacube, weightcube=wcube
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(
+            self.xcoords, self.ycoords, self.signal, dtype='float64'
+            )
+
+        assert_allclose(
+            mygridder.get_datacube()[0],
+            self.test_maps[0],
+            atol=1.e-6
+            )
+
+        assert id(datacube) == id(mygridder.get_unweighted_datacube())
+        assert id(wcube) == id(mygridder.get_weights())
+
+    @pytest.mark.xfail
+    def test_datacube_array_ownership_2(self):
+        '''
+        If user provides a data cube, it must be made sure that no new
+        instance is created by cygrid (e.g., if dtype is wrong)
+        '''
+
+        datacube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
+        wcube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
+        header = self.header.copy()
+        header['NAXIS'] = 3
+        header['NAXIS3'] = 1
+
+        mygridder = cygrid.WcsGrid(
+            header, datacube=datacube, weightcube=wcube
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(
+            self.xcoords, self.ycoords, self.signal, dtype='float32'
+            )
+
+        assert_allclose(
+            mygridder.get_datacube()[0],
+            self.test_maps[0],
+            atol=1.e-6
+            )
+
+        assert id(datacube) == id(mygridder.get_unweighted_datacube())
+        assert id(wcube) == id(mygridder.get_weights())
+
 
 
 class TestSlGrid:
