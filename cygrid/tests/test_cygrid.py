@@ -41,6 +41,10 @@ class TestWcsGrid:
             self.signal = np.random.normal(0., .01, len(self.xcoords))
 
         self.signal2 = np.column_stack([self.signal, self.signal ** 2])
+        self.signal3 = np.column_stack([
+            self.signal, self.signal ** 2,
+            self.signal ** 3, self.signal ** 4
+            ]).reshape((-1, 2, 2))
         pixsize = self.beamsize_fwhm / 3.
         dnaxis1 = int(mapsize[0] / pixsize + 0.5)
         dnaxis2 = int(mapsize[1] / pixsize + 0.5)
@@ -83,174 +87,158 @@ class TestWcsGrid:
 
         pass
 
-    def _do_gridding2d(self, signal, header, **kwargs):
+    def test_gridding2d(self):
 
-        mygridder = cygrid.WcsGrid(header, **kwargs, dbg_messages=True)
+        mygridder = cygrid.WcsGrid(self.header)
         mygridder.set_kernel(*self.kernel_args)
 
-        mygridder.grid(self.xcoords, self.ycoords, signal[:, np.newaxis])
+        mygridder.grid(self.xcoords, self.ycoords, self.signal)
 
         assert_allclose(
-            mygridder.get_datacube()[0],
+            mygridder.get_datacube(),
+            self.test_maps[0, 0],
+            atol=1.e-6
+            )
+
+    def test_gridding3d(self):
+
+        mygridder = cygrid.WcsGrid(self.header)
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(self.xcoords, self.ycoords, self.signal2)
+
+        assert_allclose(
+            mygridder.get_datacube(),
             self.test_maps[0],
             atol=1.e-6
             )
 
-        # test automatic patching of input signal array size (to 2D)
-        mygridder.grid(self.xcoords, self.ycoords, signal)
+    def test_gridding4d(self):
 
-        assert_allclose(
-            mygridder.get_datacube()[0],
-            self.test_maps[0],
-            atol=1.e-6
-            )
-
-    def _do_gridding3d(self, signal, header, **kwargs):
-
-        mygridder = cygrid.WcsGrid(header, **kwargs)
+        mygridder = cygrid.WcsGrid(self.header)
         mygridder.set_kernel(*self.kernel_args)
 
-        mygridder.grid(self.xcoords, self.ycoords, signal)
+        mygridder.grid(self.xcoords, self.ycoords, self.signal3)
 
-        if kwargs.get('do_store', False):
+        if False:
             np.save('/tmp/cygrid_test_maps.npy', mygridder.get_datacube())
 
-        assert_allclose(mygridder.get_datacube(), self.test_maps, atol=1.e-6)
-
-    def test_gridding2d_naxis3_implicit(self):
-        '''
-        Implicitly set 3rd (redundant) axis in header
-        '''
-
-        header = self.header.copy()
-        header['NAXIS'] = 3
-        header['NAXIS3'] = 1
-        self._do_gridding2d(self.signal, header)
-
-    def test_gridding2d_naxis3_explicit(self):
-        '''
-        Explicitly set 3rd via kwargs
-        '''
-
-        self._do_gridding2d(self.signal, self.header, naxis3=1)
-
-    def test_gridding2d_naxis3_auto(self):
-        '''
-        Automatic handling of naxis3 (aka set to One, if not present)
-        '''
-
-        self._do_gridding2d(self.signal, self.header)
-
-    def test_gridding3d_naxis3_implicit(self):
-        '''
-        Implicitly set 3rd (redundant) axis in header
-        '''
-
-        header = self.header.copy()
-        header['NAXIS'] = 3
-        header['NAXIS3'] = 2
-        self._do_gridding3d(self.signal2, header)
-
-    def test_gridding3d_naxis3_explicit(self):
-        '''
-        Explicitly set 3rd via kwargs
-        '''
-
-        self._do_gridding3d(
-            self.signal2, self.header, naxis3=2, do_store=False
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_maps,
+            atol=1.e-6
             )
+
+    def test_kernel_not_set_error(self):
+
+        mygridder = cygrid.WcsGrid(self.header)
+
+        with pytest.raises(RuntimeError):
+            mygridder.grid(self.xcoords, self.ycoords, self.signal)
 
     def test_shape_error(self):
         '''
-        Implicitly set 3rd (redundant) axis in header
+        Test for various shape errors
         '''
 
-        header = self.header.copy()
-        header['NAXIS'] = 3
-        header['NAXIS3'] = 2
-        with pytest.raises(cygrid.ShapeError):
-            self._do_gridding2d(self.signal, header)
-
-        header['NAXIS3'] = 1
-        with pytest.raises(cygrid.ShapeError):
-            self._do_gridding3d(self.signal2, header)
-
-        header = self.header.copy()
-        with pytest.raises(cygrid.ShapeError):
-            self._do_gridding2d(self.signal, header, naxis3=2)
+        mygridder = cygrid.WcsGrid(self.header)
+        mygridder.set_kernel(*self.kernel_args)
 
         with pytest.raises(cygrid.ShapeError):
-            self._do_gridding3d(self.signal2, header, naxis3=1)
+            mygridder.grid(
+                self.xcoords, self.ycoords[:, np.newaxis], self.signal
+                )
+
+        with pytest.raises(cygrid.ShapeError):
+            # this should not work, as the second call to grid has
+            # incompatible shape
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal[:, np.newaxis]
+                )
+
+        # now test with user-provided data cube
+        dcube = np.zeros_like(self.test_maps[0, 0])
+        mygridder = cygrid.WcsGrid(self.header, datacube=dcube)
+        mygridder.set_kernel(*self.kernel_args)
+
+        with pytest.raises(cygrid.ShapeError):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal[:, np.newaxis]
+                )
+
+    def test_dtype_warning(self):
+        '''
+        Test for dtype warning
+
+        In fact, at the moment there is only one possible warning, as
+        everything else should be properly casted, etc.
+        '''
+
+        dcube = np.zeros_like(self.test_maps[0, 0])  # float32
+        mygridder = cygrid.WcsGrid(
+            self.header, datacube=dcube, dtype=np.float64
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        with pytest.warns(UserWarning):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
 
     def test_c_contiguous(self):
         '''
-        Cygrid should autocast to C-contiguous if necessary
+        Cygrid should autocast to C-contiguous if necessary and raise
+        an error if user-provided datacube is not C-contiguous
         '''
 
         signal2_f_cont = np.require(self.signal2, self.signal2.dtype, 'F')
-        self._do_gridding3d(signal2_f_cont, self.header, naxis3=2)
 
-    def test_datacube_array_ownership_1(self):
-        '''
-        If user provides a data cube, it must be made sure that no new
-        instance is created by cygrid (e.g., if dtype is wrong)
-        '''
-
-        datacube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
-        wcube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
-        header = self.header.copy()
-        header['NAXIS'] = 3
-        header['NAXIS3'] = 1
-
-        mygridder = cygrid.WcsGrid(
-            header, datacube=datacube, weightcube=wcube
-            )
+        mygridder = cygrid.WcsGrid(self.header)
         mygridder.set_kernel(*self.kernel_args)
 
-        mygridder.grid(
-            self.xcoords, self.ycoords, self.signal, dtype='float64'
-            )
+        mygridder.grid(self.xcoords, self.ycoords, signal2_f_cont)
 
         assert_allclose(
-            mygridder.get_datacube()[0],
+            mygridder.get_datacube(),
             self.test_maps[0],
             atol=1.e-6
             )
 
-        assert id(datacube) == id(mygridder.get_unweighted_datacube())
-        assert id(wcube) == id(mygridder.get_weights())
-
-    @pytest.mark.xfail
-    def test_datacube_array_ownership_2(self):
-        '''
-        If user provides a data cube, it must be made sure that no new
-        instance is created by cygrid (e.g., if dtype is wrong)
-        '''
-
-        datacube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
-        wcube = np.zeros((1, ) + self.yx_shape, dtype=np.float64)
-        header = self.header.copy()
-        header['NAXIS'] = 3
-        header['NAXIS3'] = 1
-
-        mygridder = cygrid.WcsGrid(
-            header, datacube=datacube, weightcube=wcube
-            )
+        dcube_f_cont = np.require(np.zeros_like(self.test_maps[0, 0]), 'F')
+        mygridder = cygrid.WcsGrid(self.header, datacube=dcube_f_cont)
         mygridder.set_kernel(*self.kernel_args)
 
-        mygridder.grid(
-            self.xcoords, self.ycoords, self.signal, dtype='float32'
-            )
+        with pytest.raises(TypeError):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
+
+    def test_user_datacube_memorycell(self):
+        '''
+        If user provides a data cube, it must be made sure that cygrid
+        writes to the correct memory cell (even though, the
+        `get_unweighted_datacube` method can have a different object id
+        due to internal reshaping)
+        '''
+
+        dcube = np.zeros_like(self.test_maps[0, 0])  # float64
+        mygridder = cygrid.WcsGrid(self.header, datacube=dcube)
+        mygridder.set_kernel(*self.kernel_args)
+        mygridder.grid(self.xcoords, self.ycoords, self.signal)
 
         assert_allclose(
-            mygridder.get_datacube()[0],
-            self.test_maps[0],
+            mygridder.get_datacube(),
+            self.test_maps[0, 0],
             atol=1.e-6
             )
-
-        assert id(datacube) == id(mygridder.get_unweighted_datacube())
-        assert id(wcube) == id(mygridder.get_weights())
-
+        assert_allclose(
+            mygridder.get_unweighted_datacube(),
+            dcube,
+            atol=1.e-6
+            )
 
 
 class TestSlGrid:
@@ -290,6 +278,12 @@ class TestSlGrid:
                 1000,
                 ).astype(np.float64)
 
+        self.signal2 = np.column_stack([self.signal, self.signal ** 2])
+        self.signal3 = np.column_stack([
+            self.signal, self.signal ** 2,
+            self.signal ** 3, self.signal ** 4
+            ]).reshape((-1, 2, 2))
+
         kernelsize_fwhm = self.beamsize_fwhm / 2
         kernelsize_sigma = kernelsize_fwhm / 2.35
         support_radius = 3. * kernelsize_sigma
@@ -310,50 +304,165 @@ class TestSlGrid:
 
         pass
 
-    def _do_gridding(self, signal, naxis3, **kwargs):
+    def test_gridding1d(self):
 
-        mygridder = cygrid.SlGrid(
-            self.target_x,
-            self.target_y,
-            naxis3
-            )
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
         mygridder.set_kernel(*self.kernel_args)
-        mygridder.grid(self.xcoords, self.ycoords, signal)
 
-        if kwargs.get('do_store', False):
+        mygridder.grid(self.xcoords, self.ycoords, self.signal)
+
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_sls[0, 0],
+            atol=1.e-6
+            )
+
+    def test_gridding2d(self):
+
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(self.xcoords, self.ycoords, self.signal2)
+
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_sls[0],
+            atol=1.e-6
+            )
+
+    def test_gridding3d(self):
+
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(self.xcoords, self.ycoords, self.signal3)
+
+        if False:
             np.save(
-                '/tmp/cygrid_test_sightlines.npy',
-                mygridder.get_datacube()
+                '/tmp/cygrid_test_sightlines.npy', mygridder.get_datacube()
                 )
 
-        if naxis3 == 1:
-            assert_allclose(
-                mygridder.get_datacube()[0],
-                self.test_sls[0],
-                atol=1.e-6
-                )
-        else:
-            assert_allclose(
-                mygridder.get_datacube(),
-                self.test_sls,
-                atol=1.e-6
-                )
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_sls,
+            atol=1.e-6
+            )
 
-    def test_gridding_naxis3_1(self):
+    def test_kernel_not_set_error(self):
 
-        self._do_gridding(self.signal, 1)
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
 
-    def test_gridding_naxis3_2(self):
-
-        signal2 = np.column_stack([self.signal, self.signal ** 2])
-        self._do_gridding(signal2, 2, do_store=False)
+        with pytest.raises(RuntimeError):
+            mygridder.grid(self.xcoords, self.ycoords, self.signal)
 
     def test_shape_error(self):
+        '''
+        Test for various shape errors
+        '''
 
-        signal2 = np.column_stack([self.signal, self.signal ** 2])
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
+        mygridder.set_kernel(*self.kernel_args)
 
         with pytest.raises(cygrid.ShapeError):
-            self._do_gridding(self.signal, 2)
+            mygridder.grid(
+                self.xcoords, self.ycoords[:, np.newaxis], self.signal
+                )
 
         with pytest.raises(cygrid.ShapeError):
-            self._do_gridding(signal2, 1)
+            # this should not work, as the second call to grid has
+            # incompatible shape
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal[:, np.newaxis]
+                )
+
+        # now test with user-provided data cube
+        dcube = np.zeros_like(self.test_sls[0])
+        mygridder = cygrid.SlGrid(
+            self.target_x, self.target_y, datacube=dcube
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        with pytest.raises(cygrid.ShapeError):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal[:, np.newaxis]
+                )
+
+    def test_dtype_warning(self):
+        '''
+        Test for dtype warning
+
+        In fact, at the moment there is only one possible warning, as
+        everything else should be properly casted, etc.
+        '''
+
+        dcube = np.zeros_like(self.test_sls[0, 0])  # float32
+        print(dcube.dtype, dcube.shape)
+        mygridder = cygrid.SlGrid(
+            self.target_x, self.target_y,
+            datacube=dcube, dtype=np.float64
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        with pytest.warns(UserWarning):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
+
+    def test_c_contiguous(self):
+        '''
+        Cygrid should autocast to C-contiguous if necessary and raise
+        an error if user-provided datacube is not C-contiguous
+        '''
+
+        signal2_f_cont = np.require(self.signal2, self.signal2.dtype, 'F')
+
+        mygridder = cygrid.SlGrid(self.target_x, self.target_y)
+        mygridder.set_kernel(*self.kernel_args)
+
+        mygridder.grid(self.xcoords, self.ycoords, signal2_f_cont)
+
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_sls[0],
+            atol=1.e-6
+            )
+
+        dcube_f_cont = np.require(np.zeros_like(self.test_sls[0, 0]), 'F')
+        mygridder = cygrid.SlGrid(
+            self.target_x, self.target_y, datacube=dcube_f_cont
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        with pytest.raises(TypeError):
+            mygridder.grid(
+                self.xcoords, self.ycoords, self.signal
+                )
+
+    def test_user_datacube_memorycell(self):
+        '''
+        If user provides a data cube, it must be made sure that cygrid
+        writes to the correct memory cell (even though, the
+        `get_unweighted_datacube` method can have a different object id
+        due to internal reshaping)
+        '''
+
+        dcube = np.zeros_like(self.test_sls[0, 0])  # float64
+        mygridder = cygrid.SlGrid(
+            self.target_x, self.target_y, datacube=dcube
+            )
+        mygridder.set_kernel(*self.kernel_args)
+        mygridder.grid(self.xcoords, self.ycoords, self.signal)
+
+        assert_allclose(
+            mygridder.get_datacube(),
+            self.test_sls[0, 0],
+            atol=1.e-6
+            )
+        assert_allclose(
+            mygridder.get_unweighted_datacube(),
+            dcube,
+            atol=1.e-6
+            )
