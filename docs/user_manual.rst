@@ -273,7 +273,7 @@ compares to `~scipy.interpolate.griddata`. Here is the result:
 
         values = func(points[0], points[1]) + noise
 
-        gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten(), 1)
+        gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten())
         kernelsize_fwhm = 0.05
         kernelsize_sigma = kernelsize_fwhm / 2.355
         sphere_radius = 3. * kernelsize_sigma
@@ -285,7 +285,7 @@ compares to `~scipy.interpolate.griddata`. Here is the result:
             kernelsize_sigma / 2.
             )
         gridder.grid(points[0], points[1], values)
-        gridded = gridder.get_datacube().squeeze().reshape(grid_x.shape)
+        gridded = gridder.get_datacube().reshape(grid_x.shape)
 
         ax.imshow(gridded, extent=(0,1,0,1), origin='lower', vmin=-0.3, vmax=0.3)
         ax.set_title('nsize: {:d}, sigma: {:.2f}'.format(nsize, sigma))
@@ -426,7 +426,7 @@ we will simply create a mock data set, with the help of a utility function,
     With the `~astropy.utils.misc.NumpyRNGContext` context, it is possible
     to specify the seed for all NumPy random numbers.
 
-The next step is to define a FITS/`~astropy.wcs` compatible header that
+The next step is to define a FITS/`~astropy.wcs.WCS` compatible header that
 defines the image into which we want to grid the data::
 
     >>> # define target grid (via FITS header according to WCS convention)
@@ -463,12 +463,13 @@ Before the gridder is ready to use, one needs to setup the kernel parameters
     >>> kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
     >>> sphere_radius = 3. * kernelsize_sigma
 
-    >>> gridder.set_kernel(
+    >>> kernel_args = (
     ...     'gauss1d',
     ...     (kernelsize_sigma,),
     ...     sphere_radius,
     ...     kernelsize_sigma / 2.
     ...     )
+    >>> gridder.set_kernel(*kernel_args)
 
 Finally, we call the `~cygrid.WcsGrid.grid` method, into which the raw data
 is fed::
@@ -479,40 +480,27 @@ The result can be queried using the `~cygrid.WcsGrid.get_datacube` method::
 
     >>> gridded_data = gridder.get_datacube()
     >>> print(gridded_data)  # doctest: +FLOAT_CMP +NORMALIZE_WHITESPACE
-    [[[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]
-      [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]
-      [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]
-      ...,
-      [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]
-      [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]
-      [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]]
-
-There is one subtle detail that is important - `~cygrid.WcsGrid` will always
-return a data cube, even if one used a 2D FITS header in the constructor, but
-the third axis (the spectral axis) has length-1 and is thus redundant in this
-case. We can get rid of it::
+    [[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]
+     [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]
+     [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]
+     ...,
+     [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]
+     [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]
+     [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]
 
     >>> print(gridded_data.shape)
-    (1, 150, 150)
-    >>> gridded_map = gridded_data.squeeze()
-    >>> print(gridded_map.shape)
     (150, 150)
 
 .. note::
 
     We follow the standard convention, that the data cube axes are ordered
-    as: `(z, y, x)`.
+    as: `(z, y, x)` (for 3D) or `(y, x)` (for 2D), etc.
 
 For many use cases, you will want to save your image to FITS::
 
     >>> from astropy.io import fits
 
     >>> fits.writeto('example.fits', header=target_header, data=gridded_data)  # doctest: +SKIP
-
-.. note::
-
-    If you only want to store a 2D image, you'll need to strip the third
-    dimension from your FITS header (if present).
 
 We can also plot the result, using the `~astropy.visualization.wcsaxes`
 package (for convenience, we provide the full script):
@@ -570,7 +558,7 @@ package (for convenience, we provide the full script):
         kernelsize_sigma / 2.
         )
     gridder.grid(lons, lats, signal)
-    gridded_map = gridder.get_datacube().squeeze()
+    gridded_map = gridder.get_datacube()
 
     target_wcs = gridder.get_wcs()
 
@@ -604,22 +592,16 @@ Originally, `~cygrid` was developed to grid spectral data. This is also the
 reason, why internally, everything is treated as if a spectral axis was
 present. As shown in the simple example above, the user interface
 works for pure 2D maps in the same way, but under the hood `~cygrid`
-adds a redundant spectral axis of length One.
+adds a redundant spectral axis of length One. In fact, if the data to be
+gridded has even more dimensions, `~cygrid` will internally reshape the
+work arrays to 3D and after the gridding has finished restore the desired
+higher-dimensional shape, to make it easy for the user.
 
-To handle spectral data, one has to provide an appropriate FITS
-header, which contains an `NAXIS3` entry::
+To handle spectral data, one can still use a 2D FITS image header, or any
+FITS header, as long as it contains an appropriate spatial description of the target map/cube.::
 
-    >>> target_header_3d = target_header.copy()
-    >>> target_header_3d['NAXIS'] = 3
-    >>> target_header_3d['NAXIS3'] = 2
-
-    >>> gridder = cygrid.WcsGrid(target_header_3d)
-    >>> gridder.set_kernel(
-    ...     'gauss1d',
-    ...     (kernelsize_sigma,),
-    ...     sphere_radius,
-    ...     kernelsize_sigma / 2.
-    ...     )
+    >>> gridder = cygrid.WcsGrid(target_header)
+    >>> gridder.set_kernel(*kernel_args)
 
 We can test this, by concatenating the signal and negative copy of it::
 
@@ -627,8 +609,24 @@ We can test this, by concatenating the signal and negative copy of it::
     >>> print(gridder.get_datacube().shape)
     (2, 150, 150)
 
-In the `~cygrid.WcsGrid.grid` method, the signal array needs to have the
-spectral dimension along the second axis.
+Likewise, any other dimension is possible, as long as the first axis is
+compatible with the length of the coordinate arrays::
+
+    >>> gridder = cygrid.WcsGrid(target_header)
+    >>> gridder.set_kernel(*kernel_args)
+    >>> signal_3d = np.column_stack([
+    ...     signal ** n for n in range(6)
+    ...     ]).reshape((-1, 3, 2))
+    >>> gridder.grid(lons, lats, signal_3d)
+    >>> print(gridder.get_datacube().shape)
+    (3, 2, 150, 150)
+
+As can be seen, the datacube shape is constructed from the shape of the
+input raw data (signal) and the target map size in the following manner:
+the first axes are defined by the shape of the input signal (excluding the
+first dimension), while the last axes are given by the target pixel array (
+i.e. map) shape.
+
 
 .. _reprojection-label:
 
@@ -766,7 +764,7 @@ into the `~cygrid.WcsGrid.grid` method, as usual:
         ebhis_coords_eq.dec.value.flatten(),
         ebhis_data.flatten()
         )
-    ebhis_data_regridded = gridder.get_datacube().squeeze()
+    ebhis_data_regridded = gridder.get_datacube()
 
 
 .. plot::
@@ -890,7 +888,7 @@ pairs to the constructor::
 
     >>> gridder.grid(lons, lats, signal)
 
-    >>> gridded_sightlines = gridder.get_datacube().squeeze()
+    >>> gridded_sightlines = gridder.get_datacube()
     >>> print(
     ...     'lon  lat  sightline-value\n',
     ...     '\n'.join(
