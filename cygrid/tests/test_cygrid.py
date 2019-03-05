@@ -188,6 +188,26 @@ class TestWcsGrid:
                 self.xcoords, self.ycoords, self.signal
                 )
 
+    def test_byteorder_warning(self):
+        '''
+        Test for byteorder warning
+
+        Apparently astroquery.skyview can return wrong (non-native) byteorder.
+        '''
+
+        dcube = np.zeros_like(self.test_maps[0, 0])  # float32
+        mygridder = cygrid.WcsGrid(
+            self.header, datacube=dcube, dtype=np.float64
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        signal_swapped = self.signal.byteswap().newbyteorder()
+
+        with pytest.warns(UserWarning):
+            mygridder.grid(
+                self.xcoords, self.ycoords, signal_swapped
+                )
+
     def test_c_contiguous(self):
         '''
         Cygrid should autocast to C-contiguous if necessary and raise
@@ -399,7 +419,6 @@ class TestSlGrid:
         '''
 
         dcube = np.zeros_like(self.test_sls[0, 0])  # float32
-        print(dcube.dtype, dcube.shape)
         mygridder = cygrid.SlGrid(
             self.target_x, self.target_y,
             datacube=dcube, dtype=np.float64
@@ -411,6 +430,26 @@ class TestSlGrid:
                 self.xcoords, self.ycoords, self.signal
                 )
 
+    def test_byteorder_warning(self):
+        '''
+        Test for byteorder warning
+
+        Apparently astroquery.skyview can return wrong (non-native) byteorder.
+        '''
+
+        dcube = np.zeros_like(self.test_sls[0, 0])  # float32
+        mygridder = cygrid.SlGrid(
+            self.target_x, self.target_y,
+            datacube=dcube, dtype=np.float64
+            )
+        mygridder.set_kernel(*self.kernel_args)
+
+        signal_swapped = self.signal.byteswap().newbyteorder()
+
+        with pytest.warns(UserWarning):
+            mygridder.grid(
+                self.xcoords, self.ycoords, signal_swapped
+                )
     def test_c_contiguous(self):
         '''
         Cygrid should autocast to C-contiguous if necessary and raise

@@ -587,6 +587,18 @@ cdef class Cygrid(object):
         data_2d = np.require(data_2d, requirements='C')
         weights_2d = np.require(weights_2d, requirements='C')
 
+        if not data_2d.dtype.isnative:
+            warnings.warn(
+                "Input data byteorder not native, will fix", UserWarning
+                )
+            data_2d = data_2d.byteswap().newbyteorder()
+
+        if not weights_2d.dtype.isnative:
+            warnings.warn(
+                "Input data byteorder not native, will fix", UserWarning
+                )
+            weights_2d = weights_2d.byteswap().newbyteorder()
+
         self._grid(lons, lats, data_2d, weights_2d, dcube_3d, wcube_3d)
 
     def _grid(
