@@ -14,11 +14,11 @@ The following (in-complete) code snippet demonstrates, how one would use
     import matplotlib.pyplot as plt
     import cygrid
 
-    # read-in data
+    # read-in data; assuming rawdata is a 2D array (i.e. a list of spectra)
     lon, lat, rawdata = get_data()
 
     # define target FITS/WCS header
-    header = create_fits_header()
+    header = create_fits_header()  # assume a 3D image, need only spatial part
 
     # prepare gridder
     kernelsize_sigma = 0.2
@@ -46,18 +46,21 @@ The following (in-complete) code snippet demonstrates, how one would use
     # ... or plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection=WCS(header).celestial)
+    # plot first plane of data cube
     ax.imshow(
         data_cube[0], origin='lower', interpolation='nearest'
         )
     plt.show()
 
-Here, we have omitted the code to read-in the raw data samples,
-`lon`, `lat`, and `rawdata`. The `lon` and `lat` need to be one-dimensional
-arrays (or lists), while `rawdata` must have two dimensions (first dimension
+Here, we have omitted the code to read-in the raw data samples, `lon`, `lat`,
+and `rawdata`. The `lon` and `lat` need to be one-dimensional arrays (or
+lists), while in this example `rawdata` has two dimensions (first dimension
 needs to have the same length as `lon` and `lat`, second dimension is the
-number of spectral channels - use One if only one map is desired). Likewise,
-the code to setup the target FITS/WCS header is not explicitly shows. Anything
-that `~astropy.WCS` would accept to create a spatial WCS is sufficient.
+number of spectral channels). It would also be possible that `rawdata` is a
+1D array, in this case the output `data_cube` would be 2D, i.e., a map.
+Likewise, the code to setup the target FITS/WCS header is not explicitly
+shown. Anything that `~astropy.WCS` would accept to create a spatial WCS is
+sufficient.
 
 The next part in the little program is about setting up the gridder class
 (`~cygrid.WCSGrid`). The constructor only needs the aforementioned WCS header.
@@ -113,7 +116,7 @@ list of coordinate pairs, e.g., if you want to grid to a funky coordinate
 system or projection, which is not supported by FITS/WCS. For this, one can
 use the `~cygrid.SlGrid` class::
 
-    mygridder = cygrid.SlGrid(target_lon, target_lat, 1)
+    mygridder = cygrid.SlGrid(target_lon, target_lat)
     mygridder.set_kernel(...)
 
     mygridder.grid(input_lon, input_lat, input_signal)
@@ -122,5 +125,5 @@ use the `~cygrid.SlGrid` class::
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(target_lon, target_lat, c=target_signal[:, 0])
+    ax.scatter(target_lon, target_lat, c=target_signal)
     plt.show()

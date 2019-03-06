@@ -84,11 +84,11 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">cygrid</span>
 
-<span class="c1"># read-in data</span>
+<span class="c1"># read-in data; assuming rawdata is a 2D array (i.e. a list of spectra)</span>
 <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">rawdata</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
 
 <span class="c1"># define target FITS/WCS header</span>
-<span class="n">header</span> <span class="o">=</span> <span class="n">create_fits_header</span><span class="p">()</span>
+<span class="n">header</span> <span class="o">=</span> <span class="n">create_fits_header</span><span class="p">()</span>  <span class="c1"># assume a 3D image, need only spatial part</span>
 
 <span class="c1"># prepare gridder</span>
 <span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="mf">0.2</span>
@@ -116,19 +116,22 @@
 <span class="c1"># ... or plot</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">WCS</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">celestial</span><span class="p">)</span>
+<span class="c1"># plot first plane of data cube</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
     <span class="n">data_cube</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
     <span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Here, we have omitted the code to read-in the raw data samples,
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code>, and <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code>. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code> need to be one-dimensional
-arrays (or lists), while <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code> must have two dimensions (first dimension
+<p>Here, we have omitted the code to read-in the raw data samples, <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code>,
+and <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code>. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code> need to be one-dimensional arrays (or
+lists), while in this example <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code> has two dimensions (first dimension
 needs to have the same length as <code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">lat</span></code>, second dimension is the
-number of spectral channels - use One if only one map is desired). Likewise,
-the code to setup the target FITS/WCS header is not explicitly shows. Anything
-that <code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code> would accept to create a spatial WCS is sufficient.</p>
+number of spectral channels). It would also be possible that <code class="xref py py-obj docutils literal notranslate"><span class="pre">rawdata</span></code> is a
+1D array, in this case the output <code class="xref py py-obj docutils literal notranslate"><span class="pre">data_cube</span></code> would be 2D, i.e., a map.
+Likewise, the code to setup the target FITS/WCS header is not explicitly
+shown. Anything that <code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code> would accept to create a spatial WCS is
+sufficient.</p>
 <p>The next part in the little program is about setting up the gridder class
 (<code class="xref py py-obj docutils literal notranslate"><span class="pre">WCSGrid</span></code>). The constructor only needs the aforementioned WCS header.
 But before any gridding job would work, it is necessary to define the
@@ -174,7 +177,7 @@ chunks:</p>
 list of coordinate pairs, e.g., if you want to grid to a funky coordinate
 system or projection, which is not supported by FITS/WCS. For this, one can
 use the <a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid" title="cygrid.SlGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SlGrid</span></code></a> class:</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">)</span>
 <span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 
 <span class="n">mygridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">input_lon</span><span class="p">,</span> <span class="n">input_lat</span><span class="p">,</span> <span class="n">input_signal</span><span class="p">)</span>
@@ -183,7 +186,7 @@ use the <a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid
 
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -218,7 +221,7 @@ use the <a class="reference internal" href="api/cygrid.SlGrid.html#cygrid.SlGrid
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
-    Last built 05 Mar 2019. <br/>
+    Last built 06 Mar 2019. <br/>
   </p>
 </footer>
   </body>

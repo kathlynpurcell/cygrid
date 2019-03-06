@@ -83,10 +83,11 @@
 <em class="property">class </em><code class="descclassname">cygrid.</code><code class="descname">SlGrid</code><a class="headerlink" href="#cygrid.SlGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.cygrid.Cygrid"><code class="docutils literal notranslate"><span class="pre">cygrid.Cygrid</span></code></a></p>
 <p>Sight line version of <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>.</p>
-<p>The sight line gridder can be used to resample input data to any collection
-of output coordinates. For example, one could grid to the (list of)
-HEALPix grid pixel coordinates, or just extract spectra from a large 3D
-survey on selected positions (not necessarily aligned with the pixels).</p>
+<p>The sight line gridder can be used to resample input data to any
+collection of output coordinates. For example, one could grid to the (
+list of) HEALPix grid pixel coordinates, or just extract spectra from a
+large 3D survey on selected positions (not necessarily aligned with the
+pixels).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -95,24 +96,28 @@ survey on selected positions (not necessarily aligned with the pixels).</p>
 <dt><strong>sl_lons, sl_lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray (float64), 1D</span></dt>
 <dd><p class="first last">Coordinates of sight lines to grid onto.</p>
 </dd>
-<dt><strong>naxes3</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int (Default: 1)</span></dt>
-<dd><p class="first last">Length of spectral axis.</p>
-</dd>
 <dt><strong>dbg_messages</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Boolean, optional (Default: False)</span></dt>
 <dd><p class="first last">Do debugging output.</p>
 </dd>
-<dt><strong>datacube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
+<dt><strong>datacube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64, optional (Default: None)</span></dt>
 <dd><p class="first">Provide pre-allocated or even pre-filled <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> for datacube.</p>
 <p class="last">Usually (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube=None</span></code>, the default) a datacube object will
 be created automatically according to the given FITS header
-dictionary. Providing datacube manually might be worthwhile if some
-kind of repeated/iterative gridding process is desired. However, for
-almost all use cases it will be sufficient to repeatedly call the
-grid method. Cygrid won’t clear the memory itself initially, so make
-sure to handle this correctly.</p>
+dictionary (for the spatial part) and the dimensions of the input raw
+data to be gridded (see also <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.grid" title="cygrid.Cygrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>). Providing
+datacube manually might be worthwhile if some kind of repeated/
+iterative gridding process is desired. However, for almost all use
+cases it will be sufficient to repeatedly call the grid method.
+Cygrid won’t clear the memory itself initially, so make sure to
+handle this correctly.</p>
 </dd>
-<dt><strong>weightcube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64, optional (Default: None)</span></dt>
+<dt><strong>weightcube</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64, optional (Default: None)</span></dt>
 <dd><p class="first last">As <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code> but for the weight array.</p>
+</dd>
+<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float32</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">float64</span></code> (Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">float32</span></code>)</span></dt>
+<dd><p class="first last">Desired output format of data cube (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is allocating this;
+otherwise, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">dtype</span></code> of the input datacube provided to the
+constructor takes precedence).</p>
 </dd>
 </dl>
 </td>
@@ -150,7 +155,7 @@ we refer to the user manual or the Jupyter tutorial notebooks:</p>
 <span class="n">kernel_support</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
 <span class="n">hpx_maxres</span> <span class="o">=</span> <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mi">2</span>
 
-<span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">)</span>
 <span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
     <span class="n">kernel_type</span><span class="p">,</span>
     <span class="n">kernel_params</span><span class="p">,</span>
@@ -164,7 +169,7 @@ we refer to the user manual or the Jupyter tutorial notebooks:</p>
 
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -232,14 +237,19 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
-<dd><p class="first last">The gridded spectral data for each of the input positions.</p>
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded spectral data.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
@@ -251,14 +261,20 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
-<dd><p class="first last">The gridded spectral unweighted data for each of the input positions.</p>
+<dt><strong>unweighted_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded spectral unweighted data. The gridded data is
+the quotient of the unweighted data and the weights.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
@@ -270,19 +286,24 @@ and then.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [2D] of float32 or float64</span></dt>
-<dd><p class="first last">The gridded spectral weights for each of the input positions.</p>
+<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt>
+<dd><p class="first last">The gridded spectral weights.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
 <dt id="cygrid.SlGrid.grid">
-<code class="descname">grid</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray lons</em>, <em>ndarray lats</em>, <em>ndarray data</em>, <em>ndarray weights=None</em>, <em>dtype=u'float32'</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.grid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">grid</code><span class="sig-paren">(</span><em>self</em>, <em>ndarray lons</em>, <em>ndarray lats</em>, <em>ndarray data</em>, <em>ndarray weights=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grid irregularly positioned data points (spectra) into the data cube.</p>
 <p>After successful gridding, you can obtain the resulting datacube with
 the <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> method. The associated weight cube
@@ -295,15 +316,15 @@ is accessible with <a class="reference internal" href="cygrid.Cygrid.html#cygrid
 <dt><strong>lons, lats</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt>
 <dd><p class="first last">Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
 </dd>
-<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D or 2D] of float32 or float64</span></dt>
+<dt><strong>data/weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.16)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt>
 <dd><p class="first last">The spectra and their weights (optional) for each of the given
-coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats size. Internally, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always works with a (possibly redundant) spectral axis. Thus, the gridded data returned by
-<a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> is always a 3D array. However,
-to simplify the interface, this method will add a
-spectral dimension for you, if you provide a 1D-array, only.</p>
-</dd>
-<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str [‘float32’ or ‘float64’]</span></dt>
-<dd><p class="first last">Desired output format of data cube. (Default: ‘float32’).</p>
+coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats
+size. The shape of the input data will determine the output
+datacube shape: the first axes of the datacube will match the (
+raw) data (aka input signal) shape - only the first dimension is
+being stripped as it is associated with the number of coordinate
+pairs -, while the last axes match the shape of the target pixel
+array (e.g., the shape of the target map).</p>
 </dd>
 </dl>
 </td>
@@ -320,6 +341,11 @@ Number of spectral channels mismatch.</p>
 </table>
 <p class="rubric">Notes</p>
 <ul class="simple">
+<li>Internally, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always works with a 3D representation of the
+data cube, i.e., with (possibly redundant) spectral axis. However,
+as the original shape is stored, the gridded data returned by
+<a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> will always be consistent with the
+input raw data signal (in terms of dimensions).</li>
 <li>All input parameters need to be C-contiguous (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> will
 re-cast if necessary).</li>
 </ul>
@@ -412,7 +438,7 @@ which is otherwise not possible during runtime from Python.</p>
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
-    Last built 05 Mar 2019. <br/>
+    Last built 06 Mar 2019. <br/>
   </p>
 </footer>
   </body>

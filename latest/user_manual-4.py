@@ -48,7 +48,7 @@ gridder.set_kernel(
     kernelsize_sigma / 2.
     )
 gridder.grid(lons, lats, signal)
-gridded_map = gridder.get_datacube().squeeze()
+gridded_map = gridder.get_datacube()
 
 target_wcs = gridder.get_wcs()
 

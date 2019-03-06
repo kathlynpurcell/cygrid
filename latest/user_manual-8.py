@@ -21,4 +21,4 @@ gridder.grid(
     ebhis_coords_eq.dec.value.flatten(),
     ebhis_data.flatten()
     )
-ebhis_data_regridded = gridder.get_datacube().squeeze()
+ebhis_data_regridded = gridder.get_datacube()

@@ -20,7 +20,7 @@ for ax, (sigma, nsize) in zip(axes.flatten(), [
 
     values = func(points[0], points[1]) + noise
 
-    gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten(), 1)
+    gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten())
     kernelsize_fwhm = 0.05
     kernelsize_sigma = kernelsize_fwhm / 2.355
     sphere_radius = 3. * kernelsize_sigma
@@ -32,7 +32,7 @@ for ax, (sigma, nsize) in zip(axes.flatten(), [
         kernelsize_sigma / 2.
         )
     gridder.grid(points[0], points[1], values)
-    gridded = gridder.get_datacube().squeeze().reshape(grid_x.shape)
+    gridded = gridder.get_datacube().reshape(grid_x.shape)
 
     ax.imshow(gridded, extent=(0,1,0,1), origin='lower', vmin=-0.3, vmax=0.3)
     ax.set_title('nsize: {:d}, sigma: {:.2f}'.format(nsize, sigma))

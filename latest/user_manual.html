@@ -380,7 +380,7 @@ we will simply create a mock data set, with the help of a utility function,
 <p class="last">With the <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.utils.misc.NumpyRNGContext.html#astropy.utils.misc.NumpyRNGContext" title="(in Astropy v3.1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumpyRNGContext</span></code></a> context, it is possible
 to specify the seed for all NumPy random numbers.</p>
 </div>
-<p>The next step is to define a FITS/<a class="reference external" href="http://docs.astropy.org/en/stable/wcs/index.html#module-astropy.wcs" title="(in Astropy v3.1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a> compatible header that
+<p>The next step is to define a FITS/<a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCS</span></code></a> compatible header that
 defines the image into which we want to grid the data:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># define target grid (via FITS header according to WCS convention)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a good pixel size is a third of the FWHM of the PSF (avoids aliasing)</span>
@@ -417,12 +417,13 @@ the Class that has to be used for this kind of image gridding:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sphere_radius</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kernel_args</span> <span class="o">=</span> <span class="p">(</span>
 <span class="gp">... </span>    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
 <span class="gp">... </span>    <span class="n">sphere_radius</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
 <span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">*</span><span class="n">kernel_args</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Finally, we call the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> method, into which the raw data
@@ -433,41 +434,28 @@ is fed:</p>
 <p>The result can be queried using the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.get_datacube" title="cygrid.WcsGrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> method:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_data</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="p">)</span>  
-<span class="go">[[[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]</span>
-<span class="go">  [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]</span>
-<span class="go">  [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]</span>
-<span class="go">  ...,</span>
-<span class="go">  [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]</span>
-<span class="go">  [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]</span>
-<span class="go">  [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]]</span>
-</pre></div>
-</div>
-<p>There is one subtle detail that is important - <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid" title="cygrid.WcsGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WcsGrid</span></code></a> will always
-return a data cube, even if one used a 2D FITS header in the constructor, but
-the third axis (the spectral axis) has length-1 and is thus redundant in this
-case. We can get rid of it:</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="go">(1, 150, 150)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_map</span> <span class="o">=</span> <span class="n">gridded_data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_map</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">[[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]</span>
+<span class="go"> [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]</span>
+<span class="go"> [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]</span>
+<span class="go"> ...,</span>
+<span class="go"> [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]</span>
+<span class="go"> [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]</span>
+<span class="go"> [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridded_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="go">(150, 150)</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">We follow the standard convention, that the data cube axes are ordered
-as: <code class="xref py py-obj docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code>.</p>
+as: <code class="xref py py-obj docutils literal notranslate"><span class="pre">(z,</span> <span class="pre">y,</span> <span class="pre">x)</span></code> (for 3D) or <code class="xref py py-obj docutils literal notranslate"><span class="pre">(y,</span> <span class="pre">x)</span></code> (for 2D), etc.</p>
 </div>
 <p>For many use cases, you will want to save your image to FITS:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fits</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="s1">&#39;example.fits&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">target_header</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gridded_data</span><span class="p">)</span>  
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you only want to store a 2D image, you’ll need to strip the third
-dimension from your FITS header (if present).</p>
 </div>
 <p>We can also plot the result, using the <a class="reference external" href="http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html#module-astropy.visualization.wcsaxes" title="(in Astropy v3.1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcsaxes</span></code></a>
 package (for convenience, we provide the full script):</p>
@@ -521,7 +509,7 @@ package (for convenience, we provide the full script):</p>
     <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
     <span class="p">)</span>
 <span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
-<span class="n">gridded_map</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">gridded_map</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 
 <span class="n">target_wcs</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_wcs</span><span class="p">()</span>
 
@@ -554,20 +542,14 @@ additional interpolation of the result by <a class="reference external" href="ht
 reason, why internally, everything is treated as if a spectral axis was
 present. As shown in the simple example above, the user interface
 works for pure 2D maps in the same way, but under the hood <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code>
-adds a redundant spectral axis of length One.</p>
-<p>To handle spectral data, one has to provide an appropriate FITS
-header, which contains an <code class="xref py py-obj docutils literal notranslate"><span class="pre">NAXIS3</span></code> entry:</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">target_header_3d</span> <span class="o">=</span> <span class="n">target_header</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_header_3d</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_header_3d</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">target_header_3d</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,),</span>
-<span class="gp">... </span>    <span class="n">sphere_radius</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mf">2.</span>
-<span class="gp">... </span>    <span class="p">)</span>
+adds a redundant spectral axis of length One. In fact, if the data to be
+gridded has even more dimensions, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> will internally reshape the
+work arrays to 3D and after the gridding has finished restore the desired
+higher-dimensional shape, to make it easy for the user.</p>
+<p>To handle spectral data, one can still use a 2D FITS image header, or any
+FITS header, as long as it contains an appropriate spatial description of the target map/cube.:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">target_header</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">*</span><span class="n">kernel_args</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We can test this, by concatenating the signal and negative copy of it:</p>
@@ -576,8 +558,23 @@ header, which contains an <code class="xref py py-obj docutils literal notransla
 <span class="go">(2, 150, 150)</span>
 </pre></div>
 </div>
-<p>In the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsGrid.grid" title="cygrid.WcsGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a> method, the signal array needs to have the
-spectral dimension along the second axis.</p>
+<p>Likewise, any other dimension is possible, as long as the first axis is
+compatible with the length of the coordinate arrays:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">WcsGrid</span><span class="p">(</span><span class="n">target_header</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="o">*</span><span class="n">kernel_args</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">signal_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">signal</span> <span class="o">**</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal_3d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(3, 2, 150, 150)</span>
+</pre></div>
+</div>
+<p>As can be seen, the datacube shape is constructed from the shape of the
+input raw data (signal) and the target map size in the following manner:
+the first axes are defined by the shape of the input signal (excluding the
+first dimension), while the last axes are given by the target pixel array (
+i.e. map) shape.</p>
 </div>
 <div class="section" id="how-does-cygrid-compare-to-re-projection">
 <span id="reprojection-label"></span><h3>How does cygrid compare to re-projection?<a class="headerlink" href="#how-does-cygrid-compare-to-re-projection" title="Permalink to this headline">¶</a></h3>
@@ -692,7 +689,7 @@ into the <a class="reference internal" href="api/cygrid.WcsGrid.html#cygrid.WcsG
     <span class="n">ebhis_coords_eq</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
     <span class="n">ebhis_data</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
     <span class="p">)</span>
-<span class="n">ebhis_data_regridded</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">ebhis_data_regridded</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//user_manual-8.py">Source code</a>)</p>
@@ -772,7 +769,7 @@ pairs to the constructor:</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_sightlines</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gridded_sightlines</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s1">&#39;lon  lat  sightline-value</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1031,7 +1028,7 @@ density of 100 thousand samples per square degrees was maintained:</p>
   <p>
     &copy; Copyright 2019, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
     Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4. &nbsp;
-    Last built 05 Mar 2019. <br/>
+    Last built 06 Mar 2019. <br/>
   </p>
 </footer>
   </body>
