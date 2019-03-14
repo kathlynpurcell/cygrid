@@ -80,8 +80,9 @@ Otherwise, you should install cygrid via `pip`::
 
     pip install cygrid
 
-The installation is also possible from source, but you'll need a C++ compiler. Download the tar.gz-file, extract
-(or clone from GitHub) and execute::
+The installation is also possible from source, but you'll need a C++
+compiler. Download the tar.gz-file, extract (or clone from GitHub) and
+execute::
 
     python setup.py install
 
@@ -92,9 +93,9 @@ We kept the dependencies as minimal as possible. The following packages are
 required:
 
 - `Python 3.5` or later (`cygrid` versions prior to v1.0 support `Python 2.7`)
-- `numpy 1.10` or later
-- `cython 0.23.4` or later
-- `astropy 1.0` or later
+- `numpy 1.11` or later
+- `cython 0.23.4` or later (if you want to build `cygrid` yourself)
+- `astropy 2.0.11` or later
 
 (Older versions of these libraries may work, but we didn't test this!)
 
@@ -109,7 +110,8 @@ replace `-std=c++11` with `-std=c++0x` in `setup.py`. Thanks to bs538 for
 pointing this out.)
 
 For Mac OS, it is required to use gcc-6 in order to install cygrid. We
-recommend to simply use the `homebrew <http://brew.sh>`_ package manager and then use `brew install gcc`.
+recommend to simply use the `homebrew <http://brew.sh>`_ package manager and
+then use `brew install gcc`.
 
 Usage
 =====
@@ -178,7 +180,8 @@ Check out the `user manual <https://bwinkel.github.io/cygrid/latest/>`_ or the
 `Jupyter tutorial notebooks <https://github.com/bwinkel/cygrid/tree/master/notebooks>`_
 in the repository for further examples of how to use `cygrid`. Note that you
 can only view the notebooks on GitHub, if you want to edit something
-it is necessary to clone the repository or download a notebook to run it on your machine.
+it is necessary to clone the repository or download a notebook to run it on
+your machine.
 
 Who do I talk to?
 =================
@@ -193,7 +196,8 @@ issue or make a pull request. Moreover, you can contact the devs directly:
 Preferred citation method
 =========================
 
-Please cite our `paper <http://adsabs.harvard.edu/abs/2016A%26A...591A..12W>`_ if you use `cygrid` for your projects.
+Please cite our `paper <http://adsabs.harvard.edu/abs/2016A%26A...591A..12W>`_
+if you use `cygrid` for your projects.
 
 .. code-block:: latex
 

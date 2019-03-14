@@ -1,5 +1,16 @@
-1.0.2 (unreleased)
+2.0 (unreleased)
 =======================
+
+- Major overhaul of the handling of array shapes. No need to manually
+  fiddle with FITS headers (`NAXIS3` key) anymore. `cygrid` will now do
+  everything automatically behind the curtain. [#12]
+
+1.0.2 (unreleased, bugfix release)
+==================================
+
+Bugfixes
+~~~~~~~~~~
+
 
 1.0.1 (2019-01-19)
 =======================

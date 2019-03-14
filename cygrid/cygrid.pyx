@@ -47,6 +47,7 @@ from __future__ import unicode_literals
 # import std lib
 import sys
 import traceback
+import warnings
 
 # import cython specifics
 cimport cython
@@ -89,7 +90,7 @@ FLOAT32 = np.dtype(np.float32)
 FLOAT64 = np.dtype(np.float64)
 
 
-__all__ = ['Cygrid', 'WcsGrid', 'SlGrid']
+__all__ = ['Cygrid', 'WcsGrid', 'SlGrid', 'ShapeError']
 
 
 from .kernels cimport (
@@ -105,15 +106,22 @@ from .constants cimport DEG2RAD, RAD2DEG
 from .constants cimport PI, TWOTHIRD, TWOPI, HALFPI, INV_TWOPI, INV_HALFPI
 
 
-# Define maximal y-size of pixel indices
-#  this is necessary to have a quick'n'dirty hash for the xpix-ypix pairs
-#  otherwise we would need to provide a hash function to unordered_map,
-DEF MAX_Y = 2**30
-
 # define function pointers (1D and 2D), to allow user-chosen kernels
 # double distance, double bearing, double[::1] kernel_params)
 # (use bearing=NULL for 1D kernels)
+
 ctypedef double (*kernel_func_ptr_t)(double, double, double[::1]) nogil
+
+# we define two different floating types (a la cython.floating) to allow
+# calling the grid method with mixed types (e.g., float32 + float64) for
+# input data arrays and output data cubes
+
+ctypedef fused input_floating:
+    cython.float
+    cython.double
+ctypedef fused output_floating:
+    cython.float
+    cython.double
 
 
 # define some helper functions
@@ -170,6 +178,7 @@ cdef class Cygrid(object):
     cdef:
         # datacube and weights objects, any or all dimensions can have length 1
         np.ndarray datacube, weightscube
+        np.dtype dtype
 
         # pixel/world coords (2D) of internal datacube spatial dims
         # if astropy is used, the coords may contain NaNs
@@ -179,8 +188,9 @@ cdef class Cygrid(object):
         np.ndarray xpix, ypix, xwcs, ywcs
         # flat version (1D) of above, must not contain NaNs!
         np.ndarray xpix_f, ypix_f, xwcs_f, ywcs_f
-        # shapes, to allow sanity checks
-        tuple zyx_shape, yx_shape
+        # shapes, to allow sanity checks and to make internal reshaping
+        # possible
+        tuple yx_shape, yx_shape_internal, cube_shape, cube_shape_f
 
         uint64_t nside
         double disc_size
@@ -195,13 +205,17 @@ cdef class Cygrid(object):
         HpxHashTable my_hpx_hashtab
         bint dbg_messages
 
+        bint cubes_prepared
+
     def __init__(self, *args, **kwargs):
         # Constructor will initalize necessary cube/weights arrays, setup cube
         # and wcs representation
 
-        self.dbg_messages = <bint> False
-        if 'dbg_messages' in kwargs:
-            self.dbg_messages = kwargs['dbg_messages']
+        self.datacube = kwargs.get('datacube', None)
+        self.weightscube = kwargs.get('weightcube', None)
+        self.dtype = np.dtype(kwargs.get('dtype', np.float32))
+
+        self.dbg_messages = <bint> kwargs.get('dbg_messages', False)
 
         self.my_hpx_hashtab = HpxHashTable(dbg_messages=self.dbg_messages)
 
@@ -209,8 +223,9 @@ cdef class Cygrid(object):
         self.last_hpxmaxres = -1.
         # self.bearing_needed = <bint> False
         self.kernel_set = <bint> False
+        self.cubes_prepared = <bint> False
 
-        self._prepare(*args, **kwargs)
+        self._prepare_spatial_coords(*args, **kwargs)
 
     def set_num_threads(self, int nthreads):
         '''
@@ -222,9 +237,9 @@ cdef class Cygrid(object):
 
         openmp.omp_set_num_threads(nthreads)
 
-    def _prepare(self, *args, **kwargs):
+    def _prepare_spatial_coords(self, *args, **kwargs):
         '''
-        Preparation function, called by derived Classes.
+        Preparation function for spatial coords, called by derived Classes.
 
         Needs to fill/prepare the following class members:
 
@@ -232,12 +247,83 @@ cdef class Cygrid(object):
         np.ndarray xpix, ypix, xwcs, ywcs
         # flat version (1D) of above, must not contain NaNs!
         np.ndarray xpix_f, ypix_f, xwcs_f, ywcs_f
-        # shapes, to allow sanity checks
-        tuple zyx_shape, yx_shape
+        # shapes, to handle the data/weights-cube reshaping
+        tuple yx_shape, yx_shape_internal
 
         '''
 
         raise NotImplementedError('This is the base class. Use child classes!')
+
+    def _prepare_cubes(self):
+        '''
+        Preparation function to instantiate datacube and weightcube.
+
+        This is run at the first call of the `grid` method to automatically
+        handle dimensionality of the input data. Note that despite the actual
+        dimensions of the data/weight cubes, for internal use in the `_grid`
+        method, everything is casted to 3D.
+        '''
+
+        if self.datacube is None:
+
+            self.datacube = np.zeros(self.cube_shape, dtype=self.dtype)
+
+        else:
+
+            if not isinstance(self.datacube, np.ndarray):
+                raise TypeError('Input datacube must be numpy array.')
+
+            if not self.datacube.flags.c_contiguous:
+                raise TypeError('Input datacube must be C-contiguous.')
+
+            if (<object> self.datacube).shape != self.cube_shape:
+                raise ShapeError(
+                    "Datacube shape doesn't match expectation. "
+                    "(The data cube, which was provided to the constructor "
+                    "has shape {}, while "
+                    "based on the grid-method call, cygrid would "
+                    "expect {}".format(
+                        (<object> self.datacube).shape, self.cube_shape
+                        ))
+
+            if (<object> self.datacube).dtype not in [
+                    np.float32, np.float64
+                    ]:
+                raise TypeError(
+                    'Input datacube must have floating point type.'
+                    )
+
+            if (<object> self.datacube).dtype != self.dtype:
+                warnings.warn(
+                    "The datacube that was provided in the constructor ({0}) "
+                    "has a different dtype than what was provided with the "
+                    "'dtype' option ({1}). Will use datacube "
+                    "dtype ({0})...".format(
+                        (<object> self.datacube).dtype, self.dtype
+                        ), UserWarning)
+                self.dtype = (<object> self.datacube).dtype
+
+        if self.weightscube is None:
+
+            self.weightscube = np.zeros(self.cube_shape, dtype=self.dtype)
+
+        else:
+
+            if not isinstance(self.weightscube, np.ndarray):
+                raise TypeError('Input weightcube must be numpy array.')
+
+            if not self.weightcube.flags.c_contiguous:
+                raise TypeError('Input weightcube must be C-contiguous.')
+
+            if (<object> self.datacube).shape != (<object> self.weightscube).shape:
+                raise ShapeError(
+                    "Weightcube shape doesn't match datacube shape."
+                    )
+
+            if (<object> self.datacube).dtype != (<object> self.weightscube).dtype:
+                raise TypeError(
+                    "Weightcube dtype doesn't match datacube dtype."
+                    )
 
     def clear_cache(self):
         '''
@@ -412,7 +498,6 @@ cdef class Cygrid(object):
             self,
             np.ndarray lons, np.ndarray lats,
             np.ndarray data, np.ndarray weights=None,
-            dtype='float32',
             ):
         '''
         Grid irregularly positioned data points (spectra) into the data cube.
@@ -425,11 +510,15 @@ cdef class Cygrid(object):
         ----------
         lons, lats : `~numpy.array` [1D] of float64
             Flat lists/arrays of input coordinates :math:`(l, b)`.
-        data/weights : `~numpy.array` [2D] of float32 or float64
+        data/weights : `~numpy.array` [nD] of float32 or float64
             The spectra and their weights (optional) for each of the given
-            coordinate pairs, :math:`(l, b)`. First axis must match lons/lats size. Second axis is the spectral dimension. Use One for second dimension if you don't have spectra, but just values.
-        dtype : str ['float32' or 'float64']
-            Desired output format of data cube. (Default: 'float32').
+            coordinate pairs, :math:`(l, b)`. First axis must match lons/lats
+            size. The shape of the input data will determine the output
+            datacube shape: the first axes of the datacube will match the (
+            raw) data (aka input signal) shape - only the first dimension is
+            being stripped as it is associated with the number of coordinate
+            pairs -, while the last axes match the shape of the target pixel
+            array (e.g., the shape of the target map).
 
         Raises
         ------
@@ -439,14 +528,14 @@ cdef class Cygrid(object):
 
         Notes
         -----
-        - All input parameters need to be C-contiguous.
-          (Use `~numpy.ascontiguousarray` to recast, if necessary.)
-        - It is possible to produce maps instead of datacubes by using
-          spectra of length One.
+        - Internally, `~cygrid` always works with a 3D representation of the
+          data cube, i.e., with (possibly redundant) spectral axis. However,
+          as the original shape is stored, the gridded data returned by
+          `~cygrid.Cygrid.get_datacube` will always be consistent with the
+          input raw data signal (in terms of dimensions).
+        - All input parameters need to be C-contiguous (`~cygrid` will
+          re-cast if necessary).
         '''
-
-        if weights is None:
-            weights = np.ones_like(data)
 
         if not self.kernel_set:
             raise RuntimeError('No kernel has been set, use set_kernel method')
@@ -454,55 +543,77 @@ cdef class Cygrid(object):
         if lons.ndim != 1 or lats.ndim != 1:
             raise ShapeError('Input coordinates must be 1D objects.')
 
-        if data.ndim != 2 or weights.ndim != 2:
-            raise ShapeError('Input data/weights must be 2D objects.')
+        lons = np.require(lons, dtype=FLOAT64, requirements='C')
+        lats = np.require(lats, dtype=FLOAT64, requirements='C')
 
-        if not (
-                len(lons) == len(lats) == len(data) == len(weights)
-                ):
-            raise ShapeError('Input coordinates/data points length mismatch.')
+        if lons.size != lats.size:
+            raise ShapeError('Input coordinates (lon, lat) size mismatch.')
 
-        if not (
-                len(data[0]) == len(weights[0]) == self.zyx_shape[0]
-                ):
-            raise ShapeError('Number of spectral channels mismatch.')
+        dshape = (<object> data).shape
 
-        if dtype == 'float32':
+        if not self.cubes_prepared:
+            # define cube shapes based on input data size (and spatial map
+            # size)
+            self.cube_shape = dshape[1:] + self.yx_shape
+            # also keep a 3D version, to re-shape appropriatly before gridding
+            self.cube_shape_f = (-1, ) + self.yx_shape_internal
 
-            if self.dbg_messages:
-                print('User requested single precision.')
+            self._prepare_cubes()
+            self.cubes_prepared = <bint> True
 
-            self.datacube = self.datacube.astype(FLOAT32, copy=False)
-            self.weightscube = self.weightscube.astype(FLOAT32, copy=False)
-            data = data.astype(FLOAT32, copy=False)
-            weights = weights.astype(FLOAT32, copy=False)
+        if self.cube_shape != dshape[1:] + self.yx_shape:
+            raise ShapeError(
+                'Data shape mismatch. Expected: {} Got: {}'.format(
+                    (lons.size, ) + self.cube_shape[0:len(self.cube_shape)-2],
+                    dshape
+                    ))
 
-        elif dtype == 'float64':
+        if weights is None:
+            weights = np.ones_like(data)
 
-            if self.dbg_messages:
-                print('User requested double precision.')
+        if (<object> data).shape != (<object> weights).shape:
+            raise ShapeError(
+                "Data and weights arrays must have same shape. "
+                "(got: {} and {})".format(
+                    (<object> data).shape, (<object> weights).shape
+                    ))
 
-            self.datacube = self.datacube.astype(FLOAT64, copy=False)
-            self.weightscube = self.weightscube.astype(FLOAT64, copy=False)
-            data = data.astype(FLOAT64, copy=False)
-            weights = weights.astype(FLOAT64, copy=False)
+        # print(dshape, self.cube_shape, self.cube_shape_f)
 
-        else:
-            raise TypeError("dtype must be one of 'float32' or 'float64'")
+        # make input arrays 2D
+        data_2d = data.reshape((dshape[0], -1))
+        weights_2d = weights.reshape((dshape[0], -1))
 
-        lons = lons.astype(FLOAT64, copy=False)
-        lats = lats.astype(FLOAT64, copy=False)
+        # make output arrays 3D
+        dcube_3d = self.datacube.reshape(self.cube_shape_f)
+        wcube_3d = self.weightscube.reshape(self.cube_shape_f)
 
-        self._grid(lons, lats, data, weights)
+        data_2d = np.require(data_2d, requirements='C')
+        weights_2d = np.require(weights_2d, requirements='C')
+
+        if not data_2d.dtype.isnative:
+            warnings.warn(
+                "Input data byteorder not native, will fix", UserWarning
+                )
+            data_2d = data_2d.byteswap().newbyteorder()
+
+        if not weights_2d.dtype.isnative:
+            warnings.warn(
+                "Input data byteorder not native, will fix", UserWarning
+                )
+            weights_2d = weights_2d.byteswap().newbyteorder()
+
+        self._grid(lons, lats, data_2d, weights_2d, dcube_3d, wcube_3d)
 
     def _grid(
             self,
             double[::1] lons not None,
             double[::1] lats not None,
-            cython.floating[:, :] data not None,
-            cython.floating[:, :] weights not None,
+            input_floating[:, ::1] data not None,
+            input_floating[:, ::1] weights not None,
+            output_floating[:, :, ::1] datacube not None,
+            output_floating[:, :, ::1] weightscube not None,
             ):
-
 
         cdef:
             int64_t i  # Windows open-mp only works with signed loop vars
@@ -511,10 +622,8 @@ cdef class Cygrid(object):
             uint64_t numchans = len(data[0])
 
             # create (local) views of the ndarrays for faster access
-            cython.floating[:, :, :] datacubeview = self.datacube
-            cython.floating[:, :, :] weightscubeview = self.weightscube
-            double[:, :] ywcsview = self.ywcs
-            double[:, :] xwcsview = self.xwcs
+            double[:, ::1] xwcsview = self.xwcs
+            double[:, ::1] ywcsview = self.ywcs
 
             # lookup-tables
             # this is necessary to massively parallelize the grid routine
@@ -586,8 +695,8 @@ cdef class Cygrid(object):
                         )
                     for z in range(numchans):
                         tweight = weights[in_idx, z] * sweight
-                        datacubeview[z, y, x] += data[in_idx, z] * tweight
-                        weightscubeview[z, y, x] += tweight
+                        datacube[z, y, x] += data[in_idx, z] * tweight
+                        weightscube[z, y, x] += tweight
 
         if self.dbg_messages:
             print('# of target pixels used: {}'.format(outlen))
@@ -612,10 +721,15 @@ cdef class Cygrid(object):
 
         Returns
         -------
-        data : `~numpy.array` [2D or 3D] of float32 or float64
+        data : `~numpy.array` [nD] of float32 or float64
             The gridded spectral data.
+
+        Notes
+        -----
+        - The actual shape of the returned array depends on the input raw
+          data signal shape and the target pixel array size.
         '''
-        return self.datacube / self.weightscube
+        return (self.datacube / self.weightscube).reshape(self.cube_shape)
 
     def get_weights(self):
         '''
@@ -623,10 +737,15 @@ cdef class Cygrid(object):
 
         Returns
         -------
-        weights : `~numpy.array` [2D or 3D] of float32 or float64
+        weights : `~numpy.array` [nD] of float32 or float64
             The gridded spectral weights.
+
+        Notes
+        -----
+        - The actual shape of the returned array depends on the input raw
+          data signal shape and the target pixel array size.
         '''
-        return self.weightscube
+        return self.weightscube.reshape(self.cube_shape)
 
     def get_unweighted_datacube(self):
         '''
@@ -634,10 +753,16 @@ cdef class Cygrid(object):
 
         Returns
         -------
-        unweighted_data : `~numpy.array` [2D or 3D] of float32 or float64
-            The gridded spectral unweighted data.
+        unweighted_data : `~numpy.array` [nD] of float32 or float64
+            The gridded spectral unweighted data. The gridded data is
+            the quotient of the unweighted data and the weights.
+
+        Notes
+        -----
+        - The actual shape of the returned array depends on the input raw
+          data signal shape and the target pixel array size.
         '''
-        return self.datacube
+        return self.datacube.reshape(self.cube_shape)
 
 
 cdef class WcsGrid(Cygrid):
@@ -651,18 +776,24 @@ cdef class WcsGrid(Cygrid):
         a three-dimensional data cube (spatial-spatial-frequency).
     dbg_messages : Boolean, optional (Default: False)
         Do debugging output.
-    datacube : `~numpy.array` [3D] of float32 or float64, optional (Default: None)
+    datacube : `~numpy.array` [nD] of float32 or float64, optional (Default: None)
         Provide pre-allocated or even pre-filled `~numpy.array` for datacube.
 
         Usually (if `datacube=None`, the default) a datacube object will
         be created automatically according to the given FITS header
-        dictionary. Providing datacube manually might be worthwhile if some
-        kind of repeated/iterative gridding process is desired. However, for
-        almost all use cases it will be sufficient to repeatedly call the
-        grid method. Cygrid won't clear the memory itself initially, so make
-        sure to handle this correctly.
-    weightcube : `~numpy.array` [3D] of float32 or float64, optional (Default: None)
+        dictionary (for the spatial part) and the dimensions of the input raw
+        data to be gridded (see also `~cygrid.Cygrid.grid`). Providing
+        datacube manually might be worthwhile if some kind of repeated/
+        iterative gridding process is desired. However, for almost all use
+        cases it will be sufficient to repeatedly call the grid method.
+        Cygrid won't clear the memory itself initially, so make sure to
+        handle this correctly.
+    weightcube : `~numpy.array` [nD] of float32 or float64, optional (Default: None)
         As `datacube` but for the weight array.
+    dtype : `~numpy.float32` or `~numpy.float64` (Default: `~numpy.float32`)
+        Desired output format of data cube (if `cygrid` is allocating this;
+        otherwise, the `dtype` of the input datacube provided to the
+        constructor takes precedence).
 
     Raises
     ------
@@ -726,11 +857,11 @@ cdef class WcsGrid(Cygrid):
         object wcs
         np.ndarray coordmask_f
 
-    def _prepare(self, header, **kwargs):
+    def _prepare_spatial_coords(self, header, **kwargs):
 
         self.header = header
-        self.zyx_shape = (header['NAXIS3'], header['NAXIS2'], header['NAXIS1'])
-        self.yx_shape = self.zyx_shape[1:3]
+        self.yx_shape = header['NAXIS2'], header['NAXIS1']
+        self.yx_shape_internal = self.yx_shape
 
         # Use astropy's wcs module to convert pixel <--> world coords
         #  need celestial part of coordinates only
@@ -739,44 +870,6 @@ cdef class WcsGrid(Cygrid):
         except TypeError:
             # some astropy versions have a bug
             self.wcs = wcs.WCS(self.header).sub(axes=[1, 2])
-
-        if 'datacube' in kwargs:
-            self.datacube = kwargs['datacube']
-            if not isinstance(self.datacube, np.ndarray):
-                raise TypeError('Input datacube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.zyx_shape[0] and
-                    self.datacube.shape[1] == self.zyx_shape[1] and
-                    self.datacube.shape[2] == self.zyx_shape[2]
-                    ):
-                raise ShapeError("Datacube shape doesn't match fits header.")
-            if self.datacube.dtype not in [
-                    np.float32, np.float64
-                    ]:
-                raise TypeError(
-                    'Input datacube must have floating point type.'
-                    )
-        else:
-            self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
-
-        if 'weightcube' in kwargs:
-            self.weightscube = kwargs['weightcube']
-            if not isinstance(self.weightscube, np.ndarray):
-                raise TypeError('Input weightcube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.weightscube.shape[0] and
-                    self.datacube.shape[1] == self.weightscube.shape[1] and
-                    self.datacube.shape[2] == self.weightscube.shape[2]
-                    ):
-                raise ShapeError(
-                    "Weightcube shape doesn't match datacube shape."
-                    )
-            if self.datacube.dtype != self.weightscube.dtype:
-                raise TypeError(
-                    "Weightcube dtype doesn't match datacube dtype."
-                    )
-        else:
-            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
 
         self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
 
@@ -853,70 +946,42 @@ cdef class WcsGrid(Cygrid):
         '''
         return self.header
 
-    def get_datacube(self):
-        '''
-        Return final data cube.
-
-        Returns
-        -------
-        data : `~numpy.array` [3D] of float32 or float64
-            The gridded data cube as defined by WCS header.
-        '''
-        return self.datacube / self.weightscube
-
-    def get_weights(self):
-        '''
-        Return final weights.
-
-        Returns
-        -------
-        weights : `~numpy.array` [3D] of float32 or float64
-            The gridded weights cube as defined by WCS header.
-        '''
-        return self.weightscube
-
-    def get_unweighted_datacube(self):
-        '''
-        Return final unweighted data. (For debugging only.)
-
-        Returns
-        -------
-        unweighted_data : `~numpy.array` [3D] of float32 or float64
-            The gridded unweighted data cube as defined by WCS header.
-        '''
-        return self.datacube
-
 
 cdef class SlGrid(Cygrid):
     '''
     Sight line version of `~cygrid.Cygrid`.
 
-    The sight line gridder can be used to resample input data to any collection
-    of output coordinates. For example, one could grid to the (list of)
-    HEALPix grid pixel coordinates, or just extract spectra from a large 3D
-    survey on selected positions (not necessarily aligned with the pixels).
+    The sight line gridder can be used to resample input data to any
+    collection of output coordinates. For example, one could grid to the (
+    list of) HEALPix grid pixel coordinates, or just extract spectra from a
+    large 3D survey on selected positions (not necessarily aligned with the
+    pixels).
 
     Parameters
     ----------
     sl_lons, sl_lats : numpy.ndarray (float64), 1D
         Coordinates of sight lines to grid onto.
-    naxes3 : int
-        Length of spectral axis.
     dbg_messages : Boolean, optional (Default: False)
         Do debugging output.
-    datacube : `~numpy.array` [2D] of float32 or float64, optional (Default: None)
+    datacube : `~numpy.array` [nD] of float32 or float64, optional (Default: None)
         Provide pre-allocated or even pre-filled `~numpy.array` for datacube.
 
         Usually (if `datacube=None`, the default) a datacube object will
         be created automatically according to the given FITS header
-        dictionary. Providing datacube manually might be worthwhile if some
-        kind of repeated/iterative gridding process is desired. However, for
-        almost all use cases it will be sufficient to repeatedly call the
-        grid method. Cygrid won't clear the memory itself initially, so make
-        sure to handle this correctly.
+        dictionary (for the spatial part) and the dimensions of the input raw
+        data to be gridded (see also `~cygrid.Cygrid.grid`). Providing
+        datacube manually might be worthwhile if some kind of repeated/
+        iterative gridding process is desired. However, for almost all use
+        cases it will be sufficient to repeatedly call the grid method.
+        Cygrid won't clear the memory itself initially, so make sure to
+        handle this correctly.
 
-    weightcube : `~numpy.array` [2D] of float32 or float64, optional (Default: None)
+    weightcube : `~numpy.array` [nD] of float32 or float64, optional (Default: None)
         As `datacube` but for the weight array.
+    dtype : `~numpy.float32` or `~numpy.float64` (Default: `~numpy.float32`)
+        Desired output format of data cube (if `cygrid` is allocating this;
+        otherwise, the `dtype` of the input datacube provided to the
+        constructor takes precedence).
 
     Raises
     ------
@@ -948,7 +1013,7 @@ cdef class SlGrid(Cygrid):
         kernel_support = 3 * kernelsize_sigma
         hpx_maxres = kernelsize_sigma / 2
 
-        mygridder = cygrid.SlGrid(target_lon, target_lat, 1)
+        mygridder = cygrid.SlGrid(target_lon, target_lat)
         mygridder.set_kernel(
             kernel_type,
             kernel_params,
@@ -962,106 +1027,31 @@ cdef class SlGrid(Cygrid):
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        ax.scatter(target_lon, target_lat, c=target_signal[:, 0])
+        ax.scatter(target_lon, target_lat, c=target_signal)
         plt.show()
 
     '''
 
     cdef:
-        object header
         object wcs
         np.ndarray coordmask_f
 
-    def _prepare(
+    def _prepare_spatial_coords(
             self,
             np.ndarray[double, ndim=1] sl_lons,
             np.ndarray[double, ndim=1] sl_lats,
-            long naxes3,
             **kwargs
             ):
 
-        self.zyx_shape = (naxes3, 1, len(sl_lons))
-        self.yx_shape = self.zyx_shape[1:3]
+        yx_shape = self.yx_shape_internal = (len(sl_lons), 1)
+        self.yx_shape = (len(sl_lons), )
 
-        if 'datacube' in kwargs:
-            self.datacube = kwargs['datacube']
-            if not isinstance(self.datacube, np.ndarray):
-                raise TypeError('Input datacube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.zyx_shape[0] and
-                    self.datacube.shape[1] == self.zyx_shape[1] and
-                    self.datacube.shape[2] == self.zyx_shape[2]
-                    ):
-                raise ShapeError(
-                    "Datacube shape doesn't match sight line dimensions."
-                    )
-            if self.datacube.dtype not in [
-                    np.float32, np.float64
-                    ]:
-                raise TypeError(
-                    'Input datacube must have floating point type.'
-                    )
-        else:
-            self.datacube = np.zeros(self.zyx_shape, dtype=np.float32)
-
-        if 'weightcube' in kwargs:
-            self.weightscube = kwargs['weightcube']
-            if not isinstance(self.weightscube, np.ndarray):
-                raise TypeError('Input weightcube must be numpy array.')
-            if not (
-                    self.datacube.shape[0] == self.weightscube.shape[0] and
-                    self.datacube.shape[1] == self.weightscube.shape[1] and
-                    self.datacube.shape[2] == self.weightscube.shape[2]
-                    ):
-                raise ShapeError(
-                    "Weightcube shape doesn't match sight line dimensions."
-                    )
-            if self.datacube.dtype != self.weightscube.dtype:
-                raise TypeError(
-                    "Weightcube dtype doesn't match datacube dtype."
-                    )
-        else:
-            self.weightscube = np.zeros(self.zyx_shape, dtype=np.float32)
-
-        self.ypix, self.xpix = np.indices(self.yx_shape, dtype=UINT64)
+        self.ypix, self.xpix = np.indices(yx_shape, dtype=UINT64)
         self.xwcs_f, self.ywcs_f = sl_lons, sl_lats
         self.xwcs, self.ywcs = (
-            self.xwcs_f.reshape(self.yx_shape),
-            self.ywcs_f.reshape(self.yx_shape)
+            self.xwcs_f.reshape(yx_shape),
+            self.ywcs_f.reshape(yx_shape)
             )
 
         # keep flat versions for later use
         self.ypix_f, self.xpix_f = self.ypix.flatten(), self.xpix.flatten()
-
-    def get_datacube(self):
-        '''
-        Return final data.
-
-        Returns
-        -------
-        data : `~numpy.array` [2D] of float32 or float64
-            The gridded spectral data for each of the input positions.
-        '''
-        return self.datacube / self.weightscube
-
-    def get_weights(self):
-        '''
-        Return final weights.
-
-        Returns
-        -------
-        weights : `~numpy.array` [2D] of float32 or float64
-            The gridded spectral weights for each of the input positions.
-        '''
-        return self.weightscube
-
-    def get_unweighted_datacube(self):
-        '''
-        Return final unweighted data. (For debugging only.)
-
-        Returns
-        -------
-        unweighted_data : `~numpy.array` [2D] of float32 or float64
-            The gridded spectral unweighted data for each of the input positions.
-        '''
-        return self.datacube
