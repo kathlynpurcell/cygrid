@@ -240,7 +240,7 @@ jobs:
 
   - task: DownloadSecureFile@1
     inputs:
-      secureFile: ghpages_deploykey_azure
+      secureFile: deploy_ghpages_cygrid
     displayName: 'Get the deploy key'
     # condition: and(succeeded(), eq(variables['publish.docs'], true))
     condition: and(succeeded(), eq(variables['publish.docs'], true))
@@ -261,7 +261,7 @@ jobs:
       # mkdir -p ./$DOCS_TARGET
       # for some strange reason, the new package versions (astropy?) create
       # the _build/html in docs/docs and not in docs/
-      rsync -av ../docs/docs/_build/html/ ${DOCS_TARGET}/
+      rsync -av ../docs/_build/html/ ${DOCS_TARGET}/
       docs_version=$(python -c "import cygrid; print(cygrid.__version__)")
       git add -A && git commit -m "Update docs for $docs_version ***NO_CI***"
       bash ../retry.sh git push github
