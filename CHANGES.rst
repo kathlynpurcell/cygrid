@@ -1,15 +1,15 @@
-2.0 (unreleased)
+2.0.0 (2020-10-17)
 =======================
 
 - Major overhaul of the handling of array shapes. No need to manually
   fiddle with FITS headers (`NAXIS3` key) anymore. `cygrid` will now do
   everything automatically behind the curtain. [#12]
 
-1.0.2 (unreleased, bugfix release)
-==================================
-
 Bugfixes
 ~~~~~~~~~~
+
+- Fix byteorder of input data/weights if not native. (Apparently,
+  astroquery.skyview can deliver non-native byteorders.) [#8dfc]
 
 
 1.0.1 (2019-01-19)

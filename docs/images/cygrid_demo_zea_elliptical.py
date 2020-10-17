@@ -10,10 +10,27 @@ import matplotlib.pyplot as plt
 import cygrid
 from astropy.io import fits as pf
 from astropy import wcs
-from ralib.cyastrometry import astrometry
 
-ahelper = astrometry.astrometry()
 plt.rc('text', usetex=True)
+
+
+def true_angular_distance(l1, b1, l2, b2):
+
+    sin_diff_lon = np.sin(np.radians(l2 - l1))
+    cos_diff_lon = np.cos(np.radians(l2 - l1))
+    sin_lat1 = np.sin(np.radians(b1))
+    sin_lat2 = np.sin(np.radians(b2))
+    cos_lat1 = np.cos(np.radians(b1))
+    cos_lat2 = np.cos(np.radians(b2))
+
+    num1 = cos_lat2 * sin_diff_lon
+    num2 = cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_diff_lon
+    denominator = sin_lat1 * sin_lat2 + cos_lat1 * cos_lat2 * cos_diff_lon
+
+    return np.degrees(np.arctan2(
+        np.sqrt(num1 ** 2 + num2 ** 2), denominator
+        ))
+
 
 def astro_signal(xcoords, ycoords, beamsize_fwhm):
     '''
@@ -23,7 +40,7 @@ def astro_signal(xcoords, ycoords, beamsize_fwhm):
     beamsize_sigma = beamsize_fwhm / 2.35
 
     def gauss2d(x, y, x0, y0, A, s):
-        r = ahelper.trueangulardistance_many(x, y, x0, y0)
+        r = true_angular_distance(x, y, x0, y0)
         return A * np.exp(-(r**2) / 2. / s**2)
 
     s_xcoords = np.arange(0., 359., 45.)

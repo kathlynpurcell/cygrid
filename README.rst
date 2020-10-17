@@ -2,7 +2,7 @@
 cygrid
 ******
 
-- *Version:* 1.0.1
+- *Version:* 2.0
 - *Authors:* Benjamin Winkel, Lars Flöer, Daniel Lenz
 - *User manual:* `stable <https://bwinkel.github.io/cygrid/>`__ |
   `developer <https://bwinkel.github.io/cygrid/latest/>`__
