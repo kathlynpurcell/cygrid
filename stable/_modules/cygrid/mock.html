@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cygrid.mock &#8212; cygrid v2.0.1</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">cygrid</span><span id="logotext2"></span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">cygrid v2.0.1</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" >Module code</a> &#187;</li>
+      <li><a href="../cygrid.html" accesskey="U">cygrid</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cygrid.mock</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;produce_mock_data&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="produce_mock_data"><a class="viewcode-back" href="../../api/cygrid.produce_mock_data.html#cygrid.produce_mock_data">[docs]</a><span class="k">def</span> <span class="nf">produce_mock_data</span><span class="p">(</span>
+        <span class="n">mapcenter</span><span class="p">,</span> <span class="n">mapsize</span><span class="p">,</span> <span class="n">beamsize_fwhm</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_sources</span>
+        <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Produce mock raw data (including coordinate pairs) for testing.</span>
+
+<span class="sd">    The raw data mimics a continuum observation (i.e., one flux density</span>
+<span class="sd">    value per position) containing only Gaussian noise and some point</span>
+<span class="sd">    sources.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mapcenter : tuple of floats</span>
+<span class="sd">        Center coordinates, `(lon, lat)` of the generated (rectangular)</span>
+<span class="sd">        map [deg].</span>
+<span class="sd">    mapsize : tuple of floats</span>
+<span class="sd">        Size of map, `(width, height)` of the generated map [deg].</span>
+<span class="sd">    beamsize_fwhm : float</span>
+<span class="sd">        FWHM beam size [deg].</span>
+<span class="sd">        The artificial point sources, which are sampled, will be convolved</span>
+<span class="sd">        with this.</span>
+<span class="sd">    num_samples : int</span>
+<span class="sd">        Number of samples to produce. Note that this must be large enough</span>
+<span class="sd">        to ensure full sampling of the map (otherwise artifacts will</span>
+<span class="sd">        appear, which are caused by so-called aliasing).</span>
+<span class="sd">    num_sources : int</span>
+<span class="sd">        Number of artificial point sources to be placed into the map.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    lons : `~numpy.array` of float64 [1D]</span>
+<span class="sd">        Longitude coordinates for each sample.</span>
+<span class="sd">    lats : `~numpy.array` of float64 [1D]</span>
+<span class="sd">        Latitude coordinates for each sample.</span>
+<span class="sd">    signal : `~numpy.array` of float64 [1D]</span>
+<span class="sd">        The artifical raw data signal for each position.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    As in real astronomical measurements, the point sources are convolved</span>
+<span class="sd">    with the instrument&#39;s response function (PSF), or telescope beam.</span>
+<span class="sd">    The longitude map size is scaled with :math:`\\cos b`, where :math:`b`</span>
+<span class="sd">    is the latitude. This is to ensure that the true-angular size roughly</span>
+<span class="sd">    matches the given map width.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">lon_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">mapcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">map_l</span><span class="p">,</span> <span class="n">map_r</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mapcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">mapsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">lon_scale</span><span class="p">,</span>
+        <span class="n">mapcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">mapsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">lon_scale</span>
+        <span class="p">)</span>
+    <span class="n">map_b</span><span class="p">,</span> <span class="n">map_t</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">mapcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">mapsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+        <span class="n">mapcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">mapsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># coordinates are drawn from a uniform distribution</span>
+    <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">map_l</span><span class="p">,</span> <span class="n">map_r</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">map_b</span><span class="p">,</span> <span class="n">map_t</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="c1"># add Gaussian noise</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lons</span><span class="p">))</span>
+
+    <span class="n">beamsize_sigma</span> <span class="o">=</span> <span class="n">beamsize_fwhm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># put in artifical point source, with random amplitudes</span>
+    <span class="c1"># we&#39;ll assume a Gaussian-shaped PSF</span>
+
+    <span class="k">def</span> <span class="nf">gauss2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">s</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
+
+        <span class="n">sou_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">map_l</span><span class="p">,</span> <span class="n">map_r</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">sou_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">map_b</span><span class="p">,</span> <span class="n">map_t</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">signal</span> <span class="o">+=</span> <span class="n">gauss2d</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">sou_x</span><span class="p">,</span> <span class="n">sou_y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">beamsize_sigma</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">signal</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2020, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.2.1. &nbsp;
+    Last built 19 Oct 2020. <br/>
+  </p>
+</footer>
+  </body>
+</html>

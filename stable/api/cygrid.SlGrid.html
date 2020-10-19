@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SlGrid &#8212; cygrid v2.0.1</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="UnsupportedPythonError" href="cygrid.UnsupportedPythonError.html" />
+    <link rel="prev" title="ShapeError" href="cygrid.ShapeError.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">cygrid</span><span id="logotext2"></span><span id="logotext3">:docs</span></a>
+  <ul>
+    
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="cygrid.UnsupportedPythonError.html" title="UnsupportedPythonError">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="cygrid.ShapeError.html" title="ShapeError">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">cygrid v2.0.1</a>
+	 &#187;
+      </li>
+      <li><a href="../user_manual.html" accesskey="U">Cygrid user manual</a> &#187;</li>
+      
+      <li>SlGrid</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="slgrid">
+<h1>SlGrid<a class="headerlink" href="#slgrid" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="cygrid.SlGrid">
+<em class="property">class </em><code class="sig-prename descclassname">cygrid.</code><code class="sig-name descname">SlGrid</code><a class="headerlink" href="#cygrid.SlGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.cygrid.Cygrid"><code class="docutils literal notranslate"><span class="pre">cygrid.Cygrid</span></code></a></p>
+<p>Sight line version of <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid" title="cygrid.Cygrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cygrid</span></code></a>.</p>
+<p>The sight line gridder can be used to resample input data to any
+collection of output coordinates. For example, one could grid to the (
+list of) HEALPix grid pixel coordinates, or just extract spectra from a
+large 3D survey on selected positions (not necessarily aligned with the
+pixels).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>sl_lons, sl_lats</strong><span class="classifier">numpy.ndarray (float64), 1D</span></dt><dd><p>Coordinates of sight lines to grid onto.</p>
+</dd>
+<dt><strong>dbg_messages</strong><span class="classifier">Boolean, optional (Default: False)</span></dt><dd><p>Do debugging output.</p>
+</dd>
+<dt><strong>datacube</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64, optional (Default: None)</span></dt><dd><p>Provide pre-allocated or even pre-filled <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> for datacube.</p>
+<p>Usually (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube=None</span></code>, the default) a datacube object will
+be created automatically according to the given FITS header
+dictionary (for the spatial part) and the dimensions of the input raw
+data to be gridded (see also <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.grid" title="cygrid.Cygrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>). Providing
+datacube manually might be worthwhile if some kind of repeated/
+iterative gridding process is desired. However, for almost all use
+cases it will be sufficient to repeatedly call the grid method.
+Cygrid won’t clear the memory itself initially, so make sure to
+handle this correctly.</p>
+</dd>
+<dt><strong>weightcube</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64, optional (Default: None)</span></dt><dd><p>As <code class="xref py py-obj docutils literal notranslate"><span class="pre">datacube</span></code> but for the weight array.</p>
+</dd>
+<dt><strong>dtype</strong><span class="classifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">float32</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">float64</span></code> (Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">float32</span></code>)</span></dt><dd><p>Desired output format of data cube (if <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> is allocating this;
+otherwise, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">dtype</span></code> of the input datacube provided to the
+constructor takes precedence).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>TypeError</dt><dd><p>Input datacube/weightcube must be numpy array.
+Input datacube must have floating point type.
+Weightcube dtype doesn’t match datacube dtype.</p>
+</dd>
+<dt>ShapeError</dt><dd><p>Datacube/weightcube shape doesn’t match sight line dimensions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The following provides a minimal example. For more detailed information
+we refer to the user manual or the Jupyter tutorial notebooks:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">cygrid</span>
+
+<span class="c1"># read-in data, lon/lat are 1D, input_signal has 2nd dimension: 1,</span>
+<span class="c1"># i.e., we are not gridding spectra but single values</span>
+<span class="n">input_lon</span><span class="p">,</span> <span class="n">input_lat</span><span class="p">,</span> <span class="n">input_signal</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
+
+<span class="c1"># prepare gridder</span>
+<span class="n">kernelsize_sigma</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+<span class="n">kernel_type</span> <span class="o">=</span> <span class="s1">&#39;gauss1d&#39;</span>
+<span class="n">kernel_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">kernelsize_sigma</span><span class="p">,</span> <span class="p">)</span>  <span class="c1"># must be a tuple</span>
+<span class="n">kernel_support</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">kernelsize_sigma</span>
+<span class="n">hpx_maxres</span> <span class="o">=</span> <span class="n">kernelsize_sigma</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">mygridder</span> <span class="o">=</span> <span class="n">cygrid</span><span class="o">.</span><span class="n">SlGrid</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">)</span>
+<span class="n">mygridder</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span>
+    <span class="n">kernel_type</span><span class="p">,</span>
+    <span class="n">kernel_params</span><span class="p">,</span>
+    <span class="n">kernel_support</span><span class="p">,</span>
+    <span class="n">hpx_maxres</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="c1"># do the actual gridding</span>
+<span class="n">mygridder</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">input_lon</span><span class="p">,</span> <span class="n">input_lat</span><span class="p">,</span> <span class="n">input_signal</span><span class="p">)</span>
+<span class="n">target_signal</span> <span class="o">=</span> <span class="n">gridder</span><span class="o">.</span><span class="n">get_datacube</span><span class="p">()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">target_signal</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="rubric">Methods Summary</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cygrid.SlGrid.clear_cache" title="cygrid.SlGrid.clear_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_cache</span></code></a>(self)</p></td>
+<td><p>Clear all internal caches/dictionaries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cygrid.SlGrid.clear_data_and_weights" title="cygrid.SlGrid.clear_data_and_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_data_and_weights</span></code></a>(self)</p></td>
+<td><p>Reset data and weights arrays.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cygrid.SlGrid.get_datacube" title="cygrid.SlGrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a>(self)</p></td>
+<td><p>Return final data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cygrid.SlGrid.get_unweighted_datacube" title="cygrid.SlGrid.get_unweighted_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unweighted_datacube</span></code></a>(self)</p></td>
+<td><p>Return final unweighted data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cygrid.SlGrid.get_weights" title="cygrid.SlGrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>(self)</p></td>
+<td><p>Return final weights.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cygrid.SlGrid.grid" title="cygrid.SlGrid.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a>(self, ndarray lons, ndarray lats, …)</p></td>
+<td><p>Grid irregularly positioned data points (spectra) into the data cube.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cygrid.SlGrid.set_kernel" title="cygrid.SlGrid.set_kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_kernel</span></code></a>(self, kernel_type, kernel_params, …)</p></td>
+<td><p>Set the gridding kernel type and parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cygrid.SlGrid.set_num_threads" title="cygrid.SlGrid.set_num_threads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_num_threads</span></code></a>(self, int nthreads)</p></td>
+<td><p>Change maximum number of threads to use.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt id="cygrid.SlGrid.clear_cache">
+<code class="sig-name descname">clear_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.clear_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all internal caches/dictionaries.</p>
+<p class="rubric">Notes</p>
+<p>To speed-up processing, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> uses internal caches (see <a class="reference external" href="http://adsabs.harvard.edu/abs/2016A%26A...591A..12W">Cygrid
+paper</a> for
+details). This is usually a minor contribution to the total memory
+usage, but there could be scenarios, e.g., when one grids into very
+large maps having very small pixel sizes, that the internal cache
+grows too much. In this case, we recommend to sort the input data by
+latitude, grid the data in chunks, and call this function every now
+and then.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.clear_data_and_weights">
+<code class="sig-name descname">clear_data_and_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.clear_data_and_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset data and weights arrays. (Caches stay filled!)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.get_datacube">
+<code class="sig-name descname">get_datacube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.get_datacube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return final data.</p>
+<dl class="field-list">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl>
+<dt><strong>data</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt><dd><p>The gridded spectral data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.get_unweighted_datacube">
+<code class="sig-name descname">get_unweighted_datacube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.get_unweighted_datacube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return final unweighted data. (For debugging only.)</p>
+<dl class="field-list">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl>
+<dt><strong>unweighted_data</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt><dd><p>The gridded spectral unweighted data. The gridded data is
+the quotient of the unweighted data and the weights.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.get_weights">
+<code class="sig-name descname">get_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.get_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return final weights.</p>
+<dl class="field-list">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl>
+<dt><strong>weights</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt><dd><p>The gridded spectral weights.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The actual shape of the returned array depends on the input raw
+data signal shape and the target pixel array size.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.grid">
+<code class="sig-name descname">grid</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">ndarray lons</em>, <em class="sig-param">ndarray lats</em>, <em class="sig-param">ndarray data</em>, <em class="sig-param">ndarray weights=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grid irregularly positioned data points (spectra) into the data cube.</p>
+<p>After successful gridding, you can obtain the resulting datacube with
+the <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> method. The associated weight cube
+is accessible with <a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_weights" title="cygrid.Cygrid.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>lons, lats</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [1D] of float64</span></dt><dd><p>Flat lists/arrays of input coordinates <span class="math notranslate nohighlight">\((l, b)\)</span>.</p>
+</dd>
+<dt><strong>data/weights</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> [nD] of float32 or float64</span></dt><dd><p>The spectra and their weights (optional) for each of the given
+coordinate pairs, <span class="math notranslate nohighlight">\((l, b)\)</span>. First axis must match lons/lats
+size. The shape of the input data will determine the output
+datacube shape: the first axes of the datacube will match the (
+raw) data (aka input signal) shape - only the first dimension is
+being stripped as it is associated with the number of coordinate
+pairs -, while the last axes match the shape of the target pixel
+array (e.g., the shape of the target map).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>ShapeError</dt><dd><p>Input coordinates/data points length mismatch.
+Number of spectral channels mismatch.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Internally, <code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> always works with a 3D representation of the
+data cube, i.e., with (possibly redundant) spectral axis. However,
+as the original shape is stored, the gridded data returned by
+<a class="reference internal" href="cygrid.Cygrid.html#cygrid.Cygrid.get_datacube" title="cygrid.Cygrid.get_datacube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_datacube</span></code></a> will always be consistent with the
+input raw data signal (in terms of dimensions).</p></li>
+<li><p>All input parameters need to be C-contiguous (<code class="xref py py-obj docutils literal notranslate"><span class="pre">cygrid</span></code> will
+re-cast if necessary).</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.set_kernel">
+<code class="sig-name descname">set_kernel</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">kernel_type</em>, <em class="sig-param">kernel_params</em>, <em class="sig-param">double sphere_radius</em>, <em class="sig-param">double hpx_max_resolution</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.set_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the gridding kernel type and parameters.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>kernel_type</strong><span class="classifier">str</span></dt><dd><p>Set the kernel type.</p>
+<p>The following names/types are available:
+‘gauss1d’, ‘gauss2d’, ‘tapered_sinc’ (see Notes for details)</p>
+</dd>
+<dt><strong>kernel_params</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a></span></dt><dd><p>Set the kernel parameters for the chosen type (see Notes for
+details)</p>
+</dd>
+<dt><strong>sphere_radius</strong><span class="classifier">double</span></dt><dd><p>Kernel sphere radius.</p>
+<p>This is controls out to which distance the kernel
+is computed for. For Gaussian kernels, values much larger
+than <span class="math notranslate nohighlight">\(3\ldots4 \sigma_\mathrm{k}\)</span> do not make much sense.</p>
+</dd>
+<dt><strong>hpx_max_resolution</strong><span class="classifier">double</span></dt><dd><p>Maximum acceptable HPX resolution
+(<span class="math notranslate nohighlight">\(\sigma_\mathrm{k}^{[\mathrm{maj}]} / 2\)</span> is a
+reasonable value).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Below you find a list of kernel-names and required parameters:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;gauss1d&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma</span><span class="p">,)</span>
+<span class="s1">&#39;gauss2d&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma_maj</span><span class="p">,</span> <span class="n">kernel_sigma_min</span><span class="p">,</span> <span class="n">PA</span><span class="p">)</span>
+<span class="s1">&#39;tapered_sinc&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_sigma</span><span class="p">,</span> <span class="n">param_a</span><span class="p">,</span> <span class="n">param_b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All numbers are in units of degrees, except for <code class="xref py py-obj docutils literal notranslate"><span class="pre">PA</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_a</span></code> and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">param_b</span></code>. <code class="xref py py-obj docutils literal notranslate"><span class="pre">PA</span></code> (the position angle) is in units of radians (for
+efficiency). <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_a</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">param_b</span></code> should be <code class="xref py py-obj docutils literal notranslate"><span class="pre">2.52</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">1.55</span></code>,
+respectively, for optimal results!</p>
+<p>The kernel size (sigma) defines the amount of “smoothness”
+applied to the data. If in doubt a good value is about 50%
+of the true/input angular resolution of the data (this will result
+in about 10% degradation of the final angular resolution.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cygrid.SlGrid.set_num_threads">
+<code class="sig-name descname">set_num_threads</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">int nthreads</em><span class="sig-paren">)</span><a class="headerlink" href="#cygrid.SlGrid.set_num_threads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change maximum number of threads to use.</p>
+<p>This is a convenience function, to call <code class="xref py py-obj docutils literal notranslate"><span class="pre">omp_set_num_threads()</span></code>,
+which is otherwise not possible during runtime from Python.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">SlGrid</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="https://github.com/bwinkel/cygrid/tree/v2.0.1/docs/api/cygrid.SlGrid.rst">Edit This Page on Github</a> &nbsp;
+    <a href="../_sources/api/cygrid.SlGrid.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2020, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.2.1. &nbsp;
+    Last built 19 Oct 2020. <br/>
+  </p>
+</footer>
+  </body>
+</html>
