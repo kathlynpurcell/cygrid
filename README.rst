@@ -4,7 +4,7 @@ cygrid
 
 - *Version:* 2.0
 - *Authors:* Benjamin Winkel, Lars Flöer, Daniel Lenz
-- *User manual:* `stable <https://bwinkel.github.io/cygrid/>`__ |
+- *User manual:* `stable <https://bwinkel.github.io/cygrid/stable/>`__ |
   `developer <https://bwinkel.github.io/cygrid/latest/>`__
 
 .. image:: https://img.shields.io/pypi/v/cygrid.svg
