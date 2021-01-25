@@ -1,3 +1,11 @@
+2.0.2 (unreleased)
+=======================
+
+Bugfixes
+~~~~~~~~~~
+- Fix a typo (conversion between FWHM and sigma) in the manual and notebooks.
+  Thanks to Yoko Okada for pointing this out.
+
 2.0.1 (2020-10-19)
 =======================
 

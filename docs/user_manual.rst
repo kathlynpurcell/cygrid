@@ -275,7 +275,7 @@ compares to `~scipy.interpolate.griddata`. Here is the result:
 
         gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten())
         kernelsize_fwhm = 0.05
-        kernelsize_sigma = kernelsize_fwhm / 2.355
+        kernelsize_sigma = kernelsize_fwhm / np.sqrt(8 * np.log(2))
         sphere_radius = 3. * kernelsize_sigma
 
         gridder.set_kernel(
@@ -460,7 +460,7 @@ Before the gridder is ready to use, one needs to setup the kernel parameters
 (see also :ref:`kernel-parameters-label`):
 
     >>> kernelsize_fwhm = 0.05  # degrees; beam / 2
-    >>> kernelsize_sigma = kernelsize_fwhm / np.log(8 * np.sqrt(2))
+    >>> kernelsize_sigma = kernelsize_fwhm / np.sqrt(8 * np.log(2))
     >>> sphere_radius = 3. * kernelsize_sigma
 
     >>> kernel_args = (
@@ -480,13 +480,13 @@ The result can be queried using the `~cygrid.WcsGrid.get_datacube` method::
 
     >>> gridded_data = gridder.get_datacube()
     >>> print(gridded_data)  # doctest: +FLOAT_CMP +NORMALIZE_WHITESPACE
-    [[ 0.0519 -0.0529  0.0298 ...,  0.0086  0.0492  0.1135]
-     [ 0.0456 -0.0954 -0.0979 ..., -0.0122 -0.0485 -0.0387]
-     [ 0.0309 -0.0625 -0.0642 ..., -0.0075 -0.0275 -0.038 ]
+    [[ 0.046  -0.0528  0.0258 ...,  0.0111  0.0489  0.1099]
+     [ 0.0432 -0.0907 -0.0964 ..., -0.0131 -0.0469 -0.0357]
+     [ 0.0287 -0.0611 -0.0609 ..., -0.0082 -0.0261 -0.0367]
      ...,
-     [-0.0313 -0.0172 -0.0346 ..., -0.008   0.117   0.0905]
-     [-0.1239 -0.0636 -0.0854 ..., -0.0311  0.0787  0.0655]
-     [-0.0851 -0.0691 -0.0671 ...,  0.1039  0.1192  0.0964]]
+     [-0.0321 -0.0177 -0.0347 ..., -0.007   0.1138  0.0903]
+     [-0.1197 -0.0649 -0.0861 ..., -0.0276  0.0781  0.0664]
+     [-0.0828 -0.0677 -0.0645 ...,  0.1029  0.1179  0.0946]]
 
     >>> print(gridded_data.shape)
     (150, 150)
@@ -957,7 +957,7 @@ e.g.::
     >>> print('{:.3f} {:.3f}'.format(k_fwhm_maj, k_fwhm_min))
     0.150 0.229
 
-    >>> fwhm_to_sigma = 1 / np.log(8 * np.sqrt(2))
+    >>> fwhm_to_sigma = 1 / np.sqrt(8 * np.log(2))
     >>> k_maj, k_min = k_fwhm_maj * fwhm_to_sigma, k_fwhm_min * fwhm_to_sigma
     >>> sphere_radius = 3 * k_maj  # choose major kernel size
     >>> internal_hpx_res = 0.5 * k_min  # choose minor kernel size
