@@ -1,5 +1,7 @@
-2.0.2 (unreleased)
+2.0.2 (2021-01-25)
 =======================
+
+- Python3.5 support ceased (it may still work, but is not tested anymore)
 
 Bugfixes
 ~~~~~~~~~~
