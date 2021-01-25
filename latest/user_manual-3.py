@@ -22,7 +22,7 @@ for ax, (sigma, nsize) in zip(axes.flatten(), [
 
     gridder = cygrid.SlGrid(grid_x.flatten(), grid_y.flatten())
     kernelsize_fwhm = 0.05
-    kernelsize_sigma = kernelsize_fwhm / 2.355
+    kernelsize_sigma = kernelsize_fwhm / np.sqrt(8 * np.log(2))
     sphere_radius = 3. * kernelsize_sigma
 
     gridder.set_kernel(
