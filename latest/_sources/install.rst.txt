@@ -7,18 +7,18 @@ Requirements
 
 cygrid has the following strict requirements:
 
-- `Python <http://www.python.org/>`__ 3.5 or later
+- `Python <http://www.python.org/>`__ 3.6 or later
 
 - `setuptools <https://setuptools.readthedocs.io/en/latest/>`__: Used for the package
   installation.
 
-- `Cython <http://cython.org/>`__ 0.24 or later
+- `Cython <http://cython.org/>`__ 0.27 or later
 
-- `NumPy <http://www.numpy.org/>`__ 1.11 or later
+- `NumPy <http://www.numpy.org/>`__ 1.13 or later
 
-- `astropy <http://www.astropy.org/>`__: 2.0
+- `astropy <http://www.astropy.org/>`__: 3.0
 
-- `pytest <https://pypi.python.org/pypi/pytest>`__ 2.6 or later
+- `pytest <https://pypi.python.org/pypi/pytest>`__ 3.0 or later
 
 
 Installing cygrid
