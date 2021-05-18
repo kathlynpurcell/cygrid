@@ -4,17 +4,18 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>produce_mock_data &#8212; cygrid v2.0.3.dev127</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>produce_mock_data &#8212; cygrid v2.0.3.dev128</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-astropy.css" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script type="text/javascript" src="../_static/sidebar.js"></script>
     <script type="text/javascript" src="../_static/copybutton.js"></script>
     <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
@@ -60,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="../index.html">cygrid v2.0.3.dev127</a>
+	<a href="../index.html">cygrid v2.0.3.dev128</a>
 	 &#187;
       </li>
       <li><a href="../user_manual.html" accesskey="U">Cygrid user manual</a> &#187;</li>
@@ -75,11 +76,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="produce-mock-data">
+  <section id="produce-mock-data">
 <h1>produce_mock_data<a class="headerlink" href="#produce-mock-data" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="cygrid.produce_mock_data">
-<code class="sig-prename descclassname">cygrid.</code><code class="sig-name descname">produce_mock_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapcenter</span></em>, <em class="sig-param"><span class="n">mapsize</span></em>, <em class="sig-param"><span class="n">beamsize_fwhm</span></em>, <em class="sig-param"><span class="n">num_samples</span></em>, <em class="sig-param"><span class="n">num_sources</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cygrid/mock.html#produce_mock_data"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/bwinkel/cygrid/tree/master/cygrid/mock.py#L10" title="Push the Edit button on the next page"><span class="edit-on-github viewcode-link">&nbsp;[edit on github]</span></a><a class="headerlink" href="#cygrid.produce_mock_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="cygrid.produce_mock_data">
+<span class="sig-prename descclassname"><span class="pre">cygrid.</span></span><span class="sig-name descname"><span class="pre">produce_mock_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapcenter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapsize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beamsize_fwhm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cygrid/mock.html#produce_mock_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/bwinkel/cygrid/tree/master/cygrid/mock.py#L10" title="Push the Edit button on the next page"><span class="edit-on-github viewcode-link">&nbsp;<span class="pre">[edit</span> <span class="pre">on</span> <span class="pre">github]</span></span></a><a class="headerlink" href="#cygrid.produce_mock_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Produce mock raw data (including coordinate pairs) for testing.</p>
 <p>The raw data mimics a continuum observation (i.e., one flux density
 value per position) containing only Gaussian noise and some point
@@ -106,11 +107,11 @@ appear, which are caused by so-called aliasing).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl>
-<dt><strong>lons</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>Longitude coordinates for each sample.</p>
+<dt><strong>lons</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.20)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>Longitude coordinates for each sample.</p>
 </dd>
-<dt><strong>lats</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>Latitude coordinates for each sample.</p>
+<dt><strong>lats</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.20)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>Latitude coordinates for each sample.</p>
 </dd>
-<dt><strong>signal</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.19)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>The artifical raw data signal for each position.</p>
+<dt><strong>signal</strong><span class="classifier"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="(in NumPy v1.20)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">array</span></code></a> of float64 [1D]</span></dt><dd><p>The artifical raw data signal for each position.</p>
 </dd>
 </dl>
 </dd>
@@ -123,7 +124,7 @@ is the latitude. This is to ensure that the true-angular size roughly
 matches the given map width.</p>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -149,8 +150,8 @@ matches the given map width.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2021, Benjamin Winkel, Lars Flöer, Daniel Lenz.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.4.3. &nbsp;
-    Last built 25 Jan 2021. <br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.0.1. &nbsp;
+    Last built 18 May 2021. <br/>
   </p>
 </footer>
   </body>
