@@ -72,6 +72,23 @@ cdef double gaussian_1d_kernel(
     return exp(-distance * distance * kernel_params[0])
 
 
+#cdef double nearest_kernel(
+#        double distance, double bearing, double[::1] kernel_params
+#        ) :
+#    '''
+#    '''
+#
+#    #weights = np.zeros(len(distance), dtype=int)
+#    #weights[distance <= kernel_params[0]] = 1
+#
+#    return np.select([np.logical_and(distance >= kernel_params[0] / 2.,
+#                              distance <= kernel_params[0] / 2.)],
+#                      [1], 0)
+#
+##    return weights
+    
+
+
 cdef double gaussian_2d_kernel(
         double distance, double bearing, double[::1] kernel_params
         ) nogil:
@@ -145,3 +162,30 @@ cdef double tapered_sinc_1d_kernel(
     arg = PI * distance / kernel_params[0]
 
     return sinc(arg / kernel_params[2]) * exp(-(arg / kernel_params[1]) ** 2)
+
+cdef double gauss_bessel_kernel(
+        double distance, double bearing, double[::1] kernel_params
+        ) nogil:
+    '''
+    Gauss-Bessel-1D kernel function.
+
+    Parameters
+    ----------
+
+    kernel_params : double[::1]
+        mem-view on kernel-parameters array
+        must contain:
+        kernel_params[0] : Bessel width
+        kernel_params[1] : Gaussian sigma
+    '''
+
+    cdef:
+        double arg, Earg, gauss, bessel
+
+    arg = PI * fabs(distance) / kernel_params[0]
+    bessel = csc.j1(arg) / arg
+
+    Earg = distance * distance / kernel_params[1] / kernel_params[1] / 2.0
+    gauss = exp(-Earg)
+
+    return gauss * bessel
