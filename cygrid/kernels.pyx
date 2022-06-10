@@ -191,7 +191,7 @@ cdef double gauss_bessel_kernel(
     arg = PI * fabs(distance) / kernel_params[0] / kernel_params[2]
     bessel = csc.j1(arg) / arg
 
-    Earg = distance * distance / kernel_params[0] / kernel_params[0] / kernel_params[1] / kernel_params[1gauss = exp(-Earg)
+    Earg = distance * distance / kernel_params[0] / kernel_params[0] / kernel_params[1] / kernel_params[1] / 2.0
     gauss = exp(-Earg)
 
     return gauss * bessel
