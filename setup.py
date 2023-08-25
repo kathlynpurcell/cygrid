@@ -3,7 +3,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # Note: This file needs to be Python 2 / <3.6 compatible, so that the nice
 # "This package only supports Python 3.x+" error prints without syntax errors etc.
-
+from setuptools import setup
 import glob
 import os
 import sys
@@ -34,7 +34,7 @@ if sys.version_info < tuple((int(val) for val in __minimum_python_version__.spli
 # Import ah_bootstrap after the python version validation
 
 import ah_bootstrap
-from setuptools import setup
+
 
 # A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
