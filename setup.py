@@ -44,7 +44,7 @@ if 'test' in sys.argv:
 
 # Import ah_bootstrap after the python version validation
 
-import ah_bootstrap
+#import ah_bootstrap
 
 
 # A dirty hack to get around some early import/configurations ambiguities
